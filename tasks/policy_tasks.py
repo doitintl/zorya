@@ -20,6 +20,7 @@ def policy_checker(name):
         return 'not found', 404
     day, hour = tz.convert_time_to_index(
         tz.get_time_at_timezone(schedule.Timezone))
+    logging.debug("Working on %s %s", day, hour)
     arr = np.asarray(schedule.Schedule['__ndarray__'], dtype=np.int).flatten()
     matrix_size = schedule.Schedule['Shape'][0] * schedule.Schedule['Shape'][
         1]

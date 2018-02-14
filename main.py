@@ -1,3 +1,5 @@
+import logging
+
 from google.appengine.ext import deferred, ndb
 
 from flask import Flask, request
@@ -5,7 +7,7 @@ from model.policymodel import PolicyModel
 from model.schedulesmodel import SchedulesModel
 from tasks import policy_tasks, schedule_tasks
 from util import tz
-import logging
+
 API_VERSION = '/api/v1'
 app = Flask(__name__)
 import json
@@ -13,7 +15,10 @@ import json
 
 @app.route('/tasks/change_state', methods=['GET'])
 def change_state():
-    print(request.args)
+    logging.debug(
+        "Starting change_state action %s project %s tagkey %s tagvalue %s",
+        request.args['tagkey'], request.args['tagvalue'],
+        request.args['action'], request.args['project'])
     schedule_tasks.change_state(
         request.args['tagkey'], request.args['tagvalue'],
         request.args['action'], request.args['project'])
@@ -31,7 +36,7 @@ def time_zones():
 
 @app.route(API_VERSION + '/schedule')
 def schedule():
-    logging.debug("Start /tasks/schedule")
+    logging.debug("Start/tasks/schedule")
     keys = PolicyModel.query().fetch(keys_only=True)
     for key in keys:
         logging.debug("Key = %s", key.id())
