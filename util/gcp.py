@@ -1,10 +1,7 @@
-
 """"GCP utils"""
 import googleapiclient.discovery
 from google.auth import app_engine
 from util import utils
-
-
 
 SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
 CREDENTIALS = app_engine.Credentials(scopes=SCOPES)

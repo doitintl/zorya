@@ -39,9 +39,12 @@ def policy_checker(name):
                 task = taskqueue.add(queue_name='zorya',
                                      url="/tasks/change_state",
                                      method='GET',
-                                     params={'project': project,
+                                     params={
+                                         'project': project,
                                          'tagkey': tag.keys(),
-                                             'tagvalue': tag.values(),
-                                             'action': now})
-                logging.debug('Task %s enqueued, ETA %s.', task.name, task.eta)
+                                         'tagvalue': tag.values(),
+                                         'action': now
+                                     })
+                logging.debug('Task %s enqueued, ETA %s.', task.name,
+                              task.eta)
         return 'ok', 200

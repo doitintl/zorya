@@ -5,7 +5,7 @@ from model.policymodel import PolicyModel
 from model.schedulesmodel import SchedulesModel
 from tasks import policy_tasks, schedule_tasks
 from util import tz
-
+import logging
 API_VERSION = '/api/v1'
 app = Flask(__name__)
 import json
@@ -31,8 +31,10 @@ def time_zones():
 
 @app.route(API_VERSION + '/schedule')
 def schedule():
+    logging.debug("Start /tasks/schedule")
     keys = PolicyModel.query().fetch(keys_only=True)
     for key in keys:
+        logging.debug("Key = %s", key.id())
         deferred.defer(policy_tasks.policy_checker, key.id())
     return 'ok', 200
 

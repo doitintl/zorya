@@ -6,7 +6,6 @@ import os
 from google.appengine.api import app_identity
 
 
-
 def detect_gae():
     """Determine whether or not we're running on GAE.
 

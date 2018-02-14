@@ -17,7 +17,8 @@ builtins:
 
 # Handlers define how to route requests to your application.
 handlers:
-# Third party libraries that are included in the App Engine SDK must be listed
+- url: .*  # This regex directs all routes to main.app
+  script: main.app
 
 #- url: /api/v1/.*
  # script: main.app
@@ -25,16 +26,7 @@ handlers:
  # secure: always
 
 
-# App Engine serves and caches static files contained in the listed directories
-# (and subdirectories). Uncomment and set the directory as needed.
-#- url: /client
-#  static_dir: client
 
-# This handler tells app engine how to route requests to a WSGI application.
-# The script value is in the format <path.to.module>.<wsgi_application>
-# where <wsgi_application> is a WSGI application object.
-- url: .*  # This regex directs all routes to main.app
-  script: main.app
 
 
 

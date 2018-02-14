@@ -1,6 +1,6 @@
 """Database representation of schedule."""
 
-from google.appengine.ext import db, ndb
+from google.appengine.ext import ndb
 
 from util import tz
 
@@ -11,6 +11,3 @@ class SchedulesModel(ndb.Model):
     Timezone = ndb.StringProperty(
         default='UTC', choices=tz.get_all_timezones(), required=True)
     Schedule = ndb.JsonProperty(required=True)
-
-
-
