@@ -1,0 +1,10 @@
+Flask==0.12.2
+Werkzeug<0.13.0,>=0.12.0
+google-api-python-client
+google-auth
+google-auth-httplib2
+numpy==1.6.1
+pytz
+google-api-python-client
+tzlocal
+

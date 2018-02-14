@@ -1,0 +1,16 @@
+{
+  "name": "MyPolicy",
+  "tags": [
+    {
+      "mytag_name": "my_tag_value"
+    },
+    {
+      "another_mytag_name": "another_tag_value"
+    }
+  ],
+  "projetcs": [
+    "project-1",
+    "project-2"
+  ],
+  "schedulename": "schedule_name"
+}
