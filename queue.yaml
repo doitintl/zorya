@@ -1,5 +1,5 @@
 queue:
-- name: zorya
+- name: zorya-tasks
   rate: 10/s
   bucket_size: 50
   retry_parameters:

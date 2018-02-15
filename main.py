@@ -24,17 +24,7 @@ def change_state():
         request.args['action'], request.args['project'])
     return 'ok', 200
 
-
-@app.route(API_VERSION + '/time_zones', methods=['GET'])
-def time_zones():
-    """
-    Get all time zones.
-    :return: all time zone in the world wide world.
-    """
-    return json.dumps({'Timezones': tz.get_all_timezones()})
-
-
-@app.route(API_VERSION + '/schedule')
+@app.route('/tasks//schedule')
 def schedule():
     logging.debug("Start/tasks/schedule")
     keys = PolicyModel.query().fetch(keys_only=True)
@@ -43,6 +33,13 @@ def schedule():
         deferred.defer(policy_tasks.policy_checker, key.id())
     return 'ok', 200
 
+@app.route(API_VERSION + '/time_zones', methods=['GET'])
+def time_zones():
+    """
+    Get all time zones.
+    :return: all time zone in the world wide world.
+    """
+    return json.dumps({'Timezones': tz.get_all_timezones()})
 
 @app.route(API_VERSION + '/add_schedule', methods=['POST'])
 def add_schedule():
