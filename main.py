@@ -60,7 +60,7 @@ def add_schedule():
     return 'ok', 200
 
 
-@app.route(API_VERSION + '/get_schedule')
+@app.route(API_VERSION + '/get_schedule', methods=['GET'])
 def get_schedule():
     name = request.args.get('schedule')
     res = SchedulesModel.query(SchedulesModel.Name == name).get()
@@ -72,6 +72,29 @@ def get_schedule():
     schedule.update({'timezone': res.Timezone})
     print res.Schedule
     return json.dumps(schedule)
+
+
+@app.route(API_VERSION + '/list_schedules', methods=['GET'])
+def list_schedules():
+    keys = SchedulesModel.query().fetch(keys_only=True)
+    schedules_list = []
+    for key in keys:
+        schedules_list.append(key.id())
+    return json.dumps(schedules_list)
+
+
+@app.route(API_VERSION + '/del_schedule', methods=['GET'])
+def del_schedule():
+    name = request.args.get('schedule')
+    res = SchedulesModel.query(SchedulesModel.Name == name).get()
+    if not res:
+        return 'not found', 404
+    policy = PolicyModel.query(PolicyModel.Schedule == name).get()
+    if policy:
+        return 'Forbidden policy {} is using the schedule'.format(
+            policy.Name), 403
+    res.key.delete()
+    return 'ok', 200
 
 
 @app.route(API_VERSION + '/add_policy', methods=['POST'])
@@ -109,6 +132,25 @@ def get_policy():
     policy.update({'tags': res.Tags})
     policy.update({'projetcs': res.Projects})
     return json.dumps(policy)
+
+
+@app.route(API_VERSION + '/list_policys', methods=['GET'])
+def list_policys():
+    keys = PolicyModel.query().fetch(keys_only=True)
+    policys_list = []
+    for key in keys:
+        policys_list.append(key.id())
+    return json.dumps(policys_list)
+
+
+@app.route(API_VERSION + '/del_policy', methods=['GET'])
+def del_policy():
+    name = request.args.get('policy')
+    res = PolicyModel.query(PolicyModel.Name == name).get()
+    if not res:
+        return 'not found', 404
+    res.key.delete()
+    return 'ok', 200
 
 
 @app.route('/')
