@@ -37,7 +37,7 @@ def policy_checker(name):
         # for each tag lets do it
         for tag in policy.Tags:
             for project in policy.Projects:
-                task = taskqueue.add(queue_name='zorya',
+                task = taskqueue.add(queue_name='default',
                                      url="/tasks/change_state",
                                      method='GET',
                                      params={
