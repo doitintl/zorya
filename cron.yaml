@@ -1,0 +1,5 @@
+cron:
+- description: "Run scheduled tasks"
+  url: /api/v1/schedule
+  schedule: every 60 minutes synchronized
+  target: zorya-backend

@@ -1,5 +1,5 @@
 """Time zone utilities."""
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import numpy as np
 import pytz
@@ -51,9 +51,3 @@ def convert_time_to_index(time):
             day = index
     hour = time.hour
     return day, hour
-
-def get_next_hour():
-    n = datetime.now() + timedelta(hours=1)
-    new_date = datetime(year=n.year, month=n.month, day=n.day, hour=n.hour)
-    return new_date
-

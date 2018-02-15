@@ -1,6 +1,5 @@
 import logging
 
-from google.appengine.api import taskqueue
 from google.appengine.ext import deferred, ndb
 
 from flask import Flask, request
@@ -14,17 +13,6 @@ app = Flask(__name__)
 import json
 
 
-def create_app():
-    task = taskqueue.add(queue_name='default',
-                         url='/tasks/schedule',
-                         method='GET',
-                         eta=tz.get_next_hour())
-    logging.debug('Task %s enqueued, ETA %s.', task.name,
-                  task.eta)
-
-
-create_app()
-
 @app.route('/tasks/change_state', methods=['GET'])
 def change_state():
     logging.debug(
@@ -37,22 +25,6 @@ def change_state():
     return 'ok', 200
 
 
-@app.route('/tasks/schedule')
-def schedule():
-    logging.debug("Start/tasks/schedule")
-    task = taskqueue.add(queue_name='default',
-                         url='/tasks/schedule',
-                         method='GET',
-                         eta=tz.get_next_hour())
-    logging.debug('Task %s enqueued, ETA %s.', task.name,
-                  task.eta)
-    keys = PolicyModel.query().fetch(keys_only=True)
-    for key in keys:
-        logging.debug("Key = %s", key.id())
-        deferred.defer(policy_tasks.policy_checker, key.id())
-    return 'ok', 200
-
-
 @app.route(API_VERSION + '/time_zones', methods=['GET'])
 def time_zones():
     """
@@ -60,6 +32,16 @@ def time_zones():
     :return: all time zone in the world wide world.
     """
     return json.dumps({'Timezones': tz.get_all_timezones()})
+
+
+@app.route(API_VERSION + '/schedule')
+def schedule():
+    logging.debug("Start/tasks/schedule")
+    keys = PolicyModel.query().fetch(keys_only=True)
+    for key in keys:
+        logging.debug("Key = %s", key.id())
+        deferred.defer(policy_tasks.policy_checker, key.id())
+    return 'ok', 200
 
 
 @app.route(API_VERSION + '/add_schedule', methods=['POST'])
