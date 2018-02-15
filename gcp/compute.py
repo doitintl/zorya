@@ -22,11 +22,12 @@ class Compute(object):
 
     def change_status(self, to_status, tagkey, tagvalue):
         filter = "labels." + tagkey + "=" + tagvalue
+        logging.debug("Filter %s", filter)
         for zone in gcp.get_zones():
             try:
                 instances = self.list_instances(zone, filter)
                 for instance in instances:
-                    if to_status == 1:
+                    if int(to_status) == 1:
                         logging.info(
                             "Starting %s in project %s tagkey %s tgavalue %s",
                             instance['name'], self.project, tagkey, tagvalue)
