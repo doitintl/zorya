@@ -4,21 +4,23 @@ import classNames from 'classnames';
 // Material UI
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
-// import Divider from 'material-ui/Divider';
 import Paper from 'material-ui/Paper';
 import Button from 'material-ui/Button';
 
 // Lodash
 import map from 'lodash/map';
-import times from 'lodash/times';
-import includes from 'lodash/includes';
-import constant from 'lodash/constant';
+import find from 'lodash/find';
+import flatten from 'lodash/flatten';
+
+import { Line } from 'react-lineto';
 
 // Project
 import ScheduleService from '../../modules/api/schedule';
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const hours = [...Array(24).keys()];
+const gutters = 4;
+const boxSize = 36;
 
 const styles = theme => ({
   root: {
@@ -28,19 +30,25 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'row'
   },
+  column: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
   boxSize: {
-    height: '36px',
-    width: '36px',
-    margin: theme.spacing.unit / 4,
+    height: boxSize,
+    width: boxSize,
+    margin: gutters,
+    cursor: 'pointer'
   },
   hourButtonRoot: {
-    minHeight: '36px',
-    minWidth: '36px',
+    minHeight: boxSize,
+    minWidth: boxSize,
   },
   longBoxSize: {
-    height: '36px',
-    width: '100px',
-    margin: theme.spacing.unit / 4,
+    height: boxSize,
+    width: 100,
+    margin: gutters,
+    cursor: 'pointer'
   },
   boxContent: {
     display: 'flex',
@@ -53,8 +61,16 @@ const styles = theme => ({
   off: {
     backgroundColor: theme.palette.secondary.dark,
   },
-  clickable: {
-    cursor: 'pointer'
+  nextOn: {
+    backgroundColor: theme.palette.primary.main,
+  },
+  nextOff: {
+    backgroundColor: theme.palette.secondary.main,
+  },
+  line: {
+    borderStyle: 'dashed',
+    borderWidth: '1px',
+    borderColor: 'white',
   }
 });
 
@@ -64,6 +80,9 @@ class Schedule extends React.Component {
     this.state = {
       schedule: null,
       matrix: null,
+
+      mouseDown: null,
+      mouseCurrent: null
     }
 
     this.scheduleService = new ScheduleService();
@@ -71,52 +90,28 @@ class Schedule extends React.Component {
 
   async componentDidMount() {
     const { match } = this.props;
-    const schedule = await this.scheduleService.get(match.params.schedule);
-    console.log(schedule.__ndarray__);
-    this.setState({
-      schedule,
-      matrix: schedule.__ndarray__.slice()
-    });
-  }
+    try {
+      const schedule = await this.scheduleService.get(match.params.schedule);
+      const matrix = map(schedule.__ndarray__.slice(), dayArray =>
+        map(dayArray, hourValue => ({ original: hourValue, current: hourValue, next: null }))
+      )
+      this.setState({
+        schedule,
+        matrix
+      });
+    } catch (ex) {
+      console.error(ex);
+    }
 
-  getDayGrid = (dayIndex, dayValues) => {
-    const { classes } = this.props;
-
-    const hourBlocks = map(dayValues, (value, index) => (
-      <div key={`day-${dayIndex}-hour-${index}`}>
-        {
-          value ?
-            (
-              <Paper className={classNames(classes.boxSize, classes.on)} elevation={2} />
-            ) : (
-              <Paper className={classNames(classes.boxSize, classes.off)} elevation={2} />
-            )
-        }
-      </div>
-    ))
-
-    return [
-      <div key={`day-${dayIndex}`}>
-        <div className={classNames(classes.longBoxSize, classes.boxContent, classes.clickable)}>
-          {/* <Typography variant="caption" color="textSecondary" onClick={this.toggleDay(dayIndex)}>
-            {days[dayIndex]}
-          </Typography> */}
-          <Button disableRipple disableFocusRipple variant="raised" className={classNames(classes.longBoxSize)} onClick={this.toggleDay(dayIndex)}>
-            {days[dayIndex]}
-          </Button>
-        </div>
-      </div>,
-      ...hourBlocks
-    ]
   }
 
   toggleDay = dayIndex => event => {
     this.setState((prevState, props) => {
       const { matrix } = prevState;
-      if (includes(matrix[dayIndex], 0)) {
-        matrix[dayIndex] = times(24, constant(1));
+      if (find(matrix[dayIndex], { current: 0 })) {
+        matrix[dayIndex] = map(matrix[dayIndex], hour => ({ original: hour.original, current: 1, next: null }));
       } else {
-        matrix[dayIndex] = times(24, constant(0));
+        matrix[dayIndex] = map(matrix[dayIndex], hour => ({ original: hour.original, current: 0, next: null }));
       }
       return { matrix };
     })
@@ -125,18 +120,172 @@ class Schedule extends React.Component {
   toggleHour = hourIndex => event => {
     this.setState((prevState, props) => {
       const { schedule, matrix } = prevState;
-      const hourHasZero = !(matrix[0][hourIndex] && matrix[1][hourIndex] && matrix[2][hourIndex] && matrix[3][hourIndex] && matrix[4][hourIndex] && matrix[5][hourIndex] && matrix[6][hourIndex]);
-      const nextVal = hourHasZero ? 1 : 0;
+      let hourIsOn = true;
       for (let i = 0; i < schedule.Shape[0]; i++) {
-        matrix[i][hourIndex] = nextVal;
+        hourIsOn = hourIsOn && !!matrix[i][hourIndex].current;
+      }
+      const newCurrent = hourIsOn ? 0 : 1;
+      for (let i = 0; i < schedule.Shape[0]; i++) {
+        matrix[i][hourIndex].current = newCurrent;
       }
       return { matrix };
     })
   }
 
+  toggleAll = event => {
+    const matrix = this.state.matrix.slice();
+    const hasZero = find(flatten(matrix), { current: 0 });
+    const newCurrent = hasZero ? 1 : 0;
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
+        matrix[dayIndex][hourIndex].current = newCurrent;
+      }
+    }
+    this.setState({
+      matrix
+    })
+  }
+
+  getDayGrid = (dayIndex, dayValues) => {
+    const { classes } = this.props;
+
+    const hourBlocks = map(dayValues, (hour, hourIndex) => (
+      <div key={`day-${dayIndex}-hour-${hourIndex}`} >
+        {
+          hour.next !== null ?
+            (
+              <Paper className={classNames(classes.boxSize, { [classes.nextOn]: !!hour.next, [classes.nextOff]: !hour.next })} elevation={2} />
+            ) : (
+              <Paper className={classNames(classes.boxSize, { [classes.on]: !!hour.current, [classes.off]: !hour.current })} elevation={2} />
+            )
+        }
+      </div>
+    ))
+
+    return hourBlocks;
+  }
+
+  handleMouseMove = event => {
+    const { mouseDown, newCurrent } = this.state;
+    const matrix = this.state.matrix.slice();
+
+    const mouseCurrent = {
+      x: event.clientX,
+      y: event.clientY
+    };
+
+    const matrixRect = this.matrixDiv.getBoundingClientRect();
+    const selectionRect = getSelectionRect(mouseDown, mouseCurrent);
+
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
+        const top = matrixRect.top + gutters + dayIndex * boxSize + dayIndex * gutters * 2;
+        const left = matrixRect.left + gutters + hourIndex * boxSize + hourIndex * gutters * 2;
+        const hourRect = {
+          top,
+          left,
+          bottom: top + boxSize,
+          right: left + boxSize
+        }
+        if (intersects(hourRect, selectionRect)) {
+          matrix[dayIndex][hourIndex].next = newCurrent;
+        } else {
+          matrix[dayIndex][hourIndex].next = null;
+        }
+      }
+    }
+
+    this.setState({
+      matrix,
+      mouseCurrent
+    })
+  }
+
+  handleMouseDown = event => {
+    event.persist();
+    const { matrix } = this.state;
+
+    const mouseDown = {
+      x: event.clientX,
+      y: event.clientY
+    };
+
+    const start = getSelectionRect(mouseDown, mouseDown);
+    const matrixRect = this.matrixDiv.getBoundingClientRect();
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
+        const top = matrixRect.top + gutters + dayIndex * boxSize + dayIndex * gutters * 2;
+        const left = matrixRect.left + gutters + hourIndex * boxSize + hourIndex * gutters * 2;
+        const hourRect = {
+          top,
+          left,
+          bottom: top + boxSize,
+          right: left + boxSize
+        }
+        if (intersects(hourRect, start)) {
+          const newCurrent = matrix[dayIndex][hourIndex].current ? 0 : 1;
+          document.addEventListener('mousemove', this.handleMouseMove, false);
+          this.setState({
+            mouseDown,
+            newCurrent
+          });
+        }
+      }
+    }
+  }
+
+  handleMouseUp = event => {
+    const { mouseDown } = this.state;
+    document.removeEventListener('mousemove', this.handleMouseMove, false);
+    if (mouseDown) {
+      event.persist();
+
+      const mouseUp = {
+        x: event.clientX,
+        y: event.clientY
+      }
+
+      const selectionRect = getSelectionRect(mouseDown, mouseUp);
+      this.toggleSelectionBox(selectionRect);
+    }
+
+    this.setState({
+      mouseDown: null,
+      mouseCurrent: null
+    })
+  }
+
+  toggleSelectionBox = (selectionRect) => {
+    const { newCurrent } = this.state;
+    const matrix = this.state.matrix.slice();
+    const matrixRect = this.matrixDiv.getBoundingClientRect();
+
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+      for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
+        const top = matrixRect.top + gutters + dayIndex * boxSize + dayIndex * gutters * 2;
+        const left = matrixRect.left + gutters + hourIndex * boxSize + hourIndex * gutters * 2;
+        const hourRect = {
+          top,
+          left,
+          bottom: top + boxSize,
+          right: left + boxSize
+        }
+        if (intersects(hourRect, selectionRect)) {
+          matrix[dayIndex][hourIndex].current = newCurrent;
+          matrix[dayIndex][hourIndex].next = null;
+        }
+      }
+    }
+
+    this.setState({
+      matrix
+    })
+
+  }
+
   render() {
     const { classes } = this.props;
-    const { schedule, matrix } = this.state;
+    const { schedule, matrix, mouseDown, mouseCurrent } = this.state;
 
     return (
       schedule &&
@@ -148,36 +297,65 @@ class Schedule extends React.Component {
           Timezone: {schedule.timezone}
         </Typography>
 
-        <div>
-          <div className={classes.row}>
-            <div className={classNames(classes.longBoxSize, classes.boxContent)}>
-              <Typography variant="button" color="textSecondary">
-                Day \ Hour
+        <div className={classes.row}>
+          <div className={classNames(classes.longBoxSize, classes.boxContent)} onClick={this.toggleAll}>
+            <Typography variant="button" color="textSecondary">
+              ALL
               </Typography>
-            </div>
-            {
-              map(hours, hour =>
-                <div key={`hour-${hour}`}>
-                  <div className={classNames(classes.boxSize, classes.boxContent)}>
-                    <Button disableRipple disableFocusRipple variant="raised" classes={{ root: classes.hourButtonRoot }}  onClick={this.toggleHour(hour)}>
-                      {
-                        hour < 10 ? `0${hour}` : hour
-                      }
-                    </Button>
-                  </div>
-                </div>)
-            }
           </div>
-
           {
-            map(matrix, (dayValues, dayIndex) =>
-              <div key={`${dayIndex}`} className={classes.row}>
-                {this.getDayGrid(dayIndex, dayValues)}
+            map(hours, hour =>
+              <div key={`hour-${hour}`}>
+                <div className={classNames(classes.boxSize, classes.boxContent)}>
+                  <Button disableRipple disableFocusRipple variant="raised" classes={{ root: classes.hourButtonRoot }} onClick={this.toggleHour(hour)}>
+                    {
+                      hour < 10 ? `0${hour}` : hour
+                    }
+                  </Button>
+                </div>
               </div>)
           }
         </div>
 
+        <div className={classes.row}>
+          <div className={classes.column}>
+            {
+              map(days, (day, dayIndex) =>
+                <div key={`day-${dayIndex}`} className={classNames(classes.longBoxSize, classes.boxContent)}>
+                  <Button disableRipple disableFocusRipple variant="raised" className={classNames(classes.longBoxSize)} onClick={this.toggleDay(dayIndex)}>
+                    {day}
+                  </Button>
+                </div>)
+            }
+          </div>
+          <div
+            className={classes.column}
+            ref={matrixDiv => this.matrixDiv = matrixDiv}
+            onMouseDown={this.handleMouseDown}
+            onMouseUp={this.handleMouseUp}
+          >
+            {
 
+              mouseDown && mouseCurrent &&
+              // <div className={classes.selectionBox} style={{ position: 'absolute', top: `${mouseDown.y}`, left: `${mouseDown.x}`}}>
+              // </div>
+              <div>
+                <Line className={classes.line} x0={mouseDown.x} y0={mouseDown.y} x1={mouseCurrent.x} y1={mouseDown.y} />
+                <Line className={classes.line} x0={mouseCurrent.x} y0={mouseDown.y} x1={mouseCurrent.x} y1={mouseCurrent.y} />
+                <Line className={classes.line} x0={mouseCurrent.x} y0={mouseCurrent.y} x1={mouseDown.x} y1={mouseCurrent.y} />
+                <Line className={classes.line} x0={mouseDown.x} y0={mouseCurrent.y} x1={mouseDown.x} y1={mouseDown.y} />
+              </div>
+            }
+
+            {
+              map(matrix, (dayValues, dayIndex) =>
+                <div key={`day-${dayIndex}`} className={classes.row}>
+                  {this.getDayGrid(dayIndex, dayValues)}
+                </div>)
+            }
+          </div>
+
+        </div>
       </div>
 
     )
@@ -186,3 +364,34 @@ class Schedule extends React.Component {
 
 export default withStyles(styles)(Schedule);
 
+const getSelectionRect = (mouseDown, mouseUp) => {
+  const selectionRect = {};
+  if (mouseDown.x <= mouseUp.x) {
+    selectionRect.left = mouseDown.x;
+    selectionRect.right = mouseUp.x;
+    if (mouseDown.y <= mouseUp.y) {
+      selectionRect.top = mouseDown.y;
+      selectionRect.bottom = mouseUp.y;
+    } else {
+      selectionRect.top = mouseUp.y;
+      selectionRect.bottom = mouseDown.y;
+    }
+  } else {
+    selectionRect.left = mouseUp.x;
+    selectionRect.right = mouseDown.x;
+    if (mouseDown.y <= mouseUp.y) {
+      selectionRect.top = mouseDown.y;
+      selectionRect.bottom = mouseUp.y;
+    } else {
+      selectionRect.top = mouseUp.y;
+      selectionRect.bottom = mouseDown.y;
+    }
+  }
+  return selectionRect;
+}
+
+
+const intersects = (rectA, rectB) => {
+  return (rectA.left < rectB.right && rectA.right > rectB.left &&
+    rectA.top < rectB.bottom && rectA.bottom > rectB.top)
+}
