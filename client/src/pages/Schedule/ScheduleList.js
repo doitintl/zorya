@@ -12,6 +12,11 @@ import {
 // Material UI
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
+import List, {
+  ListItem,
+  ListSubheader,
+  ListItemText,
+} from 'material-ui/List';
 
 // Lodash
 import map from 'lodash/map';
@@ -51,18 +56,23 @@ class ScheduleList extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="subheading" color="textSecondary">
-          Schedule List:
-        </Typography>
+        <List
+          component="nav"
+          subheader={<ListSubheader component="div">Schedule List</ListSubheader>}
+        >
+          {
+            map(schedules, schedule =>
+              <ListItem key={schedule} button onClick={() => history.push(`/schedules/${schedule}`)}>
+                <ListItemText
+                  primary={schedule}
+                  secondary=""
+                />
+              </ListItem>
 
-        {
-          map(schedules, schedule =>
-            <Typography key={schedule} variant="body2" color="textSecondary" className={classes.listItem} onClick={() => history.push(`/schedules/${schedule}`)}>
-              {schedule}
-            </Typography>
-          )
-        }
-        
+            )
+          }
+        </List>
+
       </div>
     )
   }

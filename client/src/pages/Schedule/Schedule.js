@@ -17,10 +17,10 @@ import { Line } from 'react-lineto';
 // Project
 import ScheduleService from '../../modules/api/schedule';
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const hours = [...Array(24).keys()];
-const gutters = 4;
-const boxSize = 36;
+const gutters = 2;
+const boxSize = 24;
 
 const styles = theme => ({
   root: {
@@ -34,21 +34,22 @@ const styles = theme => ({
     display: 'flex',
     flexDirection: 'column'
   },
-  boxSize: {
+  hourBox: {
     height: boxSize,
     width: boxSize,
     margin: gutters,
-    cursor: 'pointer'
   },
-  hourButtonRoot: {
+  columnButtonRoot: {
     minHeight: boxSize,
     minWidth: boxSize,
-  },
-  longBoxSize: {
-    height: boxSize,
-    width: 100,
     margin: gutters,
-    cursor: 'pointer'
+    padding: 0
+  },
+  rowButtonRoot: {
+    minHeight: boxSize,
+    minWidth: 48,
+    margin: gutters,
+    padding: 0
   },
   boxContent: {
     display: 'flex',
@@ -62,15 +63,13 @@ const styles = theme => ({
     backgroundColor: theme.palette.secondary.dark,
   },
   nextOn: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.primary.light,
   },
   nextOff: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.light,
   },
-  line: {
-    borderStyle: 'dashed',
-    borderWidth: '1px',
-    borderColor: 'white',
+  crosshair: {
+    cursor: 'crosshair'
   }
 });
 
@@ -154,9 +153,9 @@ class Schedule extends React.Component {
         {
           hour.next !== null ?
             (
-              <Paper className={classNames(classes.boxSize, { [classes.nextOn]: !!hour.next, [classes.nextOff]: !hour.next })} elevation={2} />
+              <Paper className={classNames(classes.hourBox, { [classes.nextOn]: !!hour.next, [classes.nextOff]: !hour.next })} elevation={2} />
             ) : (
-              <Paper className={classNames(classes.boxSize, { [classes.on]: !!hour.current, [classes.off]: !hour.current })} elevation={2} />
+              <Paper className={classNames(classes.hourBox, { [classes.on]: !!hour.current, [classes.off]: !hour.current })} elevation={2} />
             )
         }
       </div>
@@ -168,13 +167,26 @@ class Schedule extends React.Component {
   handleMouseMove = event => {
     const { mouseDown, newCurrent } = this.state;
     const matrix = this.state.matrix.slice();
+    const matrixRect = this.matrixDiv.getBoundingClientRect();
 
     const mouseCurrent = {
       x: event.clientX,
       y: event.clientY
     };
 
-    const matrixRect = this.matrixDiv.getBoundingClientRect();
+    if (mouseCurrent.x < (matrixRect.left)) {
+      mouseCurrent.x = matrixRect.left;
+    }
+    if (mouseCurrent.x > (matrixRect.right)) {
+      mouseCurrent.x = matrixRect.right;
+    }
+    if (mouseCurrent.y < (matrixRect.top)) {
+      mouseCurrent.y = matrixRect.top;
+    }
+    if (mouseCurrent.y > (matrixRect.bottom)) {
+      mouseCurrent.y = matrixRect.bottom;
+    }
+
     const selectionRect = getSelectionRect(mouseDown, mouseCurrent);
 
     for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
@@ -214,17 +226,18 @@ class Schedule extends React.Component {
     const matrixRect = this.matrixDiv.getBoundingClientRect();
     for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
       for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
-        const top = matrixRect.top + gutters + dayIndex * boxSize + dayIndex * gutters * 2;
-        const left = matrixRect.left + gutters + hourIndex * boxSize + hourIndex * gutters * 2;
+        const top = matrixRect.top + dayIndex * (boxSize + gutters * 2);
+        const left = matrixRect.left + hourIndex * (boxSize + gutters * 2);
         const hourRect = {
           top,
           left,
-          bottom: top + boxSize,
-          right: left + boxSize
+          bottom: top + boxSize + gutters * 2,
+          right: left + boxSize + gutters * 2
         }
         if (intersects(hourRect, start)) {
           const newCurrent = matrix[dayIndex][hourIndex].current ? 0 : 1;
           document.addEventListener('mousemove', this.handleMouseMove, false);
+          document.addEventListener('mouseup', this.handleMouseUp, false);
           this.setState({
             mouseDown,
             newCurrent
@@ -236,10 +249,9 @@ class Schedule extends React.Component {
 
   handleMouseUp = event => {
     const { mouseDown } = this.state;
+    document.removeEventListener('mouseup', this.handleMouseUp, false);
     document.removeEventListener('mousemove', this.handleMouseMove, false);
     if (mouseDown) {
-      event.persist();
-
       const mouseUp = {
         x: event.clientX,
         y: event.clientY
@@ -298,21 +310,17 @@ class Schedule extends React.Component {
         </Typography>
 
         <div className={classes.row}>
-          <div className={classNames(classes.longBoxSize, classes.boxContent)} onClick={this.toggleAll}>
-            <Typography variant="button" color="textSecondary">
-              ALL
-              </Typography>
-          </div>
+          <Button disableRipple disableFocusRipple classes={{ root: classes.rowButtonRoot }} onClick={this.toggleAll}>
+            ALL
+            </Button>
           {
             map(hours, hour =>
               <div key={`hour-${hour}`}>
-                <div className={classNames(classes.boxSize, classes.boxContent)}>
-                  <Button disableRipple disableFocusRipple variant="raised" classes={{ root: classes.hourButtonRoot }} onClick={this.toggleHour(hour)}>
-                    {
-                      hour < 10 ? `0${hour}` : hour
-                    }
-                  </Button>
-                </div>
+                <Button disableRipple disableFocusRipple variant="raised" classes={{ root: classes.columnButtonRoot }} onClick={this.toggleHour(hour)}>
+                  {
+                    hour < 10 ? `0${hour}` : hour
+                  }
+                </Button>
               </div>)
           }
         </div>
@@ -321,29 +329,26 @@ class Schedule extends React.Component {
           <div className={classes.column}>
             {
               map(days, (day, dayIndex) =>
-                <div key={`day-${dayIndex}`} className={classNames(classes.longBoxSize, classes.boxContent)}>
-                  <Button disableRipple disableFocusRipple variant="raised" className={classNames(classes.longBoxSize)} onClick={this.toggleDay(dayIndex)}>
-                    {day}
-                  </Button>
-                </div>)
+                <Button key={`day-${dayIndex}`} disableRipple disableFocusRipple variant="raised" classes={{ root: classes.rowButtonRoot }} onClick={this.toggleDay(dayIndex)}>
+                  {day}
+                </Button>
+              )
             }
           </div>
+
           <div
-            className={classes.column}
+            className={classNames(classes.column, classes.crosshair)}
             ref={matrixDiv => this.matrixDiv = matrixDiv}
             onMouseDown={this.handleMouseDown}
-            onMouseUp={this.handleMouseUp}
           >
             {
 
               mouseDown && mouseCurrent &&
-              // <div className={classes.selectionBox} style={{ position: 'absolute', top: `${mouseDown.y}`, left: `${mouseDown.x}`}}>
-              // </div>
               <div>
-                <Line className={classes.line} x0={mouseDown.x} y0={mouseDown.y} x1={mouseCurrent.x} y1={mouseDown.y} />
-                <Line className={classes.line} x0={mouseCurrent.x} y0={mouseDown.y} x1={mouseCurrent.x} y1={mouseCurrent.y} />
-                <Line className={classes.line} x0={mouseCurrent.x} y0={mouseCurrent.y} x1={mouseDown.x} y1={mouseCurrent.y} />
-                <Line className={classes.line} x0={mouseDown.x} y0={mouseCurrent.y} x1={mouseDown.x} y1={mouseDown.y} />
+                <Line border="1px dashed #fff" x0={mouseDown.x} y0={mouseDown.y} x1={mouseCurrent.x} y1={mouseDown.y} />
+                <Line border="1px dashed #fff" x0={mouseCurrent.x} y0={mouseDown.y} x1={mouseCurrent.x} y1={mouseCurrent.y} />
+                <Line border="1px dashed #fff" x0={mouseCurrent.x} y0={mouseCurrent.y} x1={mouseDown.x} y1={mouseCurrent.y} />
+                <Line border="1px dashed #fff" x0={mouseDown.x} y0={mouseCurrent.y} x1={mouseDown.x} y1={mouseDown.y} />
               </div>
             }
 
