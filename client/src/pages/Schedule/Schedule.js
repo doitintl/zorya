@@ -19,8 +19,8 @@ import ScheduleService from '../../modules/api/schedule';
 
 const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const hours = [...Array(24).keys()];
-const gutters = 2;
-const boxSize = 24;
+const gutters = 4;
+const boxSize = 36;
 
 const styles = theme => ({
   root: {
