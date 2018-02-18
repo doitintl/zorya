@@ -64,11 +64,12 @@ def add_schedule():
     """
     schedules_model = SchedulesModel()
     schedules_model.Schedule = {
-        'dtype': request.json['schedule']['dtype'],
-        'Corder': request.json['schedule']['Corder'],
-        'Shape': request.json['schedule']['shape'],
-        '__ndarray__': request.json['schedule']['__ndarray__']
+        'dtype': request.json['dtype'],
+        'Corder': request.json['Corder'],
+        'Shape': request.json['shape'],
+        '__ndarray__': request.json['__ndarray__']
     }
+
     schedules_model.Name = request.json['name']
     schedules_model.Timezone = request.json['timezone']
     schedules_model.key = ndb.Key('SchedulesModel', request.json['name'])
