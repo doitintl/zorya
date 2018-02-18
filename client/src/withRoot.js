@@ -5,24 +5,24 @@ import { BrowserRouter } from 'react-router-dom';
 
 // Material-UI
 import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
-import lightGreen from 'material-ui/colors/lightGreen';
-import pink from 'material-ui/colors/pink';
+import blue from 'material-ui/colors/blue';
+// import pink from 'material-ui/colors/pink';
 import Reboot from 'material-ui/Reboot';
 
 // Material-UI Theme
 const theme = createMuiTheme({
   palette: {
     primary: {
-      light: lightGreen[300],
-      main: lightGreen[500],
-      dark: lightGreen[700],
+      light: blue[500],
+      main: blue[700],
+      dark: blue[900],
     },
     secondary: {
-      light: pink[300],
-      main: pink[500],
-      dark: pink[700],
+      light: blue[500],
+      main: blue[700],
+      dark: blue[900],
     },
-    type: 'dark'
+    type: 'light'
   }
 });
 

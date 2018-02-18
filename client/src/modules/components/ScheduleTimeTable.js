@@ -5,6 +5,8 @@ import classNames from 'classnames';
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Button from 'material-ui/Button';
+import green from 'material-ui/colors/green';
+import grey from 'material-ui/colors/grey';
 
 // Lodash
 import map from 'lodash/map';
@@ -54,16 +56,16 @@ const styles = theme => ({
     justifyContent: 'center'
   },
   on: {
-    backgroundColor: theme.palette.primary.dark,
+    backgroundColor: '#aed581',
   },
   off: {
-    backgroundColor: theme.palette.secondary.dark,
+    backgroundColor: '#eeeeee',
   },
   nextOn: {
-    backgroundColor: theme.palette.primary.light,
+    backgroundColor: '#7da453',
   },
   nextOff: {
-    backgroundColor: theme.palette.secondary.light,
+    backgroundColor: '#bcbcbc',
   },
   crosshair: {
     cursor: 'crosshair'

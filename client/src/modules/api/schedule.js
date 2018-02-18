@@ -41,6 +41,19 @@ class ScheduleService {
 
     return response;
   }
+
+  timezones = async () => {
+    const response = await fetch(`/api/v1/time_zones`, {
+      method: 'GET'
+    });
+
+    if (!response.ok) {
+      console.error(response);
+      throw Error(response.statusText);
+    }
+
+    return response.json();
+  }
 }
 
 export default ScheduleService;

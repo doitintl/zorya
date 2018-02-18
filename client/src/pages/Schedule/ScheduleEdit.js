@@ -17,6 +17,7 @@ import TextField from 'material-ui/TextField';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
+import ScheduleTimeZone from '../../modules/components/ScheduleTimeZone';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
 import ScheduleService from '../../modules/api/schedule';
@@ -48,9 +49,10 @@ class ScheduleEdit extends React.Component {
     const { match } = this.props;
     try {
       const schedule = await this.scheduleService.get(match.params.schedule);
-      console.log(schedule);
+      const timezones = await this.scheduleService.timezones();
       this.setState({
-        schedule
+        schedule,
+        timezones: timezones.Timezones
       });
     } catch (ex) {
       console.error(ex);
@@ -63,12 +65,19 @@ class ScheduleEdit extends React.Component {
     });
   }
 
-  handleCreate = async event => {
+  handleChangeTimezone = value => {
+    const { schedule } = this.state;
+    schedule.timezone = value;
+    this.setState({ schedule });
+  };
+
+  handleSave = async event => {
     try {
+      const { history } = this.props;
       const { schedule } = this.state;
-      console.log(schedule);
       const response = await this.scheduleService.add(schedule);
-      console.log(response)
+      console.log(response);
+      history.push('/schedules/browser');
     } catch (ex) {
       console.error(ex)
     }
@@ -82,7 +91,7 @@ class ScheduleEdit extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { schedule } = this.state;
+    const { schedule, timezones } = this.state;
 
     if (schedule) {
       return (
@@ -105,9 +114,11 @@ class ScheduleEdit extends React.Component {
               margin="none"
             />
 
-            {this.state.schedule && <ScheduleTimeTable schedule={this.state.schedule} onScheduleChange={this.handleScheduleChange} />}
+            <ScheduleTimeZone selected={schedule.timezone} timezones={timezones} onSelect={this.handleChangeTimezone} />
 
-            <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleCreate}>
+            <ScheduleTimeTable schedule={schedule} onScheduleChange={this.handleScheduleChange} />
+
+            <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleSave}>
               Save
             </Button>
             <Button className={classes.button} color="primary" size="small" onClick={this.handleRequestCancel}>

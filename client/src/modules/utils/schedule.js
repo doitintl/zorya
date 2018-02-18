@@ -1,7 +1,7 @@
 export const getDefaultSchedule = () => (
   {
     name: '',
-    timezone: '',
+    timezone: 'UTC',
     Shape: [7, 24],
     dtype: 'int64',
     Corder: true,
