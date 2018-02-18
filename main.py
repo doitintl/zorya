@@ -1,3 +1,5 @@
+"""Entry point to Zoyra."""
+import json
 import logging
 
 from google.appengine.ext import deferred, ndb
@@ -10,11 +12,15 @@ from util import tz
 
 API_VERSION = '/api/v1'
 app = Flask(__name__)
-import json
 
 
 @app.route('/tasks/change_state', methods=['GET'])
 def change_state():
+    """
+    Initiate change state.
+    Returns:
+
+    """
     logging.debug(
         "Starting change_state action %s project %s tagkey %s tagvalue %s",
         request.args['tagkey'], request.args['tagvalue'],
@@ -24,14 +30,21 @@ def change_state():
         request.args['action'], request.args['project'])
     return 'ok', 200
 
+
 @app.route('/tasks//schedule')
 def schedule():
+    """
+    Checks if it's time to run a schedule.
+    Returns:
+
+    """
     logging.debug("Start/tasks/schedule")
     keys = PolicyModel.query().fetch(keys_only=True)
     for key in keys:
         logging.debug("Key = %s", key.id())
         deferred.defer(policy_tasks.policy_checker, key.id())
     return 'ok', 200
+
 
 @app.route(API_VERSION + '/time_zones', methods=['GET'])
 def time_zones():
@@ -41,8 +54,14 @@ def time_zones():
     """
     return json.dumps({'Timezones': tz.get_all_timezones()})
 
+
 @app.route(API_VERSION + '/add_schedule', methods=['POST'])
 def add_schedule():
+    """
+    Add a schedule.
+    Returns:
+
+    """
     schedules_model = SchedulesModel()
     schedules_model.Schedule = {
         'dtype': request.json['schedule']['dtype'],
@@ -59,6 +78,11 @@ def add_schedule():
 
 @app.route(API_VERSION + '/get_schedule', methods=['GET'])
 def get_schedule():
+    """
+    Get a schedule.
+    Returns: schedule json
+
+    """
     name = request.args.get('schedule')
     res = SchedulesModel.query(SchedulesModel.Name == name).get()
     if not res:
@@ -73,6 +97,11 @@ def get_schedule():
 
 @app.route(API_VERSION + '/list_schedules', methods=['GET'])
 def list_schedules():
+    """
+    Get all schedules.
+    Returns: A list of schedules
+
+    """
     keys = SchedulesModel.query().fetch(keys_only=True)
     schedules_list = []
     for key in keys:
@@ -82,6 +111,11 @@ def list_schedules():
 
 @app.route(API_VERSION + '/del_schedule', methods=['GET'])
 def del_schedule():
+    """
+    Delete a schedule.
+    Returns:
+
+    """
     name = request.args.get('schedule')
     res = SchedulesModel.query(SchedulesModel.Name == name).get()
     if not res:
@@ -96,10 +130,15 @@ def del_schedule():
 
 @app.route(API_VERSION + '/add_policy', methods=['POST'])
 def add_policy():
+    """
+    Add policy.
+    Returns:
+
+    """
     print(request.json)
     name = request.json['name']
     tags = request.json['tags']
-    projects = request.json['projetcs']
+    projects = request.json['projects']
     schedule_name = request.json['schedulename']
 
     res = SchedulesModel.query(SchedulesModel.Name == schedule_name).get()
@@ -118,6 +157,11 @@ def add_policy():
 
 @app.route(API_VERSION + '/get_policy')
 def get_policy():
+    """
+    Get policy.
+    Returns: policy json
+
+    """
     name = request.args.get('policy')
     res = PolicyModel.query(PolicyModel.Name == name).get()
     print res
@@ -127,21 +171,31 @@ def get_policy():
     policy.update({'name': res.Name})
     policy.update({'schedule': res.Schedule})
     policy.update({'tags': res.Tags})
-    policy.update({'projetcs': res.Projects})
+    policy.update({'projects': res.Projects})
     return json.dumps(policy)
 
 
-@app.route(API_VERSION + '/list_policys', methods=['GET'])
-def list_policys():
+@app.route(API_VERSION + '/list_policies', methods=['GET'])
+def list_policies():
+    """
+    Get all polices.
+    Returns: List of policies
+
+    """
     keys = PolicyModel.query().fetch(keys_only=True)
-    policys_list = []
+    policies_list = []
     for key in keys:
-        policys_list.append(key.id())
-    return json.dumps(policys_list)
+        policies_list.append(key.id())
+    return json.dumps(policies_list)
 
 
 @app.route(API_VERSION + '/del_policy', methods=['GET'])
 def del_policy():
+    """
+    Delete a policy
+    Returns:
+
+    """
     name = request.args.get('policy')
     res = PolicyModel.query(PolicyModel.Name == name).get()
     if not res:

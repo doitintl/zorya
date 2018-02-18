@@ -1,216 +1,239 @@
-curl -X POST \
-  http://localhost:8080/api/v1/add_schedule \
-  -H 'cache-control: no-cache' \
-  -H 'content-type: application/json' \
-  -H 'postman-token: c07887d4-d222-c241-f932-2f4c72945357' \
-  -d '{
-  "name": "schedule_name",
+
+API docs are also available at bit.ly/zorya_api_docs
+
+curl --request POST \
+  --url http://localhost:8080/api/v1/add_schedule \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "Shape": [
+    7,
+    24
+  ],
   "timezone": "Europe/Amsterdam",
-  "schedule": {
-    "__ndarray__": [
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ]
+  "Corder": true,
+  "__ndarray__": [
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "dtype": "int64",
-    "shape": [
-      7,
-      24
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "Corder": true
-  }
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "dtype": "int64",
+  "name": "my schedule name"
+}'
+curl --request GET \
+  --url http://localhost:8080/api/v1/list_schedules
+
+curl --request GET \
+  --url 'http://localhost:8080/api/v1/del_schedule?schedule=my%20schedule%20name'
+
+ curl --request GET \
+  --url 'http://localhost:8080/api/v1/del_policy?policy=My%20policy' \
+  --header 'Content-Type: application/json'
+
+  curl --request POST \
+  --url http://localhost:8080/api/v1/add_policy \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "name": "My policy",
+  "tags": [
+    {
+      "dev": "sleeper",
+      "staging": "resting"
+    }
+  ],
+  "projetcs": [
+    "project-x",
+    "y-project"
+  ],
+  "schedulename": "my schedule name"
 }'
 
-curl -X POST \
-  http://localhost:8080/api/v1/add_policy \
-  -H 'cache-control: no-cache' \
-  -H 'content-type: application/json' \
-  -H 'postman-token: 5ea5e2dd-c6c9-bd02-d6fe-506a1b6be002' \
-  -d '{
-  "name": "MyPolicy",
-  "tags": "my_first_tag one_more_tag",
-  "schedulename" : "schedule_name"
+curl --request GET \
+  --url 'http://localhost:8080/api/v1/get_policy?policy=My%20policy' \
+  --header 'Content-Type: application/json'
 
-}'
+  curl --request GET \
+  --url http://localhost:8080/api/v1/list_policies \
+  --header 'Content-Type: application/json'
 
-curl http://localhost:8080/api/v1/get_schedule?schedule=schedule_name
-curl http://localhost:8080/api/v1/get_policy?policy=MyPolicy
+  curl --request GET \
+  --url 'http://localhost:8080/api/v1/del_policy?policy=My%20policy' \
+  --header 'Content-Type: application/json'

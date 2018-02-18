@@ -1,3 +1,4 @@
+"""Check if there is a need to take an action for a policy."""
 import logging
 
 from google.appengine.api import taskqueue
@@ -9,6 +10,14 @@ from util import tz, utils
 
 
 def policy_checker(name):
+    """
+    Check if there is a need to take an action for a policy.
+    Args:
+        name: policy name
+
+    Returns:
+
+    """
     policy = PolicyModel.query(PolicyModel.Name == name).get()
     if not policy:
         logging.error('Policy %s not found!', name)

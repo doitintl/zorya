@@ -63,6 +63,15 @@ def fatal_code(e):
 
 
 def get_next_idx(idx, matrix_size):
+    """
+
+    Args: Get the next index in the matrix.
+        idx: current index
+        matrix_size: matrix size
+
+    Returns:
+
+    """
     if idx + 1 == matrix_size:
         return 0
     else:
@@ -70,6 +79,15 @@ def get_next_idx(idx, matrix_size):
 
 
 def get_prev_idx(idx, matrix_size):
+    """
+    Get the previous index in the matrix.
+    Args:
+        idx: current index
+        matrix_size: matrix size
+
+    Returns:
+
+    """
     if idx == 0:
         return matrix_size - 1
     else:
