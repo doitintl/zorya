@@ -66,7 +66,7 @@ def add_schedule():
     schedules_model.Schedule = {
         'dtype': request.json['dtype'],
         'Corder': request.json['Corder'],
-        'Shape': request.json['shape'],
+        'Shape': request.json['Shape'],
         '__ndarray__': request.json['__ndarray__']
     }
 
