@@ -18,6 +18,10 @@ import Tooltip from 'material-ui/Tooltip';
 //   ListSubheader,
 //   ListItemText,
 // } from 'material-ui/List';
+import Button from 'material-ui/Button';
+import AddIcon from 'material-ui-icons/Add';
+import RefreshIcon from 'material-ui-icons/Refresh';
+import DeleteIcon from 'material-ui-icons/Delete';
 
 import Table, { TableBody, TableCell, TableHead, TableRow, TableSortLabel } from 'material-ui/Table';
 
@@ -27,14 +31,23 @@ import map from 'lodash/map';
 
 // Project
 import ScheduleService from '../../modules/api/schedule';
+import AppPageActions from '../../modules/components/AppPageActions';
 
 const styles = theme => ({
   root: {
+  },
+  container: {
     padding: theme.spacing.unit,
   },
   listItem: {
     cursor: 'pointer',
-  }
+  },
+  button: {
+    margin: theme.spacing.unit,
+  },
+  leftIcon: {
+    marginRight: theme.spacing.unit,
+  },
 });
 
 class ScheduleList extends React.Component {
@@ -48,11 +61,8 @@ class ScheduleList extends React.Component {
     this.scheduleService = new ScheduleService();
   }
 
-  async componentDidMount() {
-    const schedules = await this.scheduleService.list();
-    this.setState({
-      schedules
-    });
+  componentDidMount() {
+    this.refreshList();
   }
 
   handleRequestSort = event => {
@@ -74,61 +84,76 @@ class ScheduleList extends React.Component {
     });
   }
 
+  handleClickNavigate = path => event => {
+    const { history } = this.props;
+    history.push(path);
+  }
+
+  handleClickRefresh = event => {
+    this.refreshList();
+  }
+
+  refreshList = async () => {
+    const schedules = await this.scheduleService.list();
+    this.setState({
+      schedules
+    });
+  }
+
+
   render() {
-    const { classes, history } = this.props;
+    const { classes } = this.props;
     const { schedules, order } = this.state;
 
     return (
       <div className={classes.root}>
+        <AppPageActions>
+          <Button className={classes.button} color="primary" size="small" onClick={this.handleClickNavigate(`/schedules/create`)}>
+            <AddIcon className={classes.leftIcon} />
+            Create Schedule
+          </Button>
+          <Button className={classes.button} color="primary" size="small" onClick={this.handleClickRefresh}>
+            <RefreshIcon className={classes.leftIcon} />
+            Refresh
+          </Button>
+          <Button className={classes.button} color="primary" size="small" disabled>
+            <DeleteIcon className={classes.leftIcon} />
+            Delete
+          </Button>
+        </AppPageActions>
 
-        <Table className={classes.table}>
-          <TableHead>
-            <TableRow>
-              <TableCell sortDirection={order}>
-                <Tooltip
-                  title={order === 'desc' ? 'descending' : 'ascending'}
-                  placement="bottom-start"
-                  enterDelay={500}
-                >
-                  <TableSortLabel
-                    active
-                    direction={order}
-                    onClick={this.handleRequestSort}
+        <div className={classes.container}>
+          <Table className={classes.table}>
+            <TableHead>
+              <TableRow>
+                <TableCell sortDirection={order}>
+                  <Tooltip
+                    title={order === 'desc' ? 'descending' : 'ascending'}
+                    placement="bottom-start"
+                    enterDelay={500}
                   >
-                    Schedules
+                    <TableSortLabel
+                      active
+                      direction={order}
+                      onClick={this.handleRequestSort}
+                    >
+                      Schedules
                   </TableSortLabel>
-                </Tooltip></TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {map(schedules, schedule =>
-              <TableRow key={schedule} hover >
-                <TableCell onClick={() => history.push(`/schedules/${schedule}`)}>
-                  {schedule}
-                </TableCell>
+                  </Tooltip></TableCell>
               </TableRow>
-            )}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {map(schedules, schedule =>
+                <TableRow key={schedule} hover >
+                  <TableCell onClick={this.handleClickNavigate(`/schedules/browser/${schedule}`)}>
+                    {schedule}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
 
-
-        {/* <List
-          component="nav"
-          subheader={<ListSubheader component="div">Schedule List</ListSubheader>}
-        >
-          {
-            map(schedules, schedule =>
-              <ListItem key={schedule} button onClick={() => history.push(`/schedules/${schedule}`)}>
-                <ListItemText
-                  primary={schedule}
-                  secondary=""
-                />
-              </ListItem>
-
-            )
-          }
-        </List> */}
-
+        </div>
       </div>
     )
   }

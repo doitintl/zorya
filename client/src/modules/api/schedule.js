@@ -25,17 +25,13 @@ class ScheduleService {
     return response.json();
   }
 
-  add = async (schedule) => {
-    const body = {
-      ...schedule
-    }
-
+  add = async schedule => {
     const response = await fetch(`/api/v1/add_schedule`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(schedule)
     });
 
     if (!response.ok) {
@@ -43,9 +39,8 @@ class ScheduleService {
       throw Error(response.statusText);
     }
 
-    return response.json();
+    return response;
   }
-
 }
 
 export default ScheduleService;

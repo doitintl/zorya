@@ -24,8 +24,9 @@ import AppFrame from '../modules/components/AppFrame';
 
 // Project Views
 import NotFound from './NotFound/NotFound';
-import Schedule from './Schedule/Schedule';
+import ScheduleEdit from './Schedule/ScheduleEdit';
 import ScheduleList from './Schedule/ScheduleList';
+import ScheduleCreate from './Schedule/ScheduleCreate';
 
 
 const styles = theme => ({
@@ -57,10 +58,11 @@ class Index extends React.Component {
     return (
       <AppFrame className={classes.root}>
         <Switch>
-          <Route exact path="/" render={() => <Redirect to="schedules" />} />
+          <Route exact path="/" render={() => <Redirect to="/schedules/browser" />} />
           {/* <Route exact path="/login" component={withProps(Login, { user })} /> */}
-          <Route exact path="/schedules" component={ScheduleList} />
-          <Route exact path="/schedules/:schedule" component={Schedule} />
+          <Route exact path="/schedules/create" component={ScheduleCreate} />
+          <Route exact path="/schedules/browser" component={ScheduleList} />
+          <Route exact path="/schedules/browser/:schedule" component={ScheduleEdit} />
 
           <Route component={NotFound} />
         </Switch>
