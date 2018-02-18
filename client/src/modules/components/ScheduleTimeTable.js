@@ -3,7 +3,6 @@ import classNames from 'classnames';
 
 // Material UI
 import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
 import Paper from 'material-ui/Paper';
 import Button from 'material-ui/Button';
 
@@ -12,10 +11,8 @@ import map from 'lodash/map';
 import find from 'lodash/find';
 import flatten from 'lodash/flatten';
 
+// react-lineto
 import { Line } from 'react-lineto';
-
-// Project
-import ScheduleService from '../../modules/api/schedule';
 
 const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const hours = [...Array(24).keys()];
@@ -24,7 +21,7 @@ const boxSize = 36;
 
 const styles = theme => ({
   root: {
-    padding: theme.spacing.unit,
+    margin: `${theme.spacing.unit * 2}px 0`,
   },
   row: {
     display: 'flex',
@@ -73,62 +70,64 @@ const styles = theme => ({
   }
 });
 
-class Schedule extends React.Component {
+class ScheduleTimeTable extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      schedule: null,
       matrix: null,
-
       mouseDown: null,
       mouseCurrent: null
     }
-
-    this.scheduleService = new ScheduleService();
   }
 
   async componentDidMount() {
-    const { match } = this.props;
     try {
-      const schedule = await this.scheduleService.get(match.params.schedule);
-      const matrix = map(schedule.__ndarray__.slice(), dayArray =>
-        map(dayArray, hourValue => ({ original: hourValue, current: hourValue, next: null }))
+      const matrix = map(this.props.schedule.__ndarray__, dayArray =>
+        map(dayArray, hourValue => ({ current: hourValue, next: null }))
       )
       this.setState({
-        schedule,
         matrix
       });
     } catch (ex) {
       console.error(ex);
     }
+  }
 
+  publishChanges = () => {
+    const { matrix } = this.state;
+    const ndarray = map(matrix, day => map(day, hour => hour.current));
+    const schedule = {
+      ...this.props.schedule,
+      __ndarray__: ndarray,
+    }
+    this.props.onScheduleChange(schedule);
   }
 
   toggleDay = dayIndex => event => {
     this.setState((prevState, props) => {
       const { matrix } = prevState;
       if (find(matrix[dayIndex], { current: 0 })) {
-        matrix[dayIndex] = map(matrix[dayIndex], hour => ({ original: hour.original, current: 1, next: null }));
+        matrix[dayIndex] = map(matrix[dayIndex], hour => ({ current: 1, next: null }));
       } else {
-        matrix[dayIndex] = map(matrix[dayIndex], hour => ({ original: hour.original, current: 0, next: null }));
+        matrix[dayIndex] = map(matrix[dayIndex], hour => ({ current: 0, next: null }));
       }
       return { matrix };
-    })
+    }, () => this.publishChanges())
   }
 
   toggleHour = hourIndex => event => {
     this.setState((prevState, props) => {
-      const { schedule, matrix } = prevState;
+      const { matrix } = prevState;
       let hourIsOn = true;
-      for (let i = 0; i < schedule.Shape[0]; i++) {
+      for (let i = 0; i < props.schedule.shape[0]; i++) {
         hourIsOn = hourIsOn && !!matrix[i][hourIndex].current;
       }
       const newCurrent = hourIsOn ? 0 : 1;
-      for (let i = 0; i < schedule.Shape[0]; i++) {
+      for (let i = 0; i < props.schedule.shape[0]; i++) {
         matrix[i][hourIndex].current = newCurrent;
       }
       return { matrix };
-    })
+    }, () => this.publishChanges())
   }
 
   toggleAll = event => {
@@ -142,7 +141,7 @@ class Schedule extends React.Component {
     }
     this.setState({
       matrix
-    })
+    }, () => this.publishChanges())
   }
 
   getDayGrid = (dayIndex, dayValues) => {
@@ -215,33 +214,35 @@ class Schedule extends React.Component {
 
   handleMouseDown = event => {
     event.persist();
-    const { matrix } = this.state;
+    if (event.button === 0) {
+      const { matrix } = this.state;
 
-    const mouseDown = {
-      x: event.clientX,
-      y: event.clientY
-    };
+      const mouseDown = {
+        x: event.clientX,
+        y: event.clientY
+      };
 
-    const start = getSelectionRect(mouseDown, mouseDown);
-    const matrixRect = this.matrixDiv.getBoundingClientRect();
-    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-      for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
-        const top = matrixRect.top + dayIndex * (boxSize + gutters * 2);
-        const left = matrixRect.left + hourIndex * (boxSize + gutters * 2);
-        const hourRect = {
-          top,
-          left,
-          bottom: top + boxSize + gutters * 2,
-          right: left + boxSize + gutters * 2
-        }
-        if (intersects(hourRect, start)) {
-          const newCurrent = matrix[dayIndex][hourIndex].current ? 0 : 1;
-          document.addEventListener('mousemove', this.handleMouseMove, false);
-          document.addEventListener('mouseup', this.handleMouseUp, false);
-          this.setState({
-            mouseDown,
-            newCurrent
-          });
+      const start = getSelectionRect(mouseDown, mouseDown);
+      const matrixRect = this.matrixDiv.getBoundingClientRect();
+      for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
+          const top = matrixRect.top + dayIndex * (boxSize + gutters * 2);
+          const left = matrixRect.left + hourIndex * (boxSize + gutters * 2);
+          const hourRect = {
+            top,
+            left,
+            bottom: top + boxSize + gutters * 2,
+            right: left + boxSize + gutters * 2
+          }
+          if (intersects(hourRect, start)) {
+            const newCurrent = matrix[dayIndex][hourIndex].current ? 0 : 1;
+            document.addEventListener('mousemove', this.handleMouseMove, false);
+            document.addEventListener('mouseup', this.handleMouseUp, false);
+            this.setState({
+              mouseDown,
+              newCurrent
+            });
+          }
         }
       }
     }
@@ -291,24 +292,17 @@ class Schedule extends React.Component {
 
     this.setState({
       matrix
-    })
+    }, () => this.publishChanges())
 
   }
 
   render() {
     const { classes } = this.props;
-    const { schedule, matrix, mouseDown, mouseCurrent } = this.state;
+    const { matrix, mouseDown, mouseCurrent } = this.state;
 
     return (
-      schedule &&
+      matrix &&
       <div className={classes.root}>
-        <Typography variant="body2" color="textSecondary">
-          Name: {schedule.name}
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Timezone: {schedule.timezone}
-        </Typography>
-
         <div className={classes.row}>
           <Button disableRipple disableFocusRipple classes={{ root: classes.rowButtonRoot }} onClick={this.toggleAll}>
             ALL
@@ -359,15 +353,13 @@ class Schedule extends React.Component {
                 </div>)
             }
           </div>
-
         </div>
       </div>
-
     )
   }
 }
 
-export default withStyles(styles)(Schedule);
+export default withStyles(styles)(ScheduleTimeTable);
 
 const getSelectionRect = (mouseDown, mouseUp) => {
   const selectionRect = {};
