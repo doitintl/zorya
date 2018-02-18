@@ -1,16 +1,14 @@
 {
-  "name": "MyPolicy",
+  "name": "My policy",
   "tags": [
     {
-      "mytag_name": "my_tag_value"
-    },
-    {
-      "another_mytag_name": "another_tag_value"
+      "dev": "sleeper",
+      "staging": "resting"
     }
   ],
   "projetcs": [
-    "project-1",
-    "project-2"
+    "project-x",
+    "y-project"
   ],
-  "schedulename": "schedule_name"
+  "schedulename": "my schedule name"
 }

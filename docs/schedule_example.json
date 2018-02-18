@@ -1,196 +1,720 @@
-{
-  "name": "schedule_name",
+
+Public
+ {
+  "Shape": [
+    7,
+    24
+  ],
   "timezone": "Europe/Amsterdam",
-  "schedule": {
-    "__ndarray__": [
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      ]
+  "Corder": true,
+  "__ndarray__": [
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "dtype": "int64",
-    "shape": [
-      7,
-      24
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     ],
-    "Corder": true
-  }
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "dtype": "int64",
+  "name": "schedule_name"
 }
+Zorya API Docs
+
+Zorya GCP Instance Scheduler
+
+Language
+POST Add a schedule
+http://localhost:8080/api/v1/add_schedule
+HEADERS
+Content-Typeapplication/json
+BODY
+{
+  "Shape": [
+    7,
+    24
+  ],
+  "timezone": "Europe/Amsterdam",
+  "Corder": true,
+  "__ndarray__": [
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "dtype": "int64",
+  "name": "schedule_name"
+}
+
+
+Sample Request
+Add a schedule
+curl --request POST \
+  --url http://localhost:8080/api/v1/add_schedule \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "Shape": [
+    7,
+    24
+  ],
+  "timezone": "Europe/Amsterdam",
+  "Corder": true,
+  "__ndarray__": [
+    [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "dtype": "int64",
+  "name": "schedule_name"
+}'
+GET List schedules
+http://localhost:8080/api/v1/list_schedules
+
+
+Sample Request
+List schedules
+curl --request GET \
+  --url http://localhost:8080/api/v1/list_schedules
+GET Delete schedule
+http://localhost:8080/api/v1/del_schedule?schedule=my schedule name
+PARAMS
+schedulemy schedule name
+
+Sample Request
+Delete schedule
+curl --request GET \
+  --url 'http://localhost:8080/api/v1/del_schedule?schedule=my%20schedule%20name'
+GET Get schedule
+http://localhost:8080/api/v1/get_schedule?schedule=my schedule name
+PARAMS
+schedulemy schedule name
+
+Sample Request
+Get schedule
+curl --request GET \
+  --url 'http://localhost:8080/api/v1/get_schedule?schedule=my%20schedule%20name'
+POST Add policy
+http://localhost:8080/api/v1/add_policy
+HEADERS
+Content-Typeapplication/json
+BODY
+{
+  "name": "My policy",
+  "tags": [
+    {
+      "dev": "sleeper",
+      "staging": "resting"
+    }
+  ],
+  "projetcs": [
+    "project-x",
+    "y-project"
+  ],
+  "schedulename": "my schedule name"
+}
+
+
+Sample Request
+Add policy
+curl --request POST \
+  --url http://localhost:8080/api/v1/add_policy \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "name": "My policy",
+  "tags": [
+    {
+      "dev": "sleeper",
+      "staging": "resting"
+    }
+  ],
+  "projetcs": [
+    "project-x",
+    "y-project"
+  ],
+  "schedulename": "my schedule name"
+}'
+GET Get policy
+http://localhost:8080/api/v1/get_policy?policy=My policy
+HEADERS
+Content-Typeapplication/json
+PARAMS
+policyMy policy
+
+Sample Request
+Get policy
+curl --request GET \
+  --url 'http://localhost:8080/api/v1/get_policy?policy=My%20policy' \
+  --header 'Content-Type: application/json'
+GET List policys
+http://localhost:8080/api/v1/list_policys
+HEADERS
+Content-Typeapplication/json
+
+Sample Request
+List policys
+curl --request GET \
+  --url http://localhost:8080/api/v1/list_policys \
+  --header 'Content-Type: application/json'
+GET Delete policy
+http://localhost:8080/api/v1/del_policy?policy=My policy
+HEADERS
+Content-Typeapplication/json
+PARAMS
+policyMy policy
+
+Sample Request
+Delete policy
+curl --request GET \
+  --url 'http://localhost:8080/api/v1/del_policy?policy=My%20policy' \
+  --header 'Content-Type: application/json'
+ZORYA API DOCS
+
+Introduction
+POST
+Add a schedule
+GET
+List schedules
+GET
+Delete schedule
+GET
+Get schedule
+POST
+Add policy
+GET
+Get policy
+GET
+List policys
+GET
+Delete policy

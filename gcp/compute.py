@@ -21,11 +21,21 @@ class Compute(object):
         self.project = project
 
     def change_status(self, to_status, tagkey, tagvalue):
-        filter = "labels." + tagkey + "=" + tagvalue
+        """
+        Stop/start instance based on tags
+        Args:
+            to_status: 0 stop 1 start
+            tagkey: tag key
+            tagvalue: tag value
+
+        Returns:
+
+        """
+        tag_filter = "labels." + tagkey + "=" + tagvalue
         logging.debug("Filter %s", filter)
         for zone in gcp.get_zones():
             try:
-                instances = self.list_instances(zone, filter)
+                instances = self.list_instances(zone, tag_filter)
                 for instance in instances:
                     if int(to_status) == 1:
                         logging.info(
@@ -45,6 +55,15 @@ class Compute(object):
     @backoff.on_exception(
         backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def stop_instance(self, zone, instance):
+        """
+        Stop an instance.
+        Args:
+            zone: zone
+            instance: instance name
+
+        Returns:
+
+        """
         # TODO add requestId
         return self.compute.instances().stop(
             project=self.project, zone=zone, instance=instance).execute()
@@ -52,15 +71,33 @@ class Compute(object):
     @backoff.on_exception(
         backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def start_instance(self, zone, instance):
+        """
+        Start an instance.
+        Args:
+            zone: zone
+            instance: instance name
+
+        Returns:
+
+        """
         # TODO add requestId
         return self.compute.instances().start(
             project=self.project, zone=zone, instance=instance).execute()
 
     @backoff.on_exception(
         backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
-    def list_instances(self, zone, filter=None):
+    def list_instances(self, zone, tags_filter=None):
+        """
+        List all instances in zone with the requested tags
+        Args:
+            zone: zone
+            tags_filter: tags
+
+        Returns:
+
+        """
         result = self.compute.instances().list(
-            project=self.project, zone=zone, filter=filter).execute()
+            project=self.project, zone=zone, filter=tags_filter).execute()
         if 'items' in result:
             return result['items']
         else:
