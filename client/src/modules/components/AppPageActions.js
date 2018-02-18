@@ -2,7 +2,7 @@ import React from 'react';
 
 // Material UI
 import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
+// import Typography from 'material-ui/Typography';
 import Divider from 'material-ui/Divider';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';

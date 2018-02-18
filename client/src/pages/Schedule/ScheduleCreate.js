@@ -39,7 +39,6 @@ class ScheduleCreate extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      name: 'test',
       schedule: getDefaultSchedule(),
     }
 
@@ -48,7 +47,9 @@ class ScheduleCreate extends React.Component {
 
   handleChange = name => event => {
     this.setState({
-      [name]: event.target.value,
+      schedule: {
+        [name]: event.target.value,
+      }
     });
   };
 

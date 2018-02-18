@@ -1,6 +1,8 @@
 export const getDefaultSchedule = () => (
   {
-    shape: [7, 24],
+    name: '',
+    timezone: '',
+    Shape: [7, 24],
     dtype: 'int64',
     Corder: true,
     __ndarray__: [

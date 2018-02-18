@@ -11,7 +11,7 @@ import {
 
 // Material UI
 import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
+// import Typography from 'material-ui/Typography';
 import Tooltip from 'material-ui/Tooltip';
 // import List, {
 //   ListItem,

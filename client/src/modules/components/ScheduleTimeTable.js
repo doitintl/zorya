@@ -119,11 +119,11 @@ class ScheduleTimeTable extends React.Component {
     this.setState((prevState, props) => {
       const { matrix } = prevState;
       let hourIsOn = true;
-      for (let i = 0; i < props.schedule.shape[0]; i++) {
+      for (let i = 0; i < props.schedule.Shape[0]; i++) {
         hourIsOn = hourIsOn && !!matrix[i][hourIndex].current;
       }
       const newCurrent = hourIsOn ? 0 : 1;
-      for (let i = 0; i < props.schedule.shape[0]; i++) {
+      for (let i = 0; i < props.schedule.Shape[0]; i++) {
         matrix[i][hourIndex].current = newCurrent;
       }
       return { matrix };
@@ -131,16 +131,18 @@ class ScheduleTimeTable extends React.Component {
   }
 
   toggleAll = event => {
-    const matrix = this.state.matrix.slice();
-    const hasZero = find(flatten(matrix), { current: 0 });
-    const newCurrent = hasZero ? 1 : 0;
-    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-      for (let hourIndex = 0; hourIndex < 24; hourIndex++) {
-        matrix[dayIndex][hourIndex].current = newCurrent;
+    this.setState((prevState, props) => {
+      const matrix = prevState.matrix;
+      const hasZero = find(flatten(matrix), { current: 0 });
+      const newCurrent = hasZero ? 1 : 0;
+      for (let dayIndex = 0; dayIndex < props.schedule.Shape[0]; dayIndex++) {
+        for (let hourIndex = 0; hourIndex < props.schedule.Shape[1]; hourIndex++) {
+          matrix[dayIndex][hourIndex].current = newCurrent;
+        }
       }
-    }
-    this.setState({
-      matrix
+      return {
+        matrix
+      }
     }, () => this.publishChanges())
   }
 
