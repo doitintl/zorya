@@ -170,7 +170,7 @@ def get_policy():
         return 'not found', 404
     policy = {}
     policy.update({'name': res.Name})
-    policy.update({'schedule': res.Schedule})
+    policy.update({'schedulename': res.Schedule})
     policy.update({'tags': res.Tags})
     policy.update({'projects': res.Projects})
     return json.dumps(policy)
