@@ -24,10 +24,14 @@ import AppFrame from '../modules/components/AppFrame';
 
 // Project Views
 import NotFound from './NotFound/NotFound';
-import ScheduleEdit from './Schedule/ScheduleEdit';
+
 import ScheduleList from './Schedule/ScheduleList';
 import ScheduleCreate from './Schedule/ScheduleCreate';
+import ScheduleEdit from './Schedule/ScheduleEdit';
 
+import PolicyList from './Policy/PolicyList';
+import PolicyCreate from './Policy/PolicyCreate';
+import PolicyEdit from './Policy/PolicyEdit';
 
 const styles = theme => ({
   '@global': {
@@ -63,6 +67,10 @@ class Index extends React.Component {
           <Route exact path="/schedules/create" component={ScheduleCreate} />
           <Route exact path="/schedules/browser" component={ScheduleList} />
           <Route exact path="/schedules/browser/:schedule" component={ScheduleEdit} />
+
+          <Route exact path="/policies/create" component={PolicyCreate} />
+          <Route exact path="/policies/browser" component={PolicyList} />
+          <Route exact path="/policies/browser/:policy" component={PolicyEdit} />
 
           <Route component={NotFound} />
         </Switch>

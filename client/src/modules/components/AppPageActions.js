@@ -20,7 +20,7 @@ class AppPageActions extends React.Component {
     return (
       <div>
         <AppBar position="static" color="inherit" className={classes.appBar} elevation={0} square>
-          <Toolbar disableGutters>
+          <Toolbar>
             {children}
 
           </Toolbar>

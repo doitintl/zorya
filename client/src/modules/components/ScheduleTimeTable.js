@@ -1,12 +1,11 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // Material UI
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Button from 'material-ui/Button';
-import green from 'material-ui/colors/green';
-import grey from 'material-ui/colors/grey';
 
 // Lodash
 import map from 'lodash/map';
@@ -20,6 +19,38 @@ const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const hours = [...Array(24).keys()];
 const gutters = 4;
 const boxSize = 36;
+
+const getSelectionRect = (mouseDown, mouseUp) => {
+  const selectionRect = {};
+  if (mouseDown.x <= mouseUp.x) {
+    selectionRect.left = mouseDown.x;
+    selectionRect.right = mouseUp.x;
+    if (mouseDown.y <= mouseUp.y) {
+      selectionRect.top = mouseDown.y;
+      selectionRect.bottom = mouseUp.y;
+    } else {
+      selectionRect.top = mouseUp.y;
+      selectionRect.bottom = mouseDown.y;
+    }
+  } else {
+    selectionRect.left = mouseUp.x;
+    selectionRect.right = mouseDown.x;
+    if (mouseDown.y <= mouseUp.y) {
+      selectionRect.top = mouseDown.y;
+      selectionRect.bottom = mouseUp.y;
+    } else {
+      selectionRect.top = mouseUp.y;
+      selectionRect.bottom = mouseDown.y;
+    }
+  }
+  return selectionRect;
+}
+
+
+const intersects = (rectA, rectB) => {
+  return (rectA.left < rectB.right && rectA.right > rectB.left &&
+    rectA.top < rectB.bottom && rectA.bottom > rectB.top)
+}
 
 const styles = theme => ({
   root: {
@@ -363,36 +394,8 @@ class ScheduleTimeTable extends React.Component {
   }
 }
 
+ScheduleTimeTable.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
 export default withStyles(styles)(ScheduleTimeTable);
-
-const getSelectionRect = (mouseDown, mouseUp) => {
-  const selectionRect = {};
-  if (mouseDown.x <= mouseUp.x) {
-    selectionRect.left = mouseDown.x;
-    selectionRect.right = mouseUp.x;
-    if (mouseDown.y <= mouseUp.y) {
-      selectionRect.top = mouseDown.y;
-      selectionRect.bottom = mouseUp.y;
-    } else {
-      selectionRect.top = mouseUp.y;
-      selectionRect.bottom = mouseDown.y;
-    }
-  } else {
-    selectionRect.left = mouseUp.x;
-    selectionRect.right = mouseDown.x;
-    if (mouseDown.y <= mouseUp.y) {
-      selectionRect.top = mouseDown.y;
-      selectionRect.bottom = mouseUp.y;
-    } else {
-      selectionRect.top = mouseUp.y;
-      selectionRect.bottom = mouseDown.y;
-    }
-  }
-  return selectionRect;
-}
-
-
-const intersects = (rectA, rectB) => {
-  return (rectA.left < rectB.right && rectA.right > rectB.left &&
-    rectA.top < rectB.bottom && rectA.bottom > rectB.top)
-}

@@ -1,23 +1,15 @@
 import React from 'react';
-// import classNames from 'classnames';
 
 // Material UI
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
-// import Paper from 'material-ui/Paper';
 import Button from 'material-ui/Button';
 import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
-import Input, { InputLabel } from 'material-ui/Input';
-import { MenuItem } from 'material-ui/Menu';
-import { FormControl, FormHelperText } from 'material-ui/Form';
-import Select from 'material-ui/Select';
 
 // Lodash
-import map from 'lodash/map';
-// import find from 'lodash/find';
-// import flatten from 'lodash/flatten';
+// import map from 'lodash/map';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
@@ -35,13 +27,9 @@ const styles = theme => ({
     marginRight: theme.spacing.unit * 2,
   },
   textField: {
-    width: 250,
+    minWidth: 250,
     marginBottom: theme.spacing.unit * 3,
   },
-  formControl: {
-    marginBottom: theme.spacing.unit * 3,
-    minWidth: 250,
-  }
 });
 
 class ScheduleCreate extends React.Component {
@@ -105,7 +93,7 @@ class ScheduleCreate extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { schedule, timezones } = this.state;
+    const { timezones } = this.state;
 
     return (
       <div className={classes.root}>
@@ -120,7 +108,6 @@ class ScheduleCreate extends React.Component {
 
 
         <AppPageContent>
-
           <TextField
             id="schedule-name"
             error={false}

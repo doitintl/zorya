@@ -39,7 +39,7 @@ const links = [
   },
   {
     primary: "Policies",
-    path: "/policies",
+    path: "/policies/browser",
     icon: <PolicyIcon />
   },
 ]

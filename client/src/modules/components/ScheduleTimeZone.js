@@ -47,7 +47,7 @@ function renderSuggestion(params) {
 
 const styles = theme => ({
   container: {
-    flexGrow: 1,
+    // flexGrow: 1,
     width: 250,
     marginBottom: theme.spacing.unit * 3
   },
