@@ -91,4 +91,4 @@ def get_prev_idx(idx, matrix_size):
     if idx == 0:
         return matrix_size - 1
     else:
-        return idx + 1
+        return idx - 1
