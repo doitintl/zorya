@@ -31,17 +31,17 @@ def change_state():
     return 'ok', 200
 
 
-@app.route('/tasks//schedule')
+@app.route('/tasks/schedule')
 def schedule():
     """
     Checks if it's time to run a schedule.
     Returns:
 
     """
-    logging.debug("Start/tasks/schedule")
+    logging.debug("From Cron start /tasks/schedule")
     keys = PolicyModel.query().fetch(keys_only=True)
     for key in keys:
-        logging.debug("Key = %s", key.id())
+        logging.debug("Creating deferred task for   %s", key.id())
         deferred.defer(policy_tasks.policy_checker, key.id())
     return 'ok', 200
 
