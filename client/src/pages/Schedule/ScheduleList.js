@@ -8,19 +8,20 @@ import {
   withRouter,
 } from 'react-router-dom';
 
-
 // Material UI
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow, TableSortLabel } from 'material-ui/Table';
 import Tooltip from 'material-ui/Tooltip';
 import Button from 'material-ui/Button';
-
+import Checkbox from 'material-ui/Checkbox';
 import AddIcon from 'material-ui-icons/Add';
 import RefreshIcon from 'material-ui-icons/Refresh';
+import EditIcon from 'material-ui-icons/Edit';
 import DeleteIcon from 'material-ui-icons/Delete';
 
 // Lodash
 import map from 'lodash/map';
+import indexOf from 'lodash/indexOf';
 
 // Project
 import ScheduleService from '../../modules/api/schedule';
@@ -37,6 +38,15 @@ const styles = theme => ({
   leftIcon: {
     marginRight: theme.spacing.unit,
   },
+  link: {
+    '&:hover': {
+      textDecoration: 'underline',
+      cursor: 'pointer'
+    }
+  },
+  checkboxCell: {
+    width: 48
+  }
 });
 
 class ScheduleList extends React.Component {
@@ -44,6 +54,7 @@ class ScheduleList extends React.Component {
     super(props, context);
     this.state = {
       schedules: [],
+      selected: [],
       order: 'asc'
     }
 
@@ -52,6 +63,11 @@ class ScheduleList extends React.Component {
 
   componentDidMount() {
     this.refreshList();
+    // this.refrestInterval = setInterval(this.refreshList, 10000);
+  }
+
+  componentWillUnmount() {
+    // clearInterval(this.refrestInterval);
   }
 
   handleRequestSort = event => {
@@ -89,10 +105,66 @@ class ScheduleList extends React.Component {
     });
   }
 
+  handleClick = (event, schedule) => {
+    const { selected } = this.state;
+    const selectedIndex = indexOf(selected, schedule);
+    let newSelected = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, schedule);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1));
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      );
+    }
+
+    this.setState({ selected: newSelected });
+  };
+
+  handleSelectAllClick = (event, checked) => {
+    if (checked) {
+      this.setState({ selected: this.state.schedules });
+    } else {
+      this.setState({ selected: [] });
+    }
+  };
+
+  handleDeleteClick = async event => {
+    try {
+      const { selected } = this.state;
+      if (selected.length > 0) {
+        const schedules = [];
+        selected.forEach(schedule => {
+          schedules.push(this.scheduleService.delete(schedule))
+        })
+        const responses = await Promise.all(schedules);
+        responses.forEach(async response => {
+          if (!response.ok) {
+            const errorMsg = await response.text();
+            console.log(errorMsg);
+          }
+        });
+        this.setState({
+          selected: []
+        })
+      }
+    } catch (ex) {
+      console.error(ex);
+    }
+  }
+
 
   render() {
     const { classes } = this.props;
-    const { schedules, order } = this.state;
+    const { schedules, selected, order } = this.state;
+
+    const rowCount = schedules.length;
+    const numSelected = selected.length;
 
     return (
       <div className={classes.root}>
@@ -105,7 +177,11 @@ class ScheduleList extends React.Component {
             <RefreshIcon className={classes.leftIcon} />
             Refresh
           </Button>
-          <Button className={classes.button} color="primary" size="small" disabled>
+          <Button className={classes.button} color="primary" size="small" disabled={selected.length !== 1} onClick={this.handleClickNavigate(`/schedules/browser/${selected[0]}`)}>
+            <EditIcon className={classes.leftIcon} />
+            Edit
+          </Button>
+          <Button className={classes.button} color="primary" size="small" disabled={selected.length < 1} onClick={this.handleDeleteClick}>
             <DeleteIcon className={classes.leftIcon} />
             Delete
           </Button>
@@ -115,6 +191,13 @@ class ScheduleList extends React.Component {
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
+                <TableCell padding="none" className={classes.checkboxCell}>
+                  <Checkbox
+                    indeterminate={numSelected > 0 && numSelected < rowCount}
+                    checked={rowCount > 0 && numSelected === rowCount}
+                    onChange={this.handleSelectAllClick}
+                  />
+                </TableCell>
                 <TableCell sortDirection={order}>
                   <Tooltip
                     title={order === 'desc' ? 'descending' : 'ascending'}
@@ -132,13 +215,29 @@ class ScheduleList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {map(schedules, schedule =>
-                <TableRow key={schedule} hover >
-                  <TableCell onClick={this.handleClickNavigate(`/schedules/browser/${schedule}`)}>
-                    {schedule}
-                  </TableCell>
-                </TableRow>
-              )}
+              {
+                map(schedules, schedule => {
+                  const isSelected = indexOf(selected, schedule) !== -1;
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      aria-checked={isSelected}
+                      tabIndex={-1}
+                      key={schedule}
+                      selected={isSelected}
+                    >
+                      <TableCell padding="none" className={classes.checkboxCell}>
+                        <Checkbox checked={isSelected} onClick={event => this.handleClick(event, schedule)} />
+                      </TableCell>
+
+                      <TableCell >
+                        <span onClick={this.handleClickNavigate(`/schedules/browser/${schedule}`)} className={classes.link}>{schedule}</span>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              }
             </TableBody>
           </Table>
         </AppPageContent>

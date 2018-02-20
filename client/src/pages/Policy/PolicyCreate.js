@@ -83,14 +83,12 @@ class PolicyCreate extends React.Component {
     this.setState({ policy });
   }
 
-  handleCreate = event => {
+  handleCreate = async event => {
     try {
       const { history } = this.props;
       const { policy } = this.state;
-      const response = this.policyService.add(policy);
-      console.log(response);
+      const response = await this.policyService.add(policy);
       history.push('/policies/browser');
-
     } catch (ex) {
       console.error(ex)
     }
@@ -118,9 +116,7 @@ class PolicyCreate extends React.Component {
           </Typography>
         </AppPageActions>
 
-
         <AppPageContent>
-
           <FormGroup row={false}>
             <TextField
               id="policy-name"

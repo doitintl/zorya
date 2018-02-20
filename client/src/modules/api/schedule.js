@@ -25,6 +25,19 @@ class ScheduleService {
     return response.json();
   }
 
+  delete = async schedule => {
+    const response = await fetch(`/api/v1/del_schedule?schedule=${schedule}`, {
+      method: 'GET'
+    });
+
+    // if (!response.ok) {
+    //   console.error(response);
+    //   throw Error(response.statusText);
+    // }
+
+    return response;
+  }
+
   add = async schedule => {
     const response = await fetch(`/api/v1/add_schedule`, {
       method: 'POST',

@@ -25,6 +25,19 @@ class PolicyService {
     return response.json();
   }
 
+  delete = async policy => {
+    const response = await fetch(`/api/v1/del_policy?policy=${policy}`, {
+      method: 'GET'
+    });
+
+    if (!response.ok) {
+      console.error(response);
+      throw Error(response.statusText);
+    }
+
+    return response;
+  }
+
   add = async policy => {
     const response = await fetch(`/api/v1/add_policy`, {
       method: 'POST',
