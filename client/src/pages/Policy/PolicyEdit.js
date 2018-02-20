@@ -18,7 +18,7 @@ import Select from 'material-ui/Select';
 import map from 'lodash/map';
 
 // Project
-import PolicyProjects from '../../modules/components/PolicyProjects';
+// import PolicyProjects from '../../modules/components/PolicyProjects';
 import PolicyTags from '../../modules/components/PolicyTags';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
@@ -80,20 +80,27 @@ class PolicyEdit extends React.Component {
     this.setState({ policy });
   }
 
-  handleChangeProjects = projects => {
+  // handleChangeProjects = projects => {
+  //   const { policy } = this.state;
+  //   policy.projects = projects;
+  //   this.setState({ policy });
+  // }
+
+  handleChangeProjects = event => {
     const { policy } = this.state;
-    policy.projects = projects;
-    this.setState({ policy });
+    policy.projects = event.target.value.replace(/\s/g, '').split(',');;
+    this.setState({
+      policy
+    });
   }
 
-  handleSave = event => {
+  handleSave = async event => {
     try {
       const { history } = this.props;
       const { policy } = this.state;
-      const response = this.policyService.add(policy);
+      const response = await this.policyService.add(policy);
       console.log(response);
       history.push('/policies/browser');
-
     } catch (ex) {
       console.error(ex)
     }
@@ -157,7 +164,21 @@ class PolicyEdit extends React.Component {
                 </Select>
               </FormControl>
 
-              <PolicyProjects selected={policy.projects} onChange={this.handleChangeProjects} />
+              <TextField
+                id="projects-list"
+                error={false}
+                helperText="Separated by comma"
+                label="Projects"
+                className={classes.textField}
+                value={policy.projects.join(',')}
+                onChange={this.handleChangeProjects}
+                margin="none"
+                InputLabelProps={{
+                  shrink: true
+                }}
+              />
+
+              {/* <PolicyProjects selected={policy.projects} onChange={this.handleChangeProjects} /> */}
 
               <PolicyTags tags={policy.tags} onChange={this.handleChangeTags} />
 

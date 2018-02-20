@@ -76,7 +76,6 @@ class ScheduleEdit extends React.Component {
       const { history } = this.props;
       const { schedule } = this.state;
       const response = await this.scheduleService.add(schedule);
-      console.log(response);
       history.push('/schedules/browser');
     } catch (ex) {
       console.error(ex)

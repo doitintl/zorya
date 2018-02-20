@@ -72,14 +72,12 @@ class ScheduleCreate extends React.Component {
     });
   }
 
-  handleCreate = event => {
+  handleCreate = async event => {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
-      const response = this.scheduleService.add(schedule);
-      console.log(response);
+      const response = await this.scheduleService.add(schedule);
       history.push('/schedules/browser');
-
     } catch (ex) {
       console.error(ex)
     }

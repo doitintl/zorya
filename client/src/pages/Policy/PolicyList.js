@@ -144,9 +144,17 @@ class PolicyList extends React.Component {
         })
         const responses = await Promise.all(promises);
         console.log(responses);
+        responses.forEach(async response => {
+          if (!response.ok) {
+            const errorMsg = await response.text();
+            console.log(errorMsg);
+          }
+        });
         this.setState({
           selected: []
-        })
+        }, () => {
+          this.refreshList();
+        });
       }
     } catch (ex) {
       console.error(ex);

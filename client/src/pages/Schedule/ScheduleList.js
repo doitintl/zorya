@@ -138,11 +138,12 @@ class ScheduleList extends React.Component {
     try {
       const { selected } = this.state;
       if (selected.length > 0) {
-        const schedules = [];
+        const promises = [];
         selected.forEach(schedule => {
-          schedules.push(this.scheduleService.delete(schedule))
+          promises.push(this.scheduleService.delete(schedule))
         })
-        const responses = await Promise.all(schedules);
+        const responses = await Promise.all(promises);
+        console.log(responses);
         responses.forEach(async response => {
           if (!response.ok) {
             const errorMsg = await response.text();
@@ -151,7 +152,9 @@ class ScheduleList extends React.Component {
         });
         this.setState({
           selected: []
-        })
+        }, () => {
+          this.refreshList();
+        });
       }
     } catch (ex) {
       console.error(ex);

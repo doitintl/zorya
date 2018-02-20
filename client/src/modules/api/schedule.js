@@ -1,7 +1,8 @@
 class ScheduleService {
   list = async () => {
     const response = await fetch(`/api/v1/list_schedules`, {
-      method: 'GET'
+      method: 'GET',
+      credentials: 'same-origin'
     });
 
     if (!response.ok) {
@@ -14,7 +15,8 @@ class ScheduleService {
 
   get = async schedule => {
     const response = await fetch(`/api/v1/get_schedule?schedule=${schedule}`, {
-      method: 'GET'
+      method: 'GET',
+      credentials: 'same-origin'
     });
 
     if (!response.ok) {
@@ -27,7 +29,8 @@ class ScheduleService {
 
   delete = async schedule => {
     const response = await fetch(`/api/v1/del_schedule?schedule=${schedule}`, {
-      method: 'GET'
+      method: 'GET',
+      credentials: 'same-origin'
     });
 
     // if (!response.ok) {
@@ -41,6 +44,7 @@ class ScheduleService {
   add = async schedule => {
     const response = await fetch(`/api/v1/add_schedule`, {
       method: 'POST',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -57,7 +61,8 @@ class ScheduleService {
 
   timezones = async () => {
     const response = await fetch(`/api/v1/time_zones`, {
-      method: 'GET'
+      method: 'GET',
+      credentials: 'same-origin'
     });
 
     if (!response.ok) {
