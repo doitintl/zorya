@@ -18,7 +18,7 @@ import Select from 'material-ui/Select';
 import map from 'lodash/map';
 
 // Project
-import PolicyProjects from '../../modules/components/PolicyProjects';
+// import PolicyProjects from '../../modules/components/PolicyProjects';
 import PolicyTags from '../../modules/components/PolicyTags';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
@@ -77,10 +77,18 @@ class PolicyCreate extends React.Component {
     this.setState({ policy });
   }
 
-  handleChangeProjects = projects => {
+  // handleChangeProjects = projects => {
+  //   const { policy } = this.state;
+  //   policy.projects = projects;
+  //   this.setState({ policy });
+  // }
+
+  handleChangeProjects = event => {
     const { policy } = this.state;
-    policy.projects = projects;
-    this.setState({ policy });
+    policy.projects = event.target.value.replace(/\s/g,'').split(',');;
+    this.setState({
+      policy
+    });
   }
 
   handleCreate = async event => {
@@ -149,7 +157,21 @@ class PolicyCreate extends React.Component {
               </Select>
             </FormControl>
 
-            <PolicyProjects onChange={this.handleChangeProjects} />
+            <TextField
+              id="projects-list"
+              error={false}
+              helperText="Separated by comma"
+              label="Projects"
+              className={classes.textField}
+              value={policy.projects.join(',')}
+              onChange={this.handleChangeProjects}
+              margin="none"
+              InputLabelProps={{
+                shrink: true
+              }}
+            />
+
+            {/* <PolicyProjects onChange={this.handleChangeProjects} /> */}
 
             <PolicyTags onChange={this.handleChangeTags} />
 
