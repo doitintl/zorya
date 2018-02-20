@@ -41,12 +41,12 @@ class Compute(object):
                 for instance in instances:
                     if int(to_status) == 1:
                         logging.info(
-                            "Starting %s in project %s tagkey %s tgavalue %s",
+                            "Starting %s in project %s tagkey %s tagvalue %s",
                             instance['name'], self.project, tagkey, tagvalue)
                         self.start_instance(zone, instance['name'])
                     else:
                         logging.info(
-                            "Stopping %s in project %s tagkey %s tgavalue %s",
+                            "Stopping %s in project %s tagkey %s tagvalue %s",
                             instance['name'], self.project, tagkey, tagvalue)
                         self.stop_instance(zone, instance['name'])
             except HttpError as http_error:

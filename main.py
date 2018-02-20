@@ -23,15 +23,15 @@ def change_state():
     """
     logging.debug(
         "Starting change_state action %s project %s tagkey %s tagvalue %s",
-        request.args['tagkey'], request.args['tagvalue'],
-        request.args['action'], request.args['project'])
+        request.args['action'], request.args['project'],
+        request.args['tagkey'], request.args['tagvalue'])
     schedule_tasks.change_state(
         request.args['tagkey'], request.args['tagvalue'],
         request.args['action'], request.args['project'])
     return 'ok', 200
 
 
-@app.route('/tasks/schedule')
+@app.route('/tasks/schedule', methods=['GET'])
 def schedule():
     """
     Checks if it's time to run a schedule.
@@ -92,7 +92,7 @@ def get_schedule():
     schedule.update({'name': res.Name})
     schedule.update(res.Schedule)
     schedule.update({'timezone': res.Timezone})
-    print res.Schedule
+    logging.debug(json.dumps(res.Schedule))
     return json.dumps(schedule)
 
 
@@ -136,7 +136,7 @@ def add_policy():
     Returns:
 
     """
-    print(request.json)
+    logging.debug(json.dumps(request.json))
     name = request.json['name']
     tags = request.json['tags']
     projects = request.json['projects']
@@ -156,7 +156,7 @@ def add_policy():
     return 'ok', 200
 
 
-@app.route(API_VERSION + '/get_policy')
+@app.route(API_VERSION + '/get_policy', methods=['GET'])
 def get_policy():
     """
     Get policy.
@@ -165,7 +165,7 @@ def get_policy():
     """
     name = request.args.get('policy')
     res = PolicyModel.query(PolicyModel.Name == name).get()
-    print res
+    logging.debug(res)
     if not res:
         return 'not found', 404
     policy = {}
