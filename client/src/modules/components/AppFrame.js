@@ -29,6 +29,9 @@ import map from 'lodash/map';
 import find from 'lodash/find';
 import startsWith from 'lodash/startsWith';
 
+// Project
+import logo from '../../assets/zorya.png';
+
 const drawerWidth = 200;
 
 const links = [
@@ -63,7 +66,15 @@ const styles = theme => ({
       display: 'none',
     },
   },
-  drawerHeader: theme.mixins.toolbar,
+  drawerHeader: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 112,
+    [theme.breakpoints.up('sm')]: {
+      height: 128,
+    },
+  },
   drawerPaper: {
     width: drawerWidth,
     [theme.breakpoints.up('md')]: {
@@ -126,7 +137,9 @@ class AppFrame extends React.Component {
 
     const drawer = (
       <div>
-        <div className={classes.drawerHeader} />
+        <div className={classes.drawerHeader}>
+          <img src={logo} alt="Zorya" />
+        </div>
         <Divider />
         <List dense disablePadding>
           {
@@ -145,57 +158,57 @@ class AppFrame extends React.Component {
 
     return (
       <div className={classes.root}>
-          <AppBar position="absolute" color="primary" className={classes.appBar} elevation={0} square>
-            <Toolbar>
-              <IconButton
-                color="inherit"
-                aria-label="open drawer"
-                onClick={this.handleDrawerToggle}
-                className={classes.navIconHide}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography variant="title" color="inherit" noWrap>
-                {title}
-              </Typography>
-            </Toolbar>
-          </AppBar>
-
-          <Hidden mdUp>
-            <Drawer
-              variant="temporary"
-              anchor="left"
-              open={mobileOpen}
-              classes={{
-                paper: classes.drawerPaper,
-
-              }}
-              onClose={this.handleDrawerToggle}
-              ModalProps={{
-                keepMounted: true, // Better open performance on mobile.
-              }}
+        <AppBar position="absolute" color="primary" className={classes.appBar} elevation={0} square>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              onClick={this.handleDrawerToggle}
+              className={classes.navIconHide}
             >
-              {drawer}
-            </Drawer>
-          </Hidden>
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="title" color="inherit" noWrap>
+              {title}
+            </Typography>
+          </Toolbar>
+        </AppBar>
 
-          <Hidden smDown implementation="css">
-            <Drawer
-              variant="permanent"
-              anchor="left"
-              open
-              classes={{
-                paper: classes.drawerPaper,
-                docked: classes.drawerDocked
-              }}
-            >
-              {drawer}
-            </Drawer>
-          </Hidden>
+        <Hidden mdUp>
+          <Drawer
+            variant="temporary"
+            anchor="left"
+            open={mobileOpen}
+            classes={{
+              paper: classes.drawerPaper,
 
-          <main className={classes.content}>
-            {children}
-          </main>
+            }}
+            onClose={this.handleDrawerToggle}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+
+        <Hidden smDown implementation="css">
+          <Drawer
+            variant="permanent"
+            anchor="left"
+            open
+            classes={{
+              paper: classes.drawerPaper,
+              docked: classes.drawerDocked
+            }}
+          >
+            {drawer}
+          </Drawer>
+        </Hidden>
+
+        <main className={classes.content}>
+          {children}
+        </main>
 
       </div>
     );
