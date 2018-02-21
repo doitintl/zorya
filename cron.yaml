@@ -2,4 +2,4 @@ cron:
 - description: "Run scheduled tasks"
   url: /tasks/schedule
   schedule: every 60 minutes synchronized
-  target: zorya-backend
+  target: default
