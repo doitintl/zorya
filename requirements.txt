@@ -5,6 +5,5 @@ google-auth
 google-auth-httplib2
 numpy==1.6.1
 pytz
-google-api-python-client
 tzlocal
 backoff==1.4.3
