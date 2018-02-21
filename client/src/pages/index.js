@@ -19,7 +19,7 @@ import { withStyles } from 'material-ui/styles';
 
 // Project
 import withRoot from '../withRoot';
-// import withProps from '../withProps';
+import withProps from '../withProps';
 import AppFrame from '../modules/components/AppFrame';
 
 // Project Views
@@ -29,9 +29,8 @@ import ScheduleList from './Schedule/ScheduleList';
 import ScheduleCreate from './Schedule/ScheduleCreate';
 import ScheduleEdit from './Schedule/ScheduleEdit';
 
+import Policy from './Policy/Policy';
 import PolicyList from './Policy/PolicyList';
-import PolicyCreate from './Policy/PolicyCreate';
-import PolicyEdit from './Policy/PolicyEdit';
 
 const styles = theme => ({
   '@global': {
@@ -63,14 +62,14 @@ class Index extends React.Component {
       <AppFrame className={classes.root}>
         <Switch>
           <Route exact path="/" render={() => <Redirect to="/schedules/browser" />} />
-          {/* <Route exact path="/login" component={withProps(Login, { user })} /> */}
+          
           <Route exact path="/schedules/create" component={ScheduleCreate} />
           <Route exact path="/schedules/browser" component={ScheduleList} />
           <Route exact path="/schedules/browser/:schedule" component={ScheduleEdit} />
 
-          <Route exact path="/policies/create" component={PolicyCreate} />
+          <Route exact path="/policies/create" component={withProps(Policy, { edit: false })} />
+          <Route exact path="/policies/browser/:policy" component={withProps(Policy, { edit: true })} />
           <Route exact path="/policies/browser" component={PolicyList} />
-          <Route exact path="/policies/browser/:policy" component={PolicyEdit} />
 
           <Route component={NotFound} />
         </Switch>

@@ -8,23 +8,22 @@ import Button from 'material-ui/Button';
 import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 import IconButton from 'material-ui/IconButton';
 import TextField from 'material-ui/TextField';
-
 import { InputLabel } from 'material-ui/Input';
 import { FormGroup, FormControl } from 'material-ui/Form';
 import Select from 'material-ui/Select';
 
-
 // Lodash
 import map from 'lodash/map';
+import find from 'lodash/find';
+import forOwn from 'lodash/forOwn';
 
 // Project
-// import PolicyProjects from '../../modules/components/PolicyProjects';
 import PolicyTags from '../../modules/components/PolicyTags';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
 import PolicyService from '../../modules/api/policy';
 import ScheduleService from '../../modules/api/schedule';
-
+import { getDefaultPolicy } from '../../modules/utils/policy';
 
 const styles = theme => ({
   root: {
@@ -43,11 +42,17 @@ const styles = theme => ({
   },
 });
 
-class PolicyEdit extends React.Component {
+class Policy extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      policy: null
+      policy: null,
+      schedules: null,
+
+      nameError: false,
+      scheduleError: false,
+      projectsError: false,
+      tagsError: []
     }
 
     this.policyService = new PolicyService();
@@ -58,10 +63,18 @@ class PolicyEdit extends React.Component {
     try {
       const { match } = this.props;
       const schedules = await this.scheduleService.list();
-      const policy = await this.policyService.get(match.params.policy);
+      let policy;
+      if (match.params.policy) {
+        policy = await this.policyService.get(match.params.policy);
+      } else {
+        policy = getDefaultPolicy();
+      }
+      if (schedules && schedules.length) {
+        policy.schedulename = schedules[0];
+      }
       this.setState({
         policy,
-        schedules
+        schedules,
       });
     } catch (ex) {
       console.error(ex);
@@ -74,17 +87,16 @@ class PolicyEdit extends React.Component {
     this.setState({ policy });
   };
 
-  handleChangeTags = tags => {
+  handleChangeTags = (tags, shouldUpdateErrors) => {
     const { policy } = this.state;
     policy.tags = tags;
-    this.setState({ policy });
+    if (shouldUpdateErrors) {
+      const tagsError = this.getTagsError();
+      this.setState({ policy, tagsError });
+    } else {
+      this.setState({ policy });
+    }
   }
-
-  // handleChangeProjects = projects => {
-  //   const { policy } = this.state;
-  //   policy.projects = projects;
-  //   this.setState({ policy });
-  // }
 
   handleChangeProjects = event => {
     const { policy } = this.state;
@@ -94,13 +106,60 @@ class PolicyEdit extends React.Component {
     });
   }
 
-  handleSave = async event => {
+  getTagsError = () => {
+    const { policy } = this.state;
+    const tagsRe = /^[a-z][a-z0-9_-]+[a-z0-9]$/;
+    let tagsError = [];
+    for (let i = 0; i < policy.tags.length; i++) {
+      tagsError.push([false, false]);
+      forOwn(policy.tags[i], (value, key) => {
+        if (!tagsRe.test(key)) {
+          tagsError[i][0] = true;
+        }
+        if (!tagsRe.test(value)) {
+          tagsError[i][1] = true;
+        }
+      });
+    }
+    return tagsError;
+  }
+
+  handleSubmit = async event => {
     try {
       const { history } = this.props;
       const { policy } = this.state;
-      const response = await this.policyService.add(policy);
-      console.log(response);
-      history.push('/policies/browser');
+
+      const nameRe = /^[a-zA-Z][\w-]*[a-zA-Z0-9]$/;
+      const projectsRe = /^[a-z][a-z0-9-]+[a-z0-9]$/;
+
+      let nameError = false;
+      let projectsError = !policy.projects.length;
+      const scheduleError = !policy.schedulename;
+      const tagsError = this.getTagsError();
+
+      if (!nameRe.test(policy.name)) {
+        nameError = true;
+      }
+
+      for (let i = 0; i < policy.projects.length && !projectsError; i++) {
+        if (!projectsRe.test(policy.projects[i])) {
+          projectsError = true;
+        }
+      }
+
+      if (nameError || projectsError || scheduleError || find(tagsError, tagErrors => tagErrors[0] || tagErrors[1])) {
+        this.setState({
+          nameError,
+          scheduleError,
+          projectsError,
+          tagsError
+        })
+      } else {
+        const response = await this.policyService.add(policy);
+        console.log(response);
+        history.push('/policies/browser');
+      }
+
     } catch (ex) {
       console.error(ex)
     }
@@ -113,29 +172,36 @@ class PolicyEdit extends React.Component {
 
 
   render() {
-    const { classes } = this.props;
-    const { policy, schedules } = this.state;
+    const { classes, edit } = this.props;
+    const { policy, schedules, nameError, scheduleError, projectsError, tagsError } = this.state;
 
     if (policy) {
       return (
         <div className={classes.root}>
-
           <AppPageActions>
             <IconButton color="primary" aria-label="Back" onClick={this.handleRequestCancel}>
               <ArrowBackIcon />
             </IconButton>
-            <Typography variant="subheading" color="primary">
-              Edit policy {policy.name}
-            </Typography>
-          </AppPageActions>
 
+            {
+              edit ? (
+                <Typography variant="subheading" color="primary">
+                  Edit policy {policy.name}
+                </Typography>
+              ) : (
+                  <Typography variant="subheading" color="primary">
+                    Create a policy
+                </Typography>
+                )
+            }
+          </AppPageActions>
 
           <AppPageContent>
             <FormGroup row={false}>
               <TextField
-                disabled
+                disabled={edit}
                 id="policy-name"
-                error={false}
+                error={nameError}
                 helperText=""
                 label="Policy name"
                 className={classes.textField}
@@ -148,8 +214,9 @@ class PolicyEdit extends React.Component {
               />
 
               <FormControl className={classes.formControl}>
-                <InputLabel shrink htmlFor="schedule-input">Schedule name</InputLabel>
+                <InputLabel shrink error={scheduleError} htmlFor="schedule-input">Schedule name</InputLabel>
                 <Select
+                  error={scheduleError}
                   native
                   value={this.state.policy.schedulename}
                   onChange={this.handleChange('schedulename')}
@@ -157,7 +224,6 @@ class PolicyEdit extends React.Component {
                     id: 'schedule-input',
                   }}
                 >
-                  <option value="" />
                   {
                     map(schedules, schedule => <option key={schedule} value={schedule}>{schedule}</option>)
                   }
@@ -166,7 +232,7 @@ class PolicyEdit extends React.Component {
 
               <TextField
                 id="projects-list"
-                error={false}
+                error={projectsError}
                 helperText="Separated by comma"
                 label="Projects"
                 className={classes.textField}
@@ -178,20 +244,15 @@ class PolicyEdit extends React.Component {
                 }}
               />
 
-              {/* <PolicyProjects selected={policy.projects} onChange={this.handleChangeProjects} /> */}
-
-              <PolicyTags tags={policy.tags} onChange={this.handleChangeTags} />
-
+              <PolicyTags error={tagsError} tags={policy.tags} onChange={this.handleChangeTags} />
             </FormGroup>
 
-            <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleSave}>
+            <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleSubmit}>
               Save
             </Button>
             <Button className={classes.button} color="primary" size="small" onClick={this.handleRequestCancel}>
               Cancel
             </Button>
-
-
           </AppPageContent>
         </div >
       )
@@ -201,8 +262,8 @@ class PolicyEdit extends React.Component {
   }
 }
 
-PolicyEdit.propTypes = {
+Policy.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(PolicyEdit);
+export default withStyles(styles)(Policy);

@@ -29,7 +29,8 @@ const styles = theme => ({
     height: 32
   },
   addButton: {
-    width: TEXT_FIELD_WIDTH * 2 + theme.spacing.unit
+    width: TEXT_FIELD_WIDTH * 2 + theme.spacing.unit,
+    border: '1px solid',
   },
   sizeSmallButton: {
     padding: 0,
@@ -65,24 +66,24 @@ class PolicyTags extends React.Component {
     }
   }
 
-  publishChanges = () => {
+  publishChanges = (shouldUpdateErrors) => {
     const tags = map(this.state.tags, tag => ({
       [tag.key]: tag.value
     }));
-    this.props.onChange(tags);
+    this.props.onChange(tags, shouldUpdateErrors);
   }
 
   handleChange = (index, name) => event => {
     const tags = this.state.tags.slice();
     tags[index][name] = event.target.value;
-    this.setState({ tags }, () => this.publishChanges());
+    this.setState({ tags }, () => this.publishChanges(false));
   };
 
   handleClearTag = index => event => {
     const tags = this.state.tags.slice();
     if (tags.length > 1) {
       tags.splice(index, 1);
-      this.setState({ tags }, () => this.publishChanges());
+      this.setState({ tags }, () => this.publishChanges(true));
     }
   }
 
@@ -92,11 +93,11 @@ class PolicyTags extends React.Component {
       key: '',
       value: ''
     })
-    this.setState({ tags }, () => this.publishChanges());
+    this.setState({ tags }, () => this.publishChanges(false));
   }
 
   render() {
-    const { classes } = this.props;
+    const { classes, error } = this.props;
     const { tags } = this.state;
 
     return (
@@ -106,7 +107,7 @@ class PolicyTags extends React.Component {
           <FormGroup row key={index}>
             <TextField
               id="policy-tag-value"
-              error={false}
+              error={error[index] && error[index][0]}
               helperText=""
               placeholder="Key"
               className={classes.textField}
@@ -116,7 +117,7 @@ class PolicyTags extends React.Component {
             />
             <TextField
               id="policy-tag-key"
-              error={false}
+              error={error[index] && error[index][1]}
               helperText=""
               placeholder="Value"
               className={classes.textField}
@@ -138,7 +139,7 @@ class PolicyTags extends React.Component {
 
         {
           tags.length < 7 &&
-          <Button variant="raised" color="primary" size="small" className={classes.addButton} onClick={this.handleAddTag} classes={{
+          <Button color="primary" size="small" className={classes.addButton} onClick={this.handleAddTag} classes={{
             sizeSmall: classes.sizeSmallButton
           }}>
             Add tag
@@ -153,6 +154,7 @@ class PolicyTags extends React.Component {
 PolicyTags.propTypes = {
   classes: PropTypes.object.isRequired,
   onChange: PropTypes.func.isRequired,
+  error: PropTypes.array.isRequired,
 };
 
 export default withStyles(styles)(PolicyTags);
