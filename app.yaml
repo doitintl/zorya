@@ -23,10 +23,6 @@ handlers:
   static_files: build/index.html
   upload: build/index.html
 
-- url: /index\.html
-  static_files: build/index.html
-  upload: build/index\.html
-
 - url: /favicon\.ico
   static_files: build/favicon.ico
   upload: build/favicon\.ico
