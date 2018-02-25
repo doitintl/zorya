@@ -3,31 +3,46 @@
 # https://developers.google.com/appengine/docs/python/config/appconfig
 # for details.
 
-# TODO: Enter your application id below. If you have signed up
-# using cloud.google.com/console use the "project id" for your application
-# id.
 runtime: python27
 api_version: 1
 threadsafe: true
-service: zorya-backend
+service: default
 
 builtins:
 - deferred: on
 
-
 # Handlers define how to route requests to your application.
 handlers:
-- url: .*  # This regex directs all routes to main.app
+- url: /api/v1/(.*)
   script: main.app
 
-#- url: /api/v1/.*
- # script: main.app
- # login: optional
- # secure: always
+- url: /tasks/(.*) 
+  script: main.app
 
+- url: /
+  static_files: build/index.html
+  upload: build/index.html
 
+- url: /favicon\.ico
+  static_files: build/favicon.ico
+  upload: build/favicon\.ico
 
+# unused for now
+# - url: /service-worker\.js
+#   static_files: build/service-worker.js
+#   upload: build/service-worker\.js
 
+- url: /manifest\.json
+  static_files: build/manifest.json
+  upload: build/manifest\.json
+
+- url: /static/(.*)
+  static_files: build/static/\1
+  upload: build/static/(.*)
+ 
+- url: .*
+  static_files: build/index.html
+  upload: build/index.html
 
 
 # here if you want to use them.  See
@@ -44,3 +59,11 @@ libraries:
   version: latest
 - name: numpy
   version: "1.6.1"
+
+skip_files:
+- ^\.git$
+- ^\client$
+- ^\venv$
+
+# needed for dev_appserver.py, tracks too many changes otherwise
+- .*/zorya/client
