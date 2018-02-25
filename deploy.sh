@@ -17,4 +17,4 @@ gcloud config set project $PROJECTID
 
 rm -rf ./build
 cd client && yarn build && cd ..
-gcloud app deploy app.yaml cron.yaml queue.yaml
+gcloud app deploy -q app.yaml cron.yaml queue.yaml
