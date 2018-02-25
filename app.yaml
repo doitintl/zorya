@@ -23,9 +23,9 @@ handlers:
   static_files: build/index.html
   upload: build/index.html
 
-- url: /favicon\.ico
-  static_files: build/favicon.ico
-  upload: build/favicon\.ico
+- url: /favicon\.png
+  static_files: build/favicon.png
+  upload: build/favicon\.png
 
 # unused for now
 # - url: /service-worker\.js

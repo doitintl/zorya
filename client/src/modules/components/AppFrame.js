@@ -32,7 +32,7 @@ import startsWith from 'lodash/startsWith';
 // Project
 import logo from '../../assets/zorya.png';
 
-const drawerWidth = 200;
+const drawerWidth = 210;
 
 const links = [
   {
@@ -69,11 +69,7 @@ const styles = theme => ({
   drawerHeader: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    height: 112,
-    [theme.breakpoints.up('sm')]: {
-      height: 128,
-    },
+    ...theme.mixins.toolbar
   },
   drawerPaper: {
     width: drawerWidth,
@@ -158,7 +154,7 @@ class AppFrame extends React.Component {
 
     return (
       <div className={classes.root}>
-        <AppBar position="absolute" color="primary" className={classes.appBar} elevation={0} square>
+        <AppBar position="absolute" color="primary" className={classes.appBar} elevation={2} square>
           <Toolbar>
             <IconButton
               color="inherit"
@@ -173,7 +169,7 @@ class AppFrame extends React.Component {
             </Typography>
           </Toolbar>
         </AppBar>
-
+        
         <Hidden mdUp>
           <Drawer
             variant="temporary"
