@@ -13,6 +13,8 @@ In Slavic mythology, [Zoryas](https://www.wikiwand.com/en/Zorya) are two guardia
 
 `pip install -r requirements.txt -t lib`
 
+Download and install [Yarn](https://yarnpkg.com/).
+
 ##### Deploy
 `./deploy.sh project-id`
 
