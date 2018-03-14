@@ -108,7 +108,7 @@ class Policy extends React.Component {
 
   getTagsError = () => {
     const { policy } = this.state;
-    const tagsRe = /^[a-z][a-z0-9_-]+[a-z0-9]$/;
+    const tagsRe = /^[a-z][a-z0-9_-]*[a-z0-9]$/;
     let tagsError = [];
     for (let i = 0; i < policy.tags.length; i++) {
       tagsError.push([false, false]);
