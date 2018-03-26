@@ -68,9 +68,9 @@ class Policy extends React.Component {
         policy = await this.policyService.get(match.params.policy);
       } else {
         policy = getDefaultPolicy();
-      }
-      if (schedules && schedules.length) {
-        policy.schedulename = schedules[0];
+        if (schedules && schedules.length) {
+          policy.schedulename = schedules[0];
+        }
       }
       this.setState({
         policy,
