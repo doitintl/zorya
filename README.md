@@ -17,6 +17,7 @@ Download and install [Yarn](https://yarnpkg.com/).
 
 ##### Deploy
 `./deploy.sh project-id`
+You need to enable compute engine API (https://console.cloud.google.com/apis/library/compute.googleapis.com) for the Zorya project/app to work and communicate with compute engine instances.
 
 #### Access the app
 `gcloud app browse`
