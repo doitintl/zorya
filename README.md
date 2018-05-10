@@ -29,7 +29,7 @@ To sign into the app, we are using [Cloud Identity-Aware Proxy (Cloud IAP)](http
 
 #### Authentication
 In order to allow Zorya to manage instances on your behalf in any project under your organization, you will need to create a new entry in your Organization IAM and assign Zorya’s service account with a role of XXXX
-First, navigate to https://console.cloud.google.com, then IAM from the menu and then select the name of your organization (not just specific project) from the dropdown at the top of the page:
+First, navigate to https://console.cloud.google.com, then IAM from the menu and then select the name of your project that you deployed zorya in, from the dropdown at the top of the page:
 
 ![](iam.png)
 
