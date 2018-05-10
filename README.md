@@ -25,6 +25,8 @@ You need to enable compute engine API (https://console.cloud.google.com/apis/lib
 #### Access the app
 `gcloud app browse`
 
+**WARNING**: By default this application is public; ensure you turn on IAP, as follows:
+
 To sign into the app, we are using [Cloud Identity-Aware Proxy (Cloud IAP)](https://cloud.google.com/iap/). Cloud IAP works by verifying a user’s identity and determining if that user should be allowed to access the application. The setup is as simple as heading over to [GCP console](https://console.cloud.google.com/iam-admin/iap), enabling IAP on your GAE app and adding the users who should have access to it.
 
 #### Authentication
@@ -33,7 +35,7 @@ First, navigate to https://console.cloud.google.com, then IAM from the menu and 
 
 ![](iam.png)
 
-The name of the service account you will need to assign permissions to is as following:`project-id@appspot.gserviceaccount.com`, just replace project-id with your real project id where you deploy Zorya.
+The name of the service account you will need to assign permissions to is as following:`<YOUR_PROJECT_ID>@appspot.gserviceaccount.com` and will have been automatically created by Google App Engine. *NOTE:* this is done under *IAM*, selecting the account, choosing *Permissions* and then adding the role **Compute Instance Admin (v1)** to it; not under *Service Accounts*.
 
 ## Flow
 
