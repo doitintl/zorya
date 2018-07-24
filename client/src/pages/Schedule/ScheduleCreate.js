@@ -1,15 +1,12 @@
 import React from 'react';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
-import ArrowBackIcon from 'material-ui-icons/ArrowBack';
-import IconButton from 'material-ui/IconButton';
-import TextField from 'material-ui/TextField';
-
-// Lodash
-// import map from 'lodash/map';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
@@ -37,8 +34,9 @@ class ScheduleCreate extends React.Component {
     super(props, context);
     this.state = {
       schedule: getDefaultSchedule(),
+      nameError: false,
       timezones: [],
-    }
+    };
 
     this.scheduleService = new ScheduleService();
   }
@@ -47,7 +45,7 @@ class ScheduleCreate extends React.Component {
     try {
       const response = await this.scheduleService.timezones();
       this.setState({
-        timezones: response.Timezones
+        timezones: response.Timezones,
       });
     } catch (ex) {
       console.error(ex);
@@ -68,36 +66,45 @@ class ScheduleCreate extends React.Component {
 
   handleScheduleChange = nextSchedule => {
     this.setState({
-      schedule: nextSchedule
+      schedule: nextSchedule,
     });
-  }
+  };
 
   handleCreate = async event => {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
-      const response = await this.scheduleService.add(schedule);
-      console.log(response);
+      const nameRe = /^[a-zA-Z][\w-]*[a-zA-Z0-9]$/;
+      if (!nameRe.test(schedule.name)) {
+        this.setState({
+          nameError: true,
+        });
+        return;
+      }
+      await this.scheduleService.add(schedule);
       history.push('/schedules/browser');
     } catch (ex) {
-      console.error(ex)
+      console.error(ex);
     }
-  }
+  };
 
   handleRequestCancel = event => {
     const { history } = this.props;
     history.goBack();
-  }
-
+  };
 
   render() {
     const { classes } = this.props;
-    const { timezones } = this.state;
+    const { schedule, timezones, nameError } = this.state;
 
     return (
       <div className={classes.root}>
         <AppPageActions>
-          <IconButton color="primary" aria-label="Back" onClick={this.handleRequestCancel}>
+          <IconButton
+            color="primary"
+            aria-label="Back"
+            onClick={this.handleRequestCancel}
+          >
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="subheading" color="primary">
@@ -105,32 +112,49 @@ class ScheduleCreate extends React.Component {
           </Typography>
         </AppPageActions>
 
-
         <AppPageContent>
           <TextField
             id="schedule-name"
-            error={false}
+            error={nameError}
             helperText=""
             placeholder="Schedule name"
             className={classes.textField}
-            value={this.state.schedule.name}
+            value={schedule.name}
             onChange={this.handleChange('name')}
             margin="none"
           />
 
-          <ScheduleTimeZone timezones={timezones} onSelect={this.handleChangeTimezone} />
+          <ScheduleTimeZone
+            timezones={timezones}
+            onSelect={this.handleChangeTimezone}
+          />
 
-          <ScheduleTimeTable schedule={this.state.schedule} onScheduleChange={this.handleScheduleChange} />
+          <ScheduleTimeTable
+            schedule={schedule}
+            onScheduleChange={this.handleScheduleChange}
+          />
 
-          <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleCreate}>
+          <Button
+            className={classes.button}
+            variant="contained"
+            color="primary"
+            size="small"
+            onClick={this.handleCreate}
+          >
             Create
           </Button>
-          <Button className={classes.button} color="primary" size="small" onClick={this.handleRequestCancel}>
+          <Button
+            className={classes.button}
+            variant="outlined"
+            color="primary"
+            size="small"
+            onClick={this.handleRequestCancel}
+          >
             Cancel
           </Button>
         </AppPageContent>
-      </div >
-    )
+      </div>
+    );
   }
 }
 

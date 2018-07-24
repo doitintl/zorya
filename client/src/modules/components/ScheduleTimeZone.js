@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from 'material-ui/styles';
-import TextField from 'material-ui/TextField';
-import Paper from 'material-ui/Paper';
-import { MenuItem } from 'material-ui/Menu';
+import { withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import Paper from '@material-ui/core/Paper';
+import MenuItem from '@material-ui/core/MenuItem';
 import Downshift from 'downshift';
 
 function renderInput(inputProps) {
@@ -11,7 +11,6 @@ function renderInput(inputProps) {
 
   return (
     <TextField
-      // helperText="Optional, defaults to UTC if left unselected"
       margin="none"
       {...other}
       inputRef={ref}
@@ -26,7 +25,13 @@ function renderInput(inputProps) {
 }
 
 function renderSuggestion(params) {
-  const { suggestion, index, itemProps, highlightedIndex, selectedItem } = params;
+  const {
+    suggestion,
+    index,
+    itemProps,
+    highlightedIndex,
+    selectedItem,
+  } = params;
   const isHighlighted = highlightedIndex === index;
   const isSelected = selectedItem === suggestion;
 
@@ -49,32 +54,45 @@ const styles = theme => ({
   container: {
     // flexGrow: 1,
     width: 250,
-    marginBottom: theme.spacing.unit * 3
+    marginBottom: theme.spacing.unit * 3,
   },
   suggestionsContainer: {
     position: 'absolute',
     maxHeight: 200,
     width: 250,
     overflow: 'auto',
-    zIndex: 1000
-  }
+    zIndex: 1000,
+  },
 });
 
 class ScheduleTimezone extends React.Component {
   constructor(props, context) {
     super(props, context);
-    this.state = {
-    }
+    this.state = {};
   }
 
-  getSuggestions = inputValue => this.props.timezones.filter(suggestion => !inputValue || suggestion.toLowerCase().includes(inputValue.toLowerCase())).slice(0,20);
+  getSuggestions = inputValue =>
+    this.props.timezones
+      .filter(
+        suggestion =>
+          !inputValue ||
+          suggestion.toLowerCase().includes(inputValue.toLowerCase())
+      )
+      .slice(0, 20);
 
   render() {
     const { classes, onSelect, selected } = this.props;
 
     return (
       <Downshift onSelect={onSelect} selectedItem={selected || null}>
-        {({ getInputProps, getItemProps, isOpen, inputValue, selectedItem, highlightedIndex }) => (
+        {({
+          getInputProps,
+          getItemProps,
+          isOpen,
+          inputValue,
+          selectedItem,
+          highlightedIndex,
+        }) => (
           <div className={classes.container}>
             {renderInput({
               fullWidth: true,
@@ -85,7 +103,11 @@ class ScheduleTimezone extends React.Component {
               }),
             })}
             {isOpen ? (
-              <Paper square elevation={0} className={classes.suggestionsContainer}>
+              <Paper
+                square
+                elevation={0}
+                className={classes.suggestionsContainer}
+              >
                 {this.getSuggestions(inputValue).map((suggestion, index) =>
                   renderSuggestion({
                     suggestion,
@@ -93,7 +115,7 @@ class ScheduleTimezone extends React.Component {
                     itemProps: getItemProps({ item: suggestion }),
                     highlightedIndex,
                     selectedItem,
-                  }),
+                  })
                 )}
               </Paper>
             ) : null}

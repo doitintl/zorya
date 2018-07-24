@@ -1,13 +1,11 @@
-export const getDefaultPolicy = () => (
-  {
-    name: '',
+export const getDefaultPolicy = () => ({
+  name: '',
 
-    // array of strings
-    projects: [],
+  // array of strings
+  projects: [],
 
-    // array of objects
-    tags: [],
+  // array of objects
+  tags: [],
 
-    schedulename: ''
-  }
-)
+  schedulename: '',
+});

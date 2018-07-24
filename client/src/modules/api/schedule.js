@@ -2,7 +2,7 @@ class ScheduleService {
   list = async () => {
     const response = await fetch(`/api/v1/list_schedules`, {
       method: 'GET',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {
@@ -11,12 +11,12 @@ class ScheduleService {
     }
 
     return response.json();
-  }
+  };
 
   get = async schedule => {
     const response = await fetch(`/api/v1/get_schedule?schedule=${schedule}`, {
       method: 'GET',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {
@@ -25,12 +25,12 @@ class ScheduleService {
     }
 
     return response.json();
-  }
+  };
 
   delete = async schedule => {
     const response = await fetch(`/api/v1/del_schedule?schedule=${schedule}`, {
       method: 'GET',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
     });
 
     // if (!response.ok) {
@@ -39,16 +39,16 @@ class ScheduleService {
     // }
 
     return response;
-  }
+  };
 
   add = async schedule => {
     const response = await fetch(`/api/v1/add_schedule`, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify(schedule)
+      body: JSON.stringify(schedule),
     });
 
     if (!response.ok) {
@@ -57,12 +57,12 @@ class ScheduleService {
     }
 
     return response;
-  }
+  };
 
   timezones = async () => {
     const response = await fetch(`/api/v1/time_zones`, {
       method: 'GET',
-      credentials: 'same-origin'
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {
@@ -71,7 +71,7 @@ class ScheduleService {
     }
 
     return response.json();
-  }
+  };
 }
 
 export default ScheduleService;

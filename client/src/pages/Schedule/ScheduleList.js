@@ -4,20 +4,23 @@ import React from 'react';
 import { compose } from 'recompose';
 
 // Router
-import {
-  withRouter,
-} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import Table, { TableBody, TableCell, TableHead, TableRow, TableSortLabel } from 'material-ui/Table';
-import Tooltip from 'material-ui/Tooltip';
-import Button from 'material-ui/Button';
-import Checkbox from 'material-ui/Checkbox';
-import AddIcon from 'material-ui-icons/Add';
-import RefreshIcon from 'material-ui-icons/Refresh';
-import EditIcon from 'material-ui-icons/Edit';
-import DeleteIcon from 'material-ui-icons/Delete';
+import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
+import AddIcon from '@material-ui/icons/Add';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 // Lodash
 import map from 'lodash/map';
@@ -41,12 +44,12 @@ const styles = theme => ({
   link: {
     '&:hover': {
       textDecoration: 'underline',
-      cursor: 'pointer'
-    }
+      cursor: 'pointer',
+    },
   },
   checkboxCell: {
-    width: 48
-  }
+    width: 48,
+  },
 });
 
 class ScheduleList extends React.Component {
@@ -55,8 +58,8 @@ class ScheduleList extends React.Component {
     this.state = {
       schedules: [],
       selected: [],
-      order: 'asc'
-    }
+      order: 'asc',
+    };
 
     this.scheduleService = new ScheduleService();
   }
@@ -72,38 +75,38 @@ class ScheduleList extends React.Component {
 
   handleRequestSort = event => {
     this.setState((prevState, props) => {
-      let order = 'desc'
+      let order = 'desc';
       if (prevState.order === 'desc') {
         order = 'asc';
       }
 
       const schedules =
         order === 'desc'
-          ? prevState.schedules.sort((a, b) => b < a ? -1 : 1)
-          : prevState.schedules.sort((a, b) => a < b ? -1 : 1);
+          ? prevState.schedules.sort((a, b) => (b < a ? -1 : 1))
+          : prevState.schedules.sort((a, b) => (a < b ? -1 : 1));
 
       return {
         schedules,
-        order
-      }
+        order,
+      };
     });
-  }
+  };
 
   handleClickNavigate = path => event => {
     const { history } = this.props;
     history.push(path);
-  }
+  };
 
   handleClickRefresh = event => {
     this.refreshList();
-  }
+  };
 
   refreshList = async () => {
     const schedules = await this.scheduleService.list();
     this.setState({
-      schedules
+      schedules,
     });
-  }
+  };
 
   handleClick = (event, schedule) => {
     const { selected } = this.state;
@@ -119,7 +122,7 @@ class ScheduleList extends React.Component {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     }
 
@@ -140,8 +143,8 @@ class ScheduleList extends React.Component {
       if (selected.length > 0) {
         const promises = [];
         selected.forEach(schedule => {
-          promises.push(this.scheduleService.delete(schedule))
-        })
+          promises.push(this.scheduleService.delete(schedule));
+        });
         const responses = await Promise.all(promises);
         console.log(responses);
         responses.forEach(async response => {
@@ -150,17 +153,19 @@ class ScheduleList extends React.Component {
             console.log(errorMsg);
           }
         });
-        this.setState({
-          selected: []
-        }, () => {
-          this.refreshList();
-        });
+        this.setState(
+          {
+            selected: [],
+          },
+          () => {
+            this.refreshList();
+          }
+        );
       }
     } catch (ex) {
       console.error(ex);
     }
-  }
-
+  };
 
   render() {
     const { classes } = this.props;
@@ -172,19 +177,43 @@ class ScheduleList extends React.Component {
     return (
       <div className={classes.root}>
         <AppPageActions>
-          <Button className={classes.button} color="primary" size="small" onClick={this.handleClickNavigate(`/schedules/create`)}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            onClick={this.handleClickNavigate(`/schedules/create`)}
+          >
             <AddIcon className={classes.leftIcon} />
             Create Schedule
           </Button>
-          <Button className={classes.button} color="primary" size="small" onClick={this.handleClickRefresh}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            onClick={this.handleClickRefresh}
+          >
             <RefreshIcon className={classes.leftIcon} />
             Refresh
           </Button>
-          <Button className={classes.button} color="primary" size="small" disabled={selected.length !== 1} onClick={this.handleClickNavigate(`/schedules/browser/${selected[0]}`)}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            disabled={selected.length !== 1}
+            onClick={this.handleClickNavigate(
+              `/schedules/browser/${selected[0]}`
+            )}
+          >
             <EditIcon className={classes.leftIcon} />
             Edit
           </Button>
-          <Button className={classes.button} color="primary" size="small" disabled={selected.length < 1} onClick={this.handleDeleteClick}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            disabled={selected.length < 1}
+            onClick={this.handleDeleteClick}
+          >
             <DeleteIcon className={classes.leftIcon} />
             Delete
           </Button>
@@ -213,43 +242,52 @@ class ScheduleList extends React.Component {
                       onClick={this.handleRequestSort}
                     >
                       Schedules
-                  </TableSortLabel>
-                  </Tooltip></TableCell>
+                    </TableSortLabel>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {
-                map(schedules, schedule => {
-                  const isSelected = indexOf(selected, schedule) !== -1;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isSelected}
-                      tabIndex={-1}
-                      key={schedule}
-                      selected={isSelected}
-                    >
-                      <TableCell padding="none" className={classes.checkboxCell}>
-                        <Checkbox checked={isSelected} onClick={event => this.handleClick(event, schedule)} />
-                      </TableCell>
+              {map(schedules, schedule => {
+                const isSelected = indexOf(selected, schedule) !== -1;
+                return (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    tabIndex={-1}
+                    key={schedule}
+                    selected={isSelected}
+                  >
+                    <TableCell padding="none" className={classes.checkboxCell}>
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={event => this.handleClick(event, schedule)}
+                      />
+                    </TableCell>
 
-                      <TableCell >
-                        <span onClick={this.handleClickNavigate(`/schedules/browser/${schedule}`)} className={classes.link}>{schedule}</span>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              }
+                    <TableCell>
+                      <span
+                        onClick={this.handleClickNavigate(
+                          `/schedules/browser/${schedule}`
+                        )}
+                        className={classes.link}
+                      >
+                        {schedule}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </AppPageContent>
       </div>
-    )
+    );
   }
 }
 
 export default compose(
   withRouter,
-  withStyles(styles),
+  withStyles(styles)
 )(ScheduleList);
