@@ -6,23 +6,24 @@ import classNames from 'classnames';
 import { compose } from 'recompose';
 
 // Router
-import {
-  withRouter,
-} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
-import { withStyles } from 'material-ui/styles';
-import Drawer from 'material-ui/Drawer';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
-import List from 'material-ui/List';
-import Typography from 'material-ui/Typography';
-import Divider from 'material-ui/Divider';
-import { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import ScheduleIcon from 'material-ui-icons/Schedule';
-import PolicyIcon from 'material-ui-icons/LibraryBooks';
-import IconButton from 'material-ui/IconButton';
-import Hidden from 'material-ui/Hidden';
-import MenuIcon from 'material-ui-icons/Menu';
+import { withStyles } from '@material-ui/core/styles';
+import Drawer from '@material-ui/core/Drawer';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import List from '@material-ui/core/List';
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import IconButton from '@material-ui/core/IconButton';
+import Hidden from '@material-ui/core/Hidden';
+
+import PolicyIcon from '@material-ui/icons/LibraryBooks';
+import ScheduleIcon from '@material-ui/icons/Schedule';
+import MenuIcon from '@material-ui/icons/Menu';
 
 // Lodash
 import map from 'lodash/map';
@@ -36,16 +37,16 @@ const drawerWidth = 210;
 
 const links = [
   {
-    primary: "Schedules",
-    path: "/schedules/browser",
-    icon: <ScheduleIcon />
+    primary: 'Schedules',
+    path: '/schedules/browser',
+    icon: <ScheduleIcon />,
   },
   {
-    primary: "Policies",
-    path: "/policies/browser",
-    icon: <PolicyIcon />
+    primary: 'Policies',
+    path: '/policies/browser',
+    icon: <PolicyIcon />,
   },
-]
+];
 
 const styles = theme => ({
   root: {
@@ -69,7 +70,7 @@ const styles = theme => ({
   drawerHeader: {
     display: 'flex',
     alignItems: 'center',
-    ...theme.mixins.toolbar
+    ...theme.mixins.toolbar,
   },
   drawerPaper: {
     width: drawerWidth,
@@ -84,8 +85,6 @@ const styles = theme => ({
   content: {
     backgroundColor: theme.palette.background.default,
     width: '100%',
-    // padding: theme.spacing.unit,
-    // overflow: 'hidden',
     height: 'calc(100% - 56px)',
     marginTop: 56,
     [theme.breakpoints.up('sm')]: {
@@ -99,32 +98,35 @@ class AppFrame extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      title: "",
-      mobileOpen: false
-    }
+      title: '',
+      mobileOpen: false,
+    };
   }
 
   componentDidMount() {
     const { history } = this.props;
-    const currentLink = find(links, link => startsWith(history.location.pathname, link.path));
+    const currentLink = find(links, link =>
+      startsWith(history.location.pathname, link.path)
+    );
     if (currentLink) {
       this.setState({
-        title: currentLink.primary
-      })
+        title: currentLink.primary,
+      });
     }
-
   }
 
   handleClickLink = link => event => {
     const { history } = this.props;
     history.push(link.path);
     this.setState({
-      title: `${link.primary}`
-    })
-  }
+      title: `${link.primary}`,
+    });
+  };
 
   handleDrawerToggle = () => {
-    this.setState((prevState, props) => ({ mobileOpen: !prevState.mobileOpen }));
+    this.setState((prevState, props) => ({
+      mobileOpen: !prevState.mobileOpen,
+    }));
   };
 
   render() {
@@ -138,23 +140,35 @@ class AppFrame extends React.Component {
         </div>
         <Divider />
         <List dense disablePadding>
-          {
-            map(links, (link, index) =>
-              <ListItem key={index} className={classNames({ [classes.highlight]: startsWith(history.location.pathname, link.path) })} button onClick={this.handleClickLink(link)}>
-                <ListItemIcon>
-                  {link.icon}
-                </ListItemIcon>
-                <ListItemText primary={link.primary} />
-              </ListItem>
-            )
-          }
+          {map(links, (link, index) => (
+            <ListItem
+              key={index}
+              className={classNames({
+                [classes.highlight]: startsWith(
+                  history.location.pathname,
+                  link.path
+                ),
+              })}
+              button
+              onClick={this.handleClickLink(link)}
+            >
+              <ListItemIcon>{link.icon}</ListItemIcon>
+              <ListItemText primary={link.primary} />
+            </ListItem>
+          ))}
         </List>
       </div>
     );
 
     return (
       <div className={classes.root}>
-        <AppBar position="absolute" color="primary" className={classes.appBar} elevation={2} square>
+        <AppBar
+          position="absolute"
+          color="primary"
+          className={classes.appBar}
+          elevation={2}
+          square
+        >
           <Toolbar>
             <IconButton
               color="inherit"
@@ -169,7 +183,7 @@ class AppFrame extends React.Component {
             </Typography>
           </Toolbar>
         </AppBar>
-        
+
         <Hidden mdUp>
           <Drawer
             variant="temporary"
@@ -177,7 +191,6 @@ class AppFrame extends React.Component {
             open={mobileOpen}
             classes={{
               paper: classes.drawerPaper,
-
             }}
             onClose={this.handleDrawerToggle}
             ModalProps={{
@@ -195,17 +208,14 @@ class AppFrame extends React.Component {
             open
             classes={{
               paper: classes.drawerPaper,
-              docked: classes.drawerDocked
+              docked: classes.drawerDocked,
             }}
           >
             {drawer}
           </Drawer>
         </Hidden>
 
-        <main className={classes.content}>
-          {children}
-        </main>
-
+        <main className={classes.content}>{children}</main>
       </div>
     );
   }
@@ -217,5 +227,5 @@ AppFrame.propTypes = {
 
 export default compose(
   withRouter,
-  withStyles(styles),
+  withStyles(styles)
 )(AppFrame);

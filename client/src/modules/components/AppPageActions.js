@@ -1,15 +1,14 @@
 import React from 'react';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-// import Typography from 'material-ui/Typography';
-import Divider from 'material-ui/Divider';
-import AppBar from 'material-ui/AppBar';
-import Toolbar from 'material-ui/Toolbar';
+import { withStyles } from '@material-ui/core/styles';
+import Divider from '@material-ui/core/Divider';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
 
 const styles = theme => ({
   appBar: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
   },
 });
 
@@ -19,15 +18,18 @@ class AppPageActions extends React.Component {
 
     return (
       <div>
-        <AppBar position="static" color="inherit" className={classes.appBar} elevation={0} square>
-          <Toolbar>
-            {children}
-
-          </Toolbar>
+        <AppBar
+          position="static"
+          color="inherit"
+          className={classes.appBar}
+          elevation={0}
+          square
+        >
+          <Toolbar>{children}</Toolbar>
         </AppBar>
         <Divider />
       </div>
-    )
+    );
   }
 }
 

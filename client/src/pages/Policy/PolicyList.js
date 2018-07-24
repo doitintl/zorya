@@ -4,20 +4,24 @@ import React from 'react';
 import { compose } from 'recompose';
 
 // Router
-import {
-  withRouter,
-} from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import Table, { TableBody, TableCell, TableHead, TableRow, TableSortLabel } from 'material-ui/Table';
-import Tooltip from 'material-ui/Tooltip';
-import Button from 'material-ui/Button';
-import Checkbox from 'material-ui/Checkbox';
-import AddIcon from 'material-ui-icons/Add';
-import RefreshIcon from 'material-ui-icons/Refresh';
-import EditIcon from 'material-ui-icons/Edit';
-import DeleteIcon from 'material-ui-icons/Delete';
+import { withStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+
+import Tooltip from '@material-ui/core/Tooltip';
+import Button from '@material-ui/core/Button';
+import Checkbox from '@material-ui/core/Checkbox';
+import AddIcon from '@material-ui/icons/Add';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 // Lodash
 import map from 'lodash/map';
@@ -41,12 +45,12 @@ const styles = theme => ({
   link: {
     '&:hover': {
       textDecoration: 'underline',
-      cursor: 'pointer'
-    }
+      cursor: 'pointer',
+    },
   },
   checkboxCell: {
-    width: 48
-  }
+    width: 48,
+  },
 });
 
 class PolicyList extends React.Component {
@@ -55,55 +59,50 @@ class PolicyList extends React.Component {
     this.state = {
       policies: [],
       selected: [],
-      order: 'asc'
-    }
+      order: 'asc',
+    };
 
     this.policyService = new PolicyService();
   }
 
   componentDidMount() {
     this.refreshList();
-    // this.refrestInterval = setInterval(this.refreshList, 10000);
-  }
-
-  componentWillUnmount() {
-    // clearInterval(this.refrestInterval);
   }
 
   handleRequestSort = event => {
     this.setState((prevState, props) => {
-      let order = 'desc'
+      let order = 'desc';
       if (prevState.order === 'desc') {
         order = 'asc';
       }
 
       const policies =
         order === 'desc'
-          ? prevState.policies.sort((a, b) => b < a ? -1 : 1)
-          : prevState.policies.sort((a, b) => a < b ? -1 : 1);
+          ? prevState.policies.sort((a, b) => (b < a ? -1 : 1))
+          : prevState.policies.sort((a, b) => (a < b ? -1 : 1));
 
       return {
         policies,
-        order
-      }
+        order,
+      };
     });
-  }
+  };
 
   handleClickNavigate = path => event => {
     const { history } = this.props;
     history.push(path);
-  }
+  };
 
   handleClickRefresh = event => {
     this.refreshList();
-  }
+  };
 
   refreshList = async () => {
     const policies = await this.policyService.list();
     this.setState({
-      policies
+      policies,
     });
-  }
+  };
 
   handleClick = (event, policy) => {
     const { selected } = this.state;
@@ -119,7 +118,7 @@ class PolicyList extends React.Component {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(
         selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
+        selected.slice(selectedIndex + 1)
       );
     }
 
@@ -140,8 +139,8 @@ class PolicyList extends React.Component {
       if (selected.length > 0) {
         const promises = [];
         selected.forEach(policy => {
-          promises.push(this.policyService.delete(policy))
-        })
+          promises.push(this.policyService.delete(policy));
+        });
         const responses = await Promise.all(promises);
         console.log(responses);
         responses.forEach(async response => {
@@ -150,16 +149,19 @@ class PolicyList extends React.Component {
             console.log(errorMsg);
           }
         });
-        this.setState({
-          selected: []
-        }, () => {
-          this.refreshList();
-        });
+        this.setState(
+          {
+            selected: [],
+          },
+          () => {
+            this.refreshList();
+          }
+        );
       }
     } catch (ex) {
       console.error(ex);
     }
-  }
+  };
 
   render() {
     const { classes } = this.props;
@@ -171,19 +173,43 @@ class PolicyList extends React.Component {
     return (
       <div className={classes.root}>
         <AppPageActions>
-          <Button className={classes.button} color="primary" size="small" onClick={this.handleClickNavigate(`/policies/create`)}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            onClick={this.handleClickNavigate(`/policies/create`)}
+          >
             <AddIcon className={classes.leftIcon} />
             Create Policy
           </Button>
-          <Button className={classes.button} color="primary" size="small" onClick={this.handleClickRefresh}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            onClick={this.handleClickRefresh}
+          >
             <RefreshIcon className={classes.leftIcon} />
             Refresh
           </Button>
-          <Button className={classes.button} color="primary" size="small" disabled={selected.length !== 1} onClick={this.handleClickNavigate(`/policies/browser/${selected[0]}`)}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            disabled={selected.length !== 1}
+            onClick={this.handleClickNavigate(
+              `/policies/browser/${selected[0]}`
+            )}
+          >
             <EditIcon className={classes.leftIcon} />
             Edit
           </Button>
-          <Button className={classes.button} color="primary" size="small" disabled={selected.length < 1} onClick={this.handleDeleteClick}>
+          <Button
+            className={classes.button}
+            color="primary"
+            size="small"
+            disabled={selected.length < 1}
+            onClick={this.handleDeleteClick}
+          >
             <DeleteIcon className={classes.leftIcon} />
             Delete
           </Button>
@@ -212,45 +238,52 @@ class PolicyList extends React.Component {
                       onClick={this.handleRequestSort}
                     >
                       Policies
-                  </TableSortLabel>
-                  </Tooltip></TableCell>
+                    </TableSortLabel>
+                  </Tooltip>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
+              {map(policies, policy => {
+                const isSelected = indexOf(selected, policy) !== -1;
+                return (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    tabIndex={-1}
+                    key={policy}
+                    selected={isSelected}
+                  >
+                    <TableCell padding="none" className={classes.checkboxCell}>
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={event => this.handleClick(event, policy)}
+                      />
+                    </TableCell>
 
-              {
-                map(policies, policy => {
-                  const isSelected = indexOf(selected, policy) !== -1;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isSelected}
-                      tabIndex={-1}
-                      key={policy}
-                      selected={isSelected}
-                    >
-                      <TableCell padding="none" className={classes.checkboxCell}>
-                        <Checkbox checked={isSelected} onClick={event => this.handleClick(event, policy)} />
-                      </TableCell>
-
-                      <TableCell >
-                        <span onClick={this.handleClickNavigate(`/policies/browser/${policy}`)} className={classes.link}>{policy}</span>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })
-              }
-
+                    <TableCell>
+                      <span
+                        onClick={this.handleClickNavigate(
+                          `/policies/browser/${policy}`
+                        )}
+                        className={classes.link}
+                      >
+                        {policy}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </AppPageContent>
       </div>
-    )
+    );
   }
 }
 
 export default compose(
   withRouter,
-  withStyles(styles),
+  withStyles(styles)
 )(PolicyList);

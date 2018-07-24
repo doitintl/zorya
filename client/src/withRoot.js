@@ -1,44 +1,38 @@
 import React from 'react';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import blue from '@material-ui/core/colors/blue';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 // Router
 import { BrowserRouter } from 'react-router-dom';
 
-// Material-UI
-import { MuiThemeProvider, createMuiTheme } from 'material-ui/styles';
-import blue from 'material-ui/colors/blue';
-// import pink from 'material-ui/colors/pink';
-import Reboot from 'material-ui/Reboot';
-
-// Material-UI Theme
+// A theme with custom primary and secondary color.
+// It's optional.
 const theme = createMuiTheme({
   palette: {
-    primary: {
-      light: blue[500],
-      main: blue[700],
-      dark: blue[900],
-    },
-    secondary: {
-      light: blue[500],
-      main: blue[700],
-      dark: blue[900],
-    },
-    type: 'light'
-  }
+    primary: blue,
+    secondary: blue,
+  },
 });
 
-// Expose the theme as a global variable.
-if (process.browser) {
-  console.log(theme);
-  window.theme = theme;
+console.log(theme);
+
+function withRoot(Component) {
+  function WithRoot(props) {
+    // MuiThemeProvider makes the theme available down the React tree
+    // thanks to React context.
+    return (
+      <MuiThemeProvider theme={theme}>
+        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+        <CssBaseline />
+        <BrowserRouter>
+          <Component {...props} />
+        </BrowserRouter>
+      </MuiThemeProvider>
+    );
+  }
+
+  return WithRoot;
 }
-
-const withRoot = Component => props =>
-  (<MuiThemeProvider theme={theme}>
-    <Reboot />
-    <BrowserRouter>
-      <Component {...props} />
-    </BrowserRouter>
-  </MuiThemeProvider>);
-
 
 export default withRoot;

@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import TextField from 'material-ui/TextField';
-import { FormGroup } from 'material-ui/Form';
-import Button from 'material-ui/Button';
-import IconButton from 'material-ui/IconButton';
-import ClearIcon from 'material-ui-icons/Clear';
+import { withStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import FormGroup from '@material-ui/core/FormGroup';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
+import ClearIcon from '@material-ui/icons/Clear';
 
 // Lodash
 import map from 'lodash/map';
@@ -26,27 +26,28 @@ const styles = theme => ({
   },
   iconButton: {
     width: 32,
-    height: 32
+    height: 32,
   },
   addButton: {
     width: TEXT_FIELD_WIDTH * 2 + theme.spacing.unit,
-    border: '1px solid',
   },
   sizeSmallButton: {
     padding: 0,
-    minHeight: 24
-  }
+    minHeight: 24,
+  },
 });
 
 class PolicyTags extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      tags: [{
-        key: '',
-        value: ''
-      }]
-    }
+      tags: [
+        {
+          key: '',
+          value: '',
+        },
+      ],
+    };
   }
 
   componentDidMount() {
@@ -56,22 +57,22 @@ class PolicyTags extends React.Component {
         forOwn(tag, (value, key) => {
           tags.push({
             key,
-            value
+            value,
           });
         });
-      })
+      });
       this.setState({
-        tags
-      })
+        tags,
+      });
     }
   }
 
-  publishChanges = (shouldUpdateErrors) => {
+  publishChanges = shouldUpdateErrors => {
     const tags = map(this.state.tags, tag => ({
-      [tag.key]: tag.value
+      [tag.key]: tag.value,
     }));
     this.props.onChange(tags, shouldUpdateErrors);
-  }
+  };
 
   handleChange = (index, name) => event => {
     const tags = this.state.tags.slice();
@@ -85,16 +86,16 @@ class PolicyTags extends React.Component {
       tags.splice(index, 1);
       this.setState({ tags }, () => this.publishChanges(true));
     }
-  }
+  };
 
   handleAddTag = event => {
     const tags = this.state.tags.slice();
     tags.push({
       key: '',
-      value: ''
-    })
+      value: '',
+    });
     this.setState({ tags }, () => this.publishChanges(false));
-  }
+  };
 
   render() {
     const { classes, error } = this.props;
@@ -102,7 +103,6 @@ class PolicyTags extends React.Component {
 
     return (
       <div className={classes.root}>
-
         {map(tags, (tag, index) => (
           <FormGroup row key={index}>
             <TextField
@@ -126,29 +126,37 @@ class PolicyTags extends React.Component {
               margin="none"
             />
 
-            {tags.length > 1 &&
-              <IconButton className={classes.iconButton} aria-label="Clear" onClick={this.handleClearTag(index)}
+            {tags.length > 1 && (
+              <IconButton
+                className={classes.iconButton}
+                aria-label="Clear"
+                onClick={this.handleClearTag(index)}
                 classes={{
-                  root: classes.iconButton
-                }}>
+                  root: classes.iconButton,
+                }}
+              >
                 <ClearIcon />
               </IconButton>
-            }
+            )}
           </FormGroup>
         ))}
 
-        {
-          tags.length < 7 &&
-          <Button color="primary" size="small" className={classes.addButton} onClick={this.handleAddTag} classes={{
-            sizeSmall: classes.sizeSmallButton
-          }}>
+        {tags.length < 7 && (
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            className={classes.addButton}
+            onClick={this.handleAddTag}
+            classes={{
+              sizeSmall: classes.sizeSmallButton,
+            }}
+          >
             Add tag
           </Button>
-        }
-
-
+        )}
       </div>
-    )
+    );
   }
 }
 PolicyTags.propTypes = {
