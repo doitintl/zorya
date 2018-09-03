@@ -126,6 +126,7 @@ class ScheduleCreate extends React.Component {
           />
 
           <ScheduleTimeZone
+            selected={schedule.timezone}
             timezones={timezones}
             onSelect={this.handleChangeTimezone}
           />
