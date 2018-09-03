@@ -2,15 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
-import ArrowBackIcon from 'material-ui-icons/ArrowBack';
-import IconButton from 'material-ui/IconButton';
-import TextField from 'material-ui/TextField';
-import { InputLabel } from 'material-ui/Input';
-import { FormGroup, FormControl } from 'material-ui/Form';
-import Select from 'material-ui/Select';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 
 // Lodash
 import map from 'lodash/map';
@@ -52,8 +53,8 @@ class Policy extends React.Component {
       nameError: false,
       scheduleError: false,
       projectsError: false,
-      tagsError: []
-    }
+      tagsError: [],
+    };
 
     this.policyService = new PolicyService();
     this.scheduleService = new ScheduleService();
@@ -96,15 +97,15 @@ class Policy extends React.Component {
     } else {
       this.setState({ policy });
     }
-  }
+  };
 
   handleChangeProjects = event => {
     const { policy } = this.state;
-    policy.projects = event.target.value.replace(/\s/g, '').split(',');;
+    policy.projects = event.target.value.replace(/\s/g, '').split(',');
     this.setState({
-      policy
+      policy,
     });
-  }
+  };
 
   getTagsError = () => {
     const { policy } = this.state;
@@ -122,7 +123,7 @@ class Policy extends React.Component {
       });
     }
     return tagsError;
-  }
+  };
 
   handleSubmit = async event => {
     try {
@@ -147,53 +148,65 @@ class Policy extends React.Component {
         }
       }
 
-      if (nameError || projectsError || scheduleError || find(tagsError, tagErrors => tagErrors[0] || tagErrors[1])) {
+      if (
+        nameError ||
+        projectsError ||
+        scheduleError ||
+        find(tagsError, tagErrors => tagErrors[0] || tagErrors[1])
+      ) {
         this.setState({
           nameError,
           scheduleError,
           projectsError,
-          tagsError
-        })
+          tagsError,
+        });
       } else {
         const response = await this.policyService.add(policy);
         console.log(response);
         history.push('/policies/browser');
       }
-
     } catch (ex) {
-      console.error(ex)
+      console.error(ex);
     }
-  }
+  };
 
   handleRequestCancel = event => {
     const { history } = this.props;
     history.goBack();
-  }
-
+  };
 
   render() {
     const { classes, edit } = this.props;
-    const { policy, schedules, nameError, scheduleError, projectsError, tagsError } = this.state;
+    const {
+      policy,
+      schedules,
+      nameError,
+      scheduleError,
+      projectsError,
+      tagsError,
+    } = this.state;
 
     if (policy) {
       return (
         <div className={classes.root}>
           <AppPageActions>
-            <IconButton color="primary" aria-label="Back" onClick={this.handleRequestCancel}>
+            <IconButton
+              color="primary"
+              aria-label="Back"
+              onClick={this.handleRequestCancel}
+            >
               <ArrowBackIcon />
             </IconButton>
 
-            {
-              edit ? (
-                <Typography variant="subheading" color="primary">
-                  Edit policy {policy.name}
-                </Typography>
-              ) : (
-                  <Typography variant="subheading" color="primary">
-                    Create a policy
-                </Typography>
-                )
-            }
+            {edit ? (
+              <Typography variant="subheading" color="primary">
+                Edit policy {policy.name}
+              </Typography>
+            ) : (
+              <Typography variant="subheading" color="primary">
+                Create a policy
+              </Typography>
+            )}
           </AppPageActions>
 
           <AppPageContent>
@@ -208,13 +221,20 @@ class Policy extends React.Component {
                 value={this.state.policy.name}
                 onChange={this.handleChange('name')}
                 margin="none"
+                autoFocus
                 InputLabelProps={{
-                  shrink: true
+                  shrink: true,
                 }}
               />
 
               <FormControl className={classes.formControl}>
-                <InputLabel shrink error={scheduleError} htmlFor="schedule-input">Schedule name</InputLabel>
+                <InputLabel
+                  shrink
+                  error={scheduleError}
+                  htmlFor="schedule-input"
+                >
+                  Schedule name
+                </InputLabel>
                 <Select
                   error={scheduleError}
                   native
@@ -224,9 +244,11 @@ class Policy extends React.Component {
                     id: 'schedule-input',
                   }}
                 >
-                  {
-                    map(schedules, schedule => <option key={schedule} value={schedule}>{schedule}</option>)
-                  }
+                  {map(schedules, schedule => (
+                    <option key={schedule} value={schedule}>
+                      {schedule}
+                    </option>
+                  ))}
                 </Select>
               </FormControl>
 
@@ -240,24 +262,40 @@ class Policy extends React.Component {
                 onChange={this.handleChangeProjects}
                 margin="none"
                 InputLabelProps={{
-                  shrink: true
+                  shrink: true,
                 }}
               />
 
-              <PolicyTags error={tagsError} tags={policy.tags} onChange={this.handleChangeTags} />
+              <PolicyTags
+                error={tagsError}
+                tags={policy.tags}
+                onChange={this.handleChangeTags}
+              />
             </FormGroup>
 
-            <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleSubmit}>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={this.handleSubmit}
+            >
               Save
             </Button>
-            <Button className={classes.button} color="primary" size="small" onClick={this.handleRequestCancel}>
+            <Button
+              className={classes.button}
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={this.handleRequestCancel}
+            >
               Cancel
             </Button>
           </AppPageContent>
-        </div >
-      )
+        </div>
+      );
     } else {
-      return (<div></div>)
+      return <div />;
     }
   }
 }

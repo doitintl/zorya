@@ -38,7 +38,7 @@ def policy_checker(name):
     prev = utils.get_prev_idx(day * 24 + hour, matrix_size)
     now = arr[day * 24 + hour]
     prev = arr[prev]
-    logging.error("Previous state %s current %s", prev, now)
+    logging.debug("Previous state %s current %s", prev, now)
     if now == prev:
         # do nothing
         logging.info("Nothing should be done for %s", name)

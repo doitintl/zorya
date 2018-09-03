@@ -1,13 +1,13 @@
 import React from 'react';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
     padding: theme.spacing.unit,
-  }
+  },
 });
 
 class NotFound extends React.Component {
@@ -20,7 +20,7 @@ class NotFound extends React.Component {
           Not Found: <code>{location.pathname}</code>
         </Typography>
       </div>
-    )
+    );
   }
 }
 

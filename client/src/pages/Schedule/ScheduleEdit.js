@@ -1,19 +1,12 @@
 import React from 'react';
-// import classNames from 'classnames';
 
 // Material UI
-import { withStyles } from 'material-ui/styles';
-import Typography from 'material-ui/Typography';
-// import Paper from 'material-ui/Paper';
-import Button from 'material-ui/Button';
-import ArrowBackIcon from 'material-ui-icons/ArrowBack';
-import IconButton from 'material-ui/IconButton';
-import TextField from 'material-ui/TextField';
-
-// Lodash
-// import set from 'lodash/set';
-// import find from 'lodash/find';
-// import flatten from 'lodash/flatten';
+import { withStyles } from '@material-ui/core/styles';
+import Typography from '@material-ui/core/Typography';
+import Button from '@material-ui/core/Button';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
@@ -32,15 +25,15 @@ const styles = theme => ({
   textField: {
     width: 250,
     marginBottom: theme.spacing.unit * 3,
-  }
+  },
 });
 
 class ScheduleEdit extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      schedule: null
-    }
+      schedule: null,
+    };
 
     this.scheduleService = new ScheduleService();
   }
@@ -52,7 +45,7 @@ class ScheduleEdit extends React.Component {
       const timezones = await this.scheduleService.timezones();
       this.setState({
         schedule,
-        timezones: timezones.Timezones
+        timezones: timezones.Timezones,
       });
     } catch (ex) {
       console.error(ex);
@@ -61,9 +54,9 @@ class ScheduleEdit extends React.Component {
 
   handleScheduleChange = nextSchedule => {
     this.setState({
-      schedule: nextSchedule
+      schedule: nextSchedule,
     });
-  }
+  };
 
   handleChangeTimezone = value => {
     const { schedule } = this.state;
@@ -75,19 +68,17 @@ class ScheduleEdit extends React.Component {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
-      const response = await this.scheduleService.add(schedule);
-      console.log(response);
+      await this.scheduleService.add(schedule);
       history.push('/schedules/browser');
     } catch (ex) {
-      console.error(ex)
+      console.error(ex);
     }
-  }
+  };
 
   handleRequestCancel = event => {
     const { history } = this.props;
     history.goBack();
-  }
-
+  };
 
   render() {
     const { classes } = this.props;
@@ -97,7 +88,11 @@ class ScheduleEdit extends React.Component {
       return (
         <div className={classes.root}>
           <AppPageActions>
-            <IconButton color="primary" aria-label="Back" onClick={this.handleRequestCancel}>
+            <IconButton
+              color="primary"
+              aria-label="Back"
+              onClick={this.handleRequestCancel}
+            >
               <ArrowBackIcon />
             </IconButton>
             <Typography variant="subheading" color="primary">
@@ -114,21 +109,40 @@ class ScheduleEdit extends React.Component {
               margin="none"
             />
 
-            <ScheduleTimeZone selected={schedule.timezone} timezones={timezones} onSelect={this.handleChangeTimezone} />
+            <ScheduleTimeZone
+              selected={schedule.timezone}
+              timezones={timezones}
+              onSelect={this.handleChangeTimezone}
+            />
 
-            <ScheduleTimeTable schedule={schedule} onScheduleChange={this.handleScheduleChange} />
+            <ScheduleTimeTable
+              schedule={schedule}
+              onScheduleChange={this.handleScheduleChange}
+            />
 
-            <Button className={classes.button} variant="raised" color="primary" size="small" onClick={this.handleSave}>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={this.handleSave}
+            >
               Save
             </Button>
-            <Button className={classes.button} color="primary" size="small" onClick={this.handleRequestCancel}>
+            <Button
+              className={classes.button}
+              variant="outlined"
+              color="primary"
+              size="small"
+              onClick={this.handleRequestCancel}
+            >
               Cancel
             </Button>
           </AppPageContent>
-        </div >
-      )
+        </div>
+      );
     } else {
-      return (<div></div>)
+      return <div />;
     }
   }
 }
