@@ -66,11 +66,6 @@ class ScheduleList extends React.Component {
 
   componentDidMount() {
     this.refreshList();
-    // this.refrestInterval = setInterval(this.refreshList, 10000);
-  }
-
-  componentWillUnmount() {
-    // clearInterval(this.refrestInterval);
   }
 
   handleRequestSort = event => {

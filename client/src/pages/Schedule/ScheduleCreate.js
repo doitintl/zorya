@@ -122,6 +122,7 @@ class ScheduleCreate extends React.Component {
             value={schedule.name}
             onChange={this.handleChange('name')}
             margin="none"
+            autoFocus
           />
 
           <ScheduleTimeZone

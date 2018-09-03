@@ -221,6 +221,7 @@ class Policy extends React.Component {
                 value={this.state.policy.name}
                 onChange={this.handleChange('name')}
                 margin="none"
+                autoFocus
                 InputLabelProps={{
                   shrink: true,
                 }}

@@ -105,7 +105,7 @@ class ScheduleTimezone extends React.Component {
             {isOpen ? (
               <Paper
                 square
-                elevation={0}
+                elevation={2}
                 className={classes.suggestionsContainer}
               >
                 {this.getSuggestions(inputValue).map((suggestion, index) =>
