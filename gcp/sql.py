@@ -34,7 +34,7 @@ class Sql(object):
         Returns:
 
         """
-        tag_filter = "labels." + tagkey + "=" + tagvalue
+        tag_filter = "userLabels." + tagkey + "=" + tagvalue
         logging.debug("Filter %s", filter)
         try:
             instances = self.list_instances(tag_filter)
