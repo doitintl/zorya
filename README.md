@@ -1,5 +1,5 @@
 # zorya
-GCP Instance & Cloud SQL Scheduler
+GCP Instance, Cloud SQL & Instance Group Scheduler
 
 [Blog Post](http://bit.ly/zorya_blog)
 
