@@ -13,7 +13,7 @@ CREDENTIALS = app_engine.Credentials(scopes=SCOPES)
 
 
 class Instancegroup(object):
-    """Instance Group actions."""
+    """Compute engine actions."""
 
 
     def __init__(self, project):
@@ -22,7 +22,7 @@ class Instancegroup(object):
         self.project = project
 
 
-    def change_status(self, to_status, tagkey, tagvalue):
+    def change_status(self, to_status):
         """
         Stop/start instance based on tags
         Args:
@@ -37,71 +37,68 @@ class Instancegroup(object):
         logging.debug("Filter %s", filter)
         for zone in gcp.get_zones():
             try:
-                if int(to_status) == 1:
-                    logging.info("Starting %s in project %s tagkey %s tagvalue %s", self.project, tagkey, tagvalue)
-                    self.expand_instances_group(zone)
-                else:
-                    logging.info("Stopping %s in project %s tagkey %s tagvalue %s", self.project, tagkey, tagvalue)
-                    self.reduce_instances_group(zone)
+                instanceGroupManagers = self.list_instanceGroupManagers(zone, tag_filter)
+                for instanceGroupManager in instanceGroupManagers:
+                    if int(to_status) == 1:
+                        logging.info("Starting %s in project %s", instanceGroupManager['name'], self.project, tagkey, tagvalue)
+                        self.start_instanceGroupManager(zone, instanceGroupManager['name'])
+                    else:
+                        logging.info("Stopping %s in project %s", instanceGroupManager['name'], self.project, tagkey, tagvalue)
+                        self.stop_instanceGroupManager(zone, instanceGroupManager['name'])
             except HttpError as http_error:
                 logging.error(http_error)
                 return 'Error', 500
         return 'ok', 200
- 
+
+
     @backoff.on_exception(
         backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
-    # Arret
-    # Recherche de tous les groupes d'instance du projet pour la zone.
-    def reduce_instances_group(zone):
-        request = service.instanceGroupManagers().list(project=project, zone=zone)
-        while request is not None:
-            response = request.execute()
+    def stop_instanceGroupManager(self, zone, instanceGroupManager):
+        """
+        Stop an instance.
+        Args:
+            zone: zone
+            instance: instance name
 
-            for instance_group_manager in response['items']:
-                # TODO: Change code below to process each `instance_group_manager` resource:
-                #pprint(instance_group_manager)
-                name = instance_group_manager['baseInstanceName']
-                name = "%s-grp"%(name)
-                print(name)
-                # The number of running instances that the managed instance group should maintain at any given time.
-                # The group automatically adds or removes instances to maintain the number of instances specified by
-                # this parameter.
-                size = 0  # TODO: Update placeholder value.
+        Returns:
 
-                request = service.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=name, size=size)
-                response = request.execute()
+        """
+        size = 0
+        logging.info("instance_group_manager is %s in project %s is set to %", instanceGroupManager['name'], self.project, size)
+        return self.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=instance_group_manager, size=size).execute()
+              
 
-                # TODO: Change code below to process the `response` dict:
-                #pprint(response)
-            request = service.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
-        #pubsub_message = base64.b64decode(event['data']).decode('utf-8')
-        #print(pubsub_message)
-    
     @backoff.on_exception(
         backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
-    # Start
-    # Recherche de tous les groupes d'instance du projet pour la zone.
-    def expand_instances_group(zone):
-        request = service.instanceGroupManagers().list(project=project, zone=zone)
-        while request is not None:
-            response = request.execute()
+    def start_instanceGroupManager(self, zone, instanceGroupManager):
+        """
+        Start an instance.
+        Args:
+            zone: zone
+            instance: instance name
 
-            for instance_group_manager in response['items']:
-                # TODO: Change code below to process each `instance_group_manager` resource:
-                #pprint(instance_group_manager)
-                name = instance_group_manager['baseInstanceName']
-                name = "%s-grp"%(name)
-                print(name)
-                # The number of running instances that the managed instance group should maintain at any given time.
-                # The group automatically adds or removes instances to maintain the number of instances specified by
-                # this parameter.
-                size = 1  # TODO: Update placeholder value.
+        Returns:
 
-                request = service.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=name, size=size)
-                response = request.execute()
+        """
+        size = 1
+        logging.info("instance_group_manager is %s in project %s is set to %", instanceGroupManager['name'], self.project, size)
+        return self.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=instance_group_manager, size=size).execute()      
 
-                # TODO: Change code below to process the `response` dict:
-                #pprint(response)
-            request = service.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
-        #pubsub_message = base64.b64decode(event['data']).decode('utf-8')
-        #print(pubsub_message)
+
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    def list_instanceGroupManagers(self, zone, tags_filter=None):
+        """
+        List all instances group managers in zone
+        Args:
+            zone: zone
+            tags_filter: tags
+
+        Returns:
+
+        """
+        result = self.instanceGroupManagers().list(project=project, zone=zone, filter=tags_filter).execute()                      
+        if 'items' in result:
+            return result['items']
+        else:
+            return []

@@ -40,14 +40,10 @@ class Compute(object):
                 instances = self.list_instances(zone, tag_filter)
                 for instance in instances:
                     if int(to_status) == 1:
-                        logging.info(
-                            "Starting %s in project %s tagkey %s tagvalue %s",
-                            instance['name'], self.project, tagkey, tagvalue)
+                        logging.info("Starting %s in project %s tagkey %s tagvalue %s", instance['name'], self.project, tagkey, tagvalue)
                         self.start_instance(zone, instance['name'])
                     else:
-                        logging.info(
-                            "Stopping %s in project %s tagkey %s tagvalue %s",
-                            instance['name'], self.project, tagkey, tagvalue)
+                        logging.info("Stopping %s in project %s tagkey %s tagvalue %s", instance['name'], self.project, tagkey, tagvalue)
                         self.stop_instance(zone, instance['name'])
             except HttpError as http_error:
                 logging.error(http_error)
@@ -68,8 +64,7 @@ class Compute(object):
 
         """
         # TODO add requestId
-        return self.compute.instances().stop(
-            project=self.project, zone=zone, instance=instance).execute()
+        return self.compute.instances().stop(project=self.project, zone=zone, instance=instance).execute()
 
 
     @backoff.on_exception(
@@ -85,8 +80,7 @@ class Compute(object):
 
         """
         # TODO add requestId
-        return self.compute.instances().start(
-            project=self.project, zone=zone, instance=instance).execute()
+        return self.compute.instances().start(project=self.project, zone=zone, instance=instance).execute()
 
 
     @backoff.on_exception(
@@ -101,8 +95,7 @@ class Compute(object):
         Returns:
 
         """
-        result = self.compute.instances().list(
-            project=self.project, zone=zone, filter=tags_filter).execute()
+        result = self.compute.instances().list(project=self.project, zone=zone, filter=tags_filter).execute()
         if 'items' in result:
             return result['items']
         else:
