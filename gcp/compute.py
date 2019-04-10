@@ -11,10 +11,8 @@ SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
 
 CREDENTIALS = app_engine.Credentials(scopes=SCOPES)
 
-
 class Compute(object):
     """Compute engine actions."""
-
 
     def __init__(self, project):
         self.compute = discovery.build(

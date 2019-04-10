@@ -1,71 +1,89 @@
-import base64
-from pprint import pprint
-import json
+"""Interactions with compute engine."""
+import logging
+
+import backoff
+from google.auth import app_engine
 from googleapiclient import discovery
-from oauth2client.client import GoogleCredentials
+from googleapiclient.errors import HttpError
+from util import gcp, utils
 
-credentials = GoogleCredentials.get_application_default()
+SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
 
-service = discovery.build('compute', 'v1', credentials=credentials)
+CREDENTIALS = app_engine.Credentials(scopes=SCOPES)
 
-# Project ID for this request.
-project = 'MY-PROJECT-NAME'  # TODO: Update placeholder value.
+class Stopstartk8s(object):
+    """Compute engine actions."""
 
-# The name of the zone where the managed instance group is located.
-zone = 'MY-ZONE'  # TODO: Update placeholder value.
+    def __init__(self, project):
+        self.compute = discovery.build(
+            'compute', 'v1', credentials=CREDENTIALS)
+        self.project = project
 
-filtre = '(labels.sched = on) AND (labels.type = k8s)'
+        
+    def change_status(self, to_status, tagkey, tagvalue):
+        """
+        Stop/start instance based on tags
+        Args:
+            to_status: 0 stop 1 start
+            tagkey: tag key
+            tagvalue: tag value
 
-# Arret
-# Recherche de tous les groupes d'instance du projet pour la zone.
-def stop_k8s(event, context):
-    request = service.instanceGroupManagers().list(project=project, zone=zone)
-    while request is not None:
-        response = request.execute()
+        Returns:
 
-        for instance_group_manager in response['items']:
-            # TODO: Change code below to process each `instance_group_manager` resource:
-            #pprint(instance_group_manager)
-            name = instance_group_manager['baseInstanceName']
-            name = "%s-grp"%(name)
-            print(name)
-            # The number of running instances that the managed instance group should maintain at any given time.
-            # The group automatically adds or removes instances to maintain the number of instances specified by
-            # this parameter.
-            size = 0  # TODO: Update placeholder value.
-
-            request = service.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=name, size=size)
+        """
+        tag_filter = "labels." + tagkey + "=" + tagvalue
+        logging.debug("Filter %s", filter)
+        for zone in gcp.get_zones():
+            try:
+                if int(to_status) == 1:
+                    logging.debug("Augment k8s cluster pour project %s dans la zone %s", self.project, zone)
+                    #self.start_k8s(project, zone)
+                else:
+                    logging.debug("Reduce k8s cluster pour project %s dans la zone %s", self.project, zone)
+                    #self.stop_k8s(project, zone)
+            except HttpError as http_error:
+                logging.error(http_error)
+                return 'Error', 500
+        return 'ok', 200
+     
+    # Arret
+    # Recherche de tous les groupes d'instance du projet pour la zone.
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    def stop_k8s(self, project, zone):
+        request = self.instanceGroupManagers().list(project=project, zone=zone)
+        while request is not None:
             response = request.execute()
 
-            # TODO: Change code below to process the `response` dict:
-            #pprint(response)
-        request = service.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
-    pubsub_message = base64.b64decode(event['data']).decode('utf-8')
-    print(pubsub_message)
-    
-# Start
-# Recherche de tous les groupes d'instance du projet pour la zone.
-def start_k8s(event, context):
-    request = service.instanceGroupManagers().list(project=project, zone=zone)
-    while request is not None:
-        response = request.execute()
+            for instance_group_manager in response['items']:
+                name = instance_group_manager['baseInstanceName']
+                name = "%s-grp"%(name)
+                logging.debug("Reduce cluster k8s %s", name)
+                                  
+                size = 0
 
-        for instance_group_manager in response['items']:
-            # TODO: Change code below to process each `instance_group_manager` resource:
-            #pprint(instance_group_manager)
-            name = instance_group_manager['baseInstanceName']
-            name = "%s-grp"%(name)
-            print(name)
-            # The number of running instances that the managed instance group should maintain at any given time.
-            # The group automatically adds or removes instances to maintain the number of instances specified by
-            # this parameter.
-            size = 1  # TODO: Update placeholder value.
-
-            request = service.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=name, size=size)
+                request = self.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=name, size=size)
+                response = request.execute()
+                    
+            request = self.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
+                
+    # Start
+    # Recherche de tous les groupes d'instance du projet pour la zone.
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    def start_k8s(self, project, zone):
+        request = self.instanceGroupManagers().list(project=project, zone=zone)
+        while request is not None:
             response = request.execute()
 
-            # TODO: Change code below to process the `response` dict:
-            #pprint(response)
-        request = service.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
-    pubsub_message = base64.b64decode(event['data']).decode('utf-8')
-    print(pubsub_message)
+            for instance_group_manager in response['items']:
+                name = instance_group_manager['baseInstanceName']
+                name = "%s-grp"%(name)
+                logging.debug("Augment cluster k8s %s", name)
+                    
+                size = 1
+
+                request = self.instanceGroupManagers().resize(project=project, zone=zone, instanceGroupManager=name, size=size)
+                response = request.execute()
+                    
+            request = self.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
