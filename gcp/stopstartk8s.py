@@ -54,7 +54,6 @@ class Stopstartk8s(object):
         request = self.instanceGroupManagers().list(project=project, zone=zone)
         while request is not None:
             response = request.execute()
-
             for instance_group_manager in response['items']:
                 name = instance_group_manager['baseInstanceName']
                 name = "%s-grp"%(name)
@@ -75,7 +74,6 @@ class Stopstartk8s(object):
         request = self.instanceGroupManagers().list(project=project, zone=zone)
         while request is not None:
             response = request.execute()
-
             for instance_group_manager in response['items']:
                 name = instance_group_manager['baseInstanceName']
                 name = "%s-grp"%(name)
