@@ -38,43 +38,11 @@ class Stopstartk8s(object):
             if int(to_status) == 1:
                 #zone = 'europe-west1-b'
                 logging.debug("FCT change_status : Augment k8s cluster pour project %s dans la zone %s", self.project, zone)
-                #self.start_k8s(zone)
-                logging.debug("FCT stop_k8s : Search k8s cluster on project %s in zone %s", self.project, zone)
-                request = self.compute.instanceGroupManagers().list(project=self.project, zone=zone)
-                while request is not None:
-                    response = request.execute()
-                    for instance_group_manager in response['items']:
-                        name = instance_group_manager['name']
-                        #name = "%s-grp"%(name)
-                        print(name)
-                                    
-                        #size = 1
-                        logging.debug("FCT stop_k8s : Augment cluster k8s %s on project %s to 1", name, self.project)
-
-                        request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=0)
-                        response = request.execute()
-                    
-                request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
+                self.start_k8s(zone)
             else:
                 #zone = 'europe-west1-b'
                 logging.debug("FCT change_status : Reduce k8s cluster pour project %s dans la zone %s", self.project, zone)
-                #self.stop_k8s(zone)
-                logging.debug("FCT stop_k8s : Search k8s cluster on project %s in zone %s", self.project, zone)
-                request = self.compute.instanceGroupManagers().list(project=self.project, zone=zone)
-                while request is not None:
-                    response = request.execute()
-                    for instance_group_manager in response['items']:
-                        name = instance_group_manager['name']
-                        #name = "%s-grp"%(name)
-                        print(name)
-                                    
-                        #size = 1
-                        logging.debug("FCT stop_k8s : Augment cluster k8s %s on project %s to 0", name, self.project)
-
-                        request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=0)
-                        response = request.execute()
-                    
-                request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
+                self.stop_k8s(zone)
         return 'ok', 200
          
         
