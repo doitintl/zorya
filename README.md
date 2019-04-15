@@ -1,5 +1,12 @@
 # zorya
-GCP Instance, Cloud SQL & Instance Group Scheduler
+GCP Instance & Cloud SQL Scheduler
+
+[Blog Post](http://bit.ly/zorya_blog)
+
+[![License](https://img.shields.io/github/license/doitintl/zorya.svg)](LICENSE) [![GitHub stars](https://img.shields.io/github/stars/doitintl/zorya.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/doitintl/zorya)
+
+In Slavic mythology, [Zoryas](https://www.wikiwand.com/en/Zorya) are two guardian goddesses. The Zoryas represent the morning star and the evening star, — if you have read or watched Neil Gaiman’s American Gods, you will probably remember these sisters).
+
 
 ##### Install dependencies
 
