@@ -2,8 +2,7 @@
 import logging
 
 from gcp.compute import Compute
-#from gcp.sql import Sql
-#from gcp.instances_group import Instancegroup
+from gcp.sql import Sql
 from gcp.stopstartk8s import Stopstartk8s
 
 
