@@ -38,11 +38,9 @@ class Stopstartk8s(object):
         logging.debug("Filter %s", filter)
         for zone in gcp.get_zones():
             if int(to_status) == 1:
-                #zone = 'europe-west1-b'
                 logging.debug("FCT change_status : Augment k8s cluster pour project %s dans la zone %s", self.project, zone)
                 self.start_k8s(zone)
             else:
-                #zone = 'europe-west1-b'
                 logging.debug("FCT change_status : Reduce k8s cluster pour project %s dans la zone %s", self.project, zone)
                 self.stop_k8s(zone)
         return 'ok', 200
@@ -52,7 +50,6 @@ class Stopstartk8s(object):
     # Recherche de tous les groupes d'instance du projet pour la zone.
     @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def stop_k8s(self, zone):
-        #zone = 'europe-west1-b'
         logging.debug("FCT stop_k8s : Search k8s cluster on project %s in zone %s", self.project, zone)
         request = self.compute.instanceGroupManagers().list(project=self.project, zone=zone)
         while request is not None:
@@ -60,42 +57,33 @@ class Stopstartk8s(object):
             if 'items' in response:
                 for instance_group_manager in response['items']:
                     name = instance_group_manager['name']
-                    #name = "%s-grp"%(name)
-                    print(name)
-                                    
-                    #size = 1
+                    #print(name)
                     logging.debug("FCT stop_k8s : Reduce cluster k8s %s on project %s to 0", name, self.project)
-
                     request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=0)
                     response = request.execute()
                     
                 request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
             else:
-                logging.debug("FCT stop_k8s : No cluster k8s on project %s in zone %s", self.project, zone)
+                logging.debug("FCT stop_k8s : Search No cluster k8s on project %s in zone %s", self.project, zone)
+                request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
                 
     # Start
     # Recherche de tous les groupes d'instance du projet pour la zone.
     @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def start_k8s(self, zone):
-        #zone = 'europe-west1-b'
         logging.debug("FCT start_k8s : Search k8s cluster on project %s in zone %s", self.project, zone)
         request = self.compute.instanceGroupManagers().list(project=self.project, zone=zone)
-        #request = self.compute.instanceGroupManagers().list(project=self.project, zone=zone)
         while request is not None:
             response = request.execute()
             if 'items' in response:
                 for instance_group_manager in response['items']:
                     name = instance_group_manager['name']
-                    #name = "%s-grp"%(name)
-                    print(name)
-                                    
-                    #size = 1
+                    #print(name)
                     logging.debug("FCT start_k8s : Augment cluster k8s %s on project %s to 1", name, self.project)
-
                     request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=1)
-                    #request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=1)
                     response = request.execute()
-                    
+                   
                 request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
             else:
-                logging.debug("FCT stop_k8s : No cluster k8s on project %s in zone %s", self.project, zone)
+                logging.debug("FCT start_k8s : Search No cluster k8s on project %s in zone %s", self.project, zone)
+                request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)

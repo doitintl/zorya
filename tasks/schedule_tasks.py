@@ -21,13 +21,10 @@ def change_state(tagkey, tagvalue, action, project):
     """
 
     compute = Compute(project)
-    #sql = Sql(project)
-    #instance_group = Instancegroup(project)
+    sql = Sql(project)
     stopstartk8s = Stopstartk8s(project)
     logging.debug("change_state %s action %s", project, action)
     compute.change_status(action, tagkey, tagvalue)
-    #sql.change_status(action, tagkey, tagvalue)
-    #instance_group.change_status(action)
-    #logging.debug("change_state %s action %s", project, action)
+    sql.change_status(action, tagkey, tagvalue)
     stopstartk8s.change_status(action, tagkey, tagvalue)
     return 'ok', 200
