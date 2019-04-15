@@ -46,8 +46,8 @@ class Stopstartk8s(object):
         return 'ok', 200
          
         
-    # Arret
-    # Recherche de tous les groupes d'instance du projet pour la zone.
+    # Reduce
+    # Search all 'Instance Groups' for all project's zones.
     @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def stop_k8s(self, zone):
         logging.debug("FCT stop_k8s : Search k8s cluster on project %s in zone %s", self.project, zone)
@@ -57,7 +57,6 @@ class Stopstartk8s(object):
             if 'items' in response:
                 for instance_group_manager in response['items']:
                     name = instance_group_manager['name']
-                    #print(name)
                     logging.debug("FCT stop_k8s : Reduce cluster k8s %s on project %s to 0", name, self.project)
                     request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=0)
                     response = request.execute()
@@ -67,8 +66,8 @@ class Stopstartk8s(object):
                 logging.debug("FCT stop_k8s : Search No cluster k8s on project %s in zone %s", self.project, zone)
                 request = self.compute.instanceGroupManagers().list_next(previous_request=request, previous_response=response)
                 
-    # Start
-    # Recherche de tous les groupes d'instance du projet pour la zone.
+    # Augment
+    # Search all 'Instance Groups' for all project's zones.
     @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def start_k8s(self, zone):
         logging.debug("FCT start_k8s : Search k8s cluster on project %s in zone %s", self.project, zone)
@@ -78,7 +77,6 @@ class Stopstartk8s(object):
             if 'items' in response:
                 for instance_group_manager in response['items']:
                     name = instance_group_manager['name']
-                    #print(name)
                     logging.debug("FCT start_k8s : Augment cluster k8s %s on project %s to 1", name, self.project)
                     request = self.compute.instanceGroupManagers().resize(project=self.project, zone=zone, instanceGroupManager=name, size=1)
                     response = request.execute()
