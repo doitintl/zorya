@@ -37,18 +37,6 @@ class Compute(object):
         logging.debug("Filter %s", filter)
         for zone in gcp.get_zones():
             try:
-                instance_groups = self.list_instance_groups(zone, tag_filter)
-                for instance_group in instance_groups:
-                    if int(to_status) == 1:
-                        logging.info(
-                            "Starting %s in project %s tagkey %s tagvalue %s",
-                            instance_group['name'], self.project, tagkey, tagvalue)
-                        self.start_instance_group(zone, instance_group['name'])
-                    else:
-                        logging.info(
-                            "Stopping %s in project %s tagkey %s tagvalue %s",
-                            instance_group['name'], self.project, tagkey, tagvalue)
-                        self.stop_instance_group(zone, instance_group['name'])
                 instances = self.list_instances(zone, tag_filter)
                 for instance in instances:
                     if int(to_status) == 1:
@@ -119,62 +107,3 @@ class Compute(object):
             return result['items']
         else:
             return []
-
-    @backoff.on_exception(
-        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
-    def list_instance_groups(self, zone, tags_filter=None):
-        """
-        List all instance groups in zone with the requested tags
-        Args:
-            zone: zone
-            tags_filter: tags
-
-        Returns:
-
-        """
-        result = self.compute.instanceGroupManagers().list(
-            project=self.project, zone=zone, filter=tags_filter).execute()
-        if 'items' in result:
-            return result['items']
-        else:
-            return []
-
-
-    @backoff.on_exception(
-        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
-    def stop_instance_group(self, zone, instance_group):
-        """
-        Stop an instance.
-        Args:
-            zone: zone
-            instance_group: instance group name
-
-        Returns:
-
-        """
-        # TODO add requestId
-        return self.compute.instanceGroupManagers().resize(project=self.project,
-                                                    zone=zone,
-                                                    instanceGroupManager=instance_group,
-                                                    size=0).execute()
-
-
-    @backoff.on_exception(
-        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
-    def start_instance_group(self, zone, instance_group):
-        """
-        Start an instance.
-        Args:
-            zone: zone
-            instance_group: instance group name
-
-        Returns:
-
-        """
-        # TODO add requestId
-        return self.compute.instanceGroupManagers().resize(
-            project=self.project,
-            zone=zone,
-            instanceGroupManager=instance_group,
-            size=1).execute()
-
