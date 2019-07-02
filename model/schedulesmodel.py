@@ -11,3 +11,4 @@ class SchedulesModel(ndb.Model):
     Timezone = ndb.StringProperty(
         default='UTC', choices=tz.get_all_timezones(), required=True)
     Schedule = ndb.JsonProperty(required=True)
+    DisplayName = ndb.StringProperty(indexed=False, required=False)

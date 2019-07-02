@@ -72,6 +72,7 @@ def add_schedule():
 
     schedules_model.Name = request.json['name']
     schedules_model.Timezone = request.json['timezone']
+    schedules_model.DisplayName = request.json['displayname']
     schedules_model.key = ndb.Key('SchedulesModel', request.json['name'])
     schedules_model.put()
     return 'ok', 200
@@ -92,6 +93,7 @@ def get_schedule():
     schedule.update({'name': res.Name})
     schedule.update(res.Schedule)
     schedule.update({'timezone': res.Timezone})
+    schedule.update({'displayname': res.DisplayName})
     logging.debug(json.dumps(res.Schedule))
     return json.dumps(schedule)
 
@@ -140,6 +142,7 @@ def add_policy():
     name = request.json['name']
     tags = request.json['tags']
     projects = request.json['projects']
+    displayName = request.json['displayname']
     schedule_name = request.json['schedulename']
 
     res = SchedulesModel.query(SchedulesModel.Name == schedule_name).get()
@@ -149,6 +152,7 @@ def add_policy():
     policy_model = PolicyModel()
     policy_model.Name = name
     policy_model.Tags = tags
+    policy_model.DisplayName = displayName
     policy_model.Projects = projects
     policy_model.Schedule = schedule_name
     policy_model.key = ndb.Key('PolicyModel', name)
@@ -173,6 +177,7 @@ def get_policy():
     policy.update({'schedulename': res.Schedule})
     policy.update({'tags': res.Tags})
     policy.update({'projects': res.Projects})
+    policy.update({'displayname': res.DisplayName})
     return json.dumps(policy)
 
 

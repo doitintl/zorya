@@ -8,3 +8,4 @@ class PolicyModel(ndb.Model):
     Tags = ndb.JsonProperty(repeated=True)
     Projects = ndb.JsonProperty(repeated=True)
     Schedule = ndb.StringProperty(indexed=True, required=True, repeated=False)
+    DisplayName = ndb.StringProperty(indexed=False, required=False)
