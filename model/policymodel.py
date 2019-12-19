@@ -1,5 +1,5 @@
 """DB model for policy."""
-from google.appengine.ext import ndb
+from google.cloud import ndb
 
 
 class PolicyModel(ndb.Model):

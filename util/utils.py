@@ -3,8 +3,6 @@ import json
 import logging
 import os
 
-from google.appengine.api import app_identity
-
 
 def detect_gae():
     """Determine whether or not we're running on GAE.
@@ -15,8 +13,8 @@ def detect_gae():
     Returns:
       True iff we're running on GAE.
     """
-    server_software = os.environ.get('SERVER_SOFTWARE', '')
-    return not server_software.startswith('Development/')
+    server_software = os.environ.get('GAE_ENV', '')
+    return server_software.startswith('standard')
 
 
 def _get_project_id():
@@ -33,7 +31,8 @@ def get_project_id():
     :return: project_id
     """
     if detect_gae():
-        project = app_identity.get_application_id()
+        project = os.environ.get('GOOGLE_CLOUD_PROJECT',
+                                 'Specified environment variable is not set.')
     else:
         project = _get_project_id()
     return project
@@ -46,7 +45,7 @@ def get_host_name():
     :return: hostname
     """
     if detect_gae():
-        hostname = '{}.appspot.com'.format(app_identity.get_application_id())
+        hostname = '{}.appspot.com'.format(get_project_id())
     else:
         hostname = '{}.appspot.com'.format(_get_project_id())
     return hostname

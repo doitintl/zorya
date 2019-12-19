@@ -1,8 +1,13 @@
-Flask==0.12.3
-Werkzeug<0.13.0,>=0.12.0
+Flask==1.1.1
+Werkzeug==0.15
 google-api-python-client
 google-auth
 google-auth-httplib2
 pytz
 tzlocal
 backoff==1.4.3
+google-cloud-ndb==0.1.0
+google-cloud-tasks==1.3.0
+googleapis-common-protos==1.6.0
+numpy
+

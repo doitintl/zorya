@@ -1,6 +1,6 @@
 """Database representation of schedule."""
 
-from google.appengine.ext import ndb
+from google.cloud import ndb
 
 from util import tz
 

@@ -3,21 +3,18 @@
 # https://developers.google.com/appengine/docs/python/config/appconfig
 # for details.
 
-runtime: python27
-api_version: 1
-threadsafe: true
+runtime: python37
 service: default
-
-builtins:
-- deferred: on
 
 # Handlers define how to route requests to your application.
 handlers:
 - url: /api/v1/(.*)
-  script: main.app
+  script: auto
+  secure: always
 
-- url: /tasks/(.*) 
-  script: main.app
+- url: /tasks/(.*)
+  script: auto
+  secure: always
 
 - url: /
   static_files: build/index.html
@@ -39,31 +36,9 @@ handlers:
 - url: /static/(.*)
   static_files: build/static/\1
   upload: build/static/(.*)
- 
+
 - url: .*
   static_files: build/index.html
   upload: build/index.html
 
 
-# here if you want to use them.  See
-# https://developers.google.com/appengine/docs/python/tools/libraries27 for
-# a list of libraries included in the SDK.  Third party libs that are *not* part
-# of the App Engine SDK don't need to be listed here, instead add them to your
-# project directory, either as a git submodule or as a plain subdirectory.
-#libraries:
-#- name: jinja2
-#  version: latest
-
-libraries:
-- name: ssl
-  version: latest
-- name: numpy
-  version: "1.6.1"
-
-skip_files:
-- ^\.git$
-- ^\client$
-- ^\venv$
-
-# needed for dev_appserver.py, tracks too many changes otherwise
-- .*/zorya/client
