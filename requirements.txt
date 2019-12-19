@@ -1,5 +1,5 @@
 Flask==1.1.1
-Werkzeug==0.15
+Werkzeug==0.15.3
 google-api-python-client
 google-auth
 google-auth-httplib2
