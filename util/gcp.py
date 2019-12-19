@@ -1,14 +1,11 @@
 """"GCP utils"""
 
-import backoff
 import logging
+
+import backoff
 import googleapiclient.discovery
-from google.auth import app_engine
 from googleapiclient.errors import HttpError
 from util import utils
-
-SCOPES = ['https://www.googleapis.com/auth/cloud-platform']
-CREDENTIALS = app_engine.Credentials(scopes=SCOPES)
 
 
 def get_regions():
@@ -17,14 +14,14 @@ def get_regions():
 
     :return: all regions
     """
-    compute = googleapiclient.discovery.build('compute', 'v1')
+    compute = googleapiclient.discovery.build("compute", "v1", cache_discovery=False)
 
     request = compute.regions().list(project=utils.get_project_id())
 
     response = request.execute()
     rg = []
-    for region in response['items']:
-        rg.append(region['description'])
+    for region in response["items"]:
+        rg.append(region["description"])
     return rg
 
 
@@ -34,15 +31,16 @@ def get_zones():
 
     :return: all regions
     """
-    compute = googleapiclient.discovery.build('compute', 'v1')
+    compute = googleapiclient.discovery.build("compute", "v1", cache_discovery=False)
 
     request = compute.zones().list(project=utils.get_project_id())
 
     response = request.execute()
     zones = []
-    for region in response['items']:
-        zones.append(region['description'])
+    for region in response["items"]:
+        zones.append(region["description"])
     return zones
+
 
 def get_instancegroup_no_of_nodes_from_url(url):
     """
@@ -50,16 +48,20 @@ def get_instancegroup_no_of_nodes_from_url(url):
 
     :return: number
     """
-    compute = googleapiclient.discovery.build('compute', 'v1')
+    compute = googleapiclient.discovery.build("compute", "v1", cache_discovery=False)
     url = url[47:]
-    project = url[:url.find('/')]
-    zone = url[url.find('zones')+6:url.find('instanceGroupManagers')-1]
-    pool = url[url.rfind('/')+1:]
-    res = compute.instanceGroups().get(project=project, zone=zone,instanceGroup=pool).execute()
-    return res['size']
+    project = url[: url.find("/")]
+    zone = url[url.find("zones") + 6 : url.find("instanceGroupManagers") - 1]
+    pool = url[url.rfind("/") + 1 :]
+    res = (
+        compute.instanceGroups()
+        .get(project=project, zone=zone, instanceGroup=pool)
+        .execute()
+    )
+    return res["size"]
 
-@backoff.on_exception(
-        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+
+@backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
 def resize_node_pool(size, url):
     """
     resize a node pool
@@ -70,19 +72,22 @@ def resize_node_pool(size, url):
     Returns:
 
     """
-    compute = googleapiclient.discovery.build('compute', 'v1')
+    compute = googleapiclient.discovery.build("compute", "v1", cache_discovery=False)
     url = url[47:]
-    project = url[:url.find('/')]
-    zone = url[url.find('zones') + 6:url.find('instanceGroupManagers') - 1]
-    instance_group_manager = url[url.rfind('/') + 1:]
+    project = url[: url.find("/")]
+    zone = url[url.find("zones") + 6 : url.find("instanceGroupManagers") - 1]
+    instance_group_manager = url[url.rfind("/") + 1 :]
     try:
-        res = compute.instanceGroupManagers().resize(project=project, zone=zone,
-                                                     instanceGroupManager=
-                                                     instance_group_manager,
-                                                     size=size).execute()
+        res = (
+            compute.instanceGroupManagers()
+            .resize(
+                project=project,
+                zone=zone,
+                instanceGroupManager=instance_group_manager,
+                size=size,
+            )
+            .execute()
+        )
     except Exception as e:
         logging.error(e)
     return res
-
-
-

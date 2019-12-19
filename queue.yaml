@@ -1,9 +1,0 @@
-queue:
-- name: zorya-tasks
-  rate: 10/s
-  bucket_size: 50
-  retry_parameters:
-    min_backoff_seconds: 10
-    max_backoff_seconds: 200
-    task_retry_limit: 3
-    task_age_limit: 4m
