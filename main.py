@@ -12,7 +12,7 @@ from util import tz
 
 API_VERSION = "/api/v1"
 app = Flask(__name__)
-
+client = ndb.Client()
 
 @app.route("/tasks/change_state", methods=["POST"])
 def change_state():
@@ -43,7 +43,8 @@ def schedule():
 
     """
     logging.debug("From Cron start /tasks/schedule")
-    client = ndb.Client()
+
+
     with client.context():
         keys = PolicyModel.query().fetch(keys_only=True)
         for key in keys:
@@ -68,7 +69,6 @@ def add_schedule():
     Returns:
 
     """
-    client = ndb.Client()
     with client.context():
         schedules_model = SchedulesModel()
         schedules_model.Schedule = {
@@ -94,7 +94,6 @@ def get_schedule():
     """
     name = request.args.get("schedule")
     schedule = {}
-    client = ndb.Client()
     with client.context():
         res = SchedulesModel.query(SchedulesModel.Name == name).get()
         if not res:
@@ -114,7 +113,6 @@ def list_schedules():
 
     """
     schedules_list = []
-    client = ndb.Client()
     with client.context():
         keys = SchedulesModel.query().fetch(keys_only=True)
         for key in keys:
@@ -130,7 +128,6 @@ def del_schedule():
 
     """
     name = request.args.get("schedule")
-    client = ndb.Client()
     with client.context():
         res = SchedulesModel.query(SchedulesModel.Name == name).get()
         if not res:
@@ -154,7 +151,6 @@ def add_policy():
     tags = request.json["tags"]
     projects = request.json["projects"]
     schedule_name = request.json["schedulename"]
-    client = ndb.Client()
     with client.context():
         res = SchedulesModel.query(SchedulesModel.Name == schedule_name).get()
         if not res:
@@ -179,7 +175,6 @@ def get_policy():
     """
     policy = {}
     name = request.args.get("policy")
-    client = ndb.Client()
     with client.context():
         res = PolicyModel.query(PolicyModel.Name == name).get()
         logging.debug(res)
@@ -200,7 +195,6 @@ def list_policies():
 
     """
     policies_list = []
-    client = ndb.Client()
     with client.context():
         keys = PolicyModel.query().fetch(keys_only=True)
         for key in keys:
@@ -216,7 +210,6 @@ def del_policy():
 
     """
     name = request.args.get("policy")
-    client = ndb.Client()
     with client.context():
         res = PolicyModel.query(PolicyModel.Name == name).get()
         if not res:
@@ -235,5 +228,5 @@ def index():
 
 
 if __name__ == "__main__":
-    logging.getLogger("oogleapiclient.discovery_cache").setLevel(logging.ERROR)
+    logging.getLogger("oogleapiclient.discovery_cache").setLevel(logging.DEBUG)
     app.run(debug=True)
