@@ -14,7 +14,6 @@ def policy_checker(name):
     Check if there is a need to take an action for a policy.
     Args:
         name: policy name
-        context
 
     Returns:
 
