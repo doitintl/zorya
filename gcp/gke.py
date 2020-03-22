@@ -20,11 +20,13 @@ class Gke(object):
         self.project = project
 
     def change_status(self, to_status, tagkey, tagvalue):
+        logging.info("GKE change_status")
         client = ndb.Client()
         with client.context():
             try:
                 clusters = self.list_clusters()
                 for cluster in clusters:
+                    logging.info("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
                     if (
                         "resourceLabels" in cluster
                         and tagkey in cluster["resourceLabels"]

@@ -228,5 +228,5 @@ def index():
 
 
 if __name__ == "__main__":
-    logging.getLogger("oogleapiclient.discovery_cache").setLevel(logging.DEBUG)
+    logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.DEBUG)
     app.run(debug=True)
