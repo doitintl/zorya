@@ -20,43 +20,28 @@ class Gke(object):
         self.project = project
 
     def change_status(self, to_status, tagkey, tagvalue):
-        logging.warning("GKE change_status")
-        print("GKE change_status", to_status, tagkey, tagvalue)
+        logging.debug("GKE change_status")
         client = ndb.Client()
         with client.context():
             try:
                 clusters = self.list_clusters()
-                print(clusters)
                 for cluster in clusters:
-                    logging.warning("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
-                    print("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
+                    logging.debug("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
                     if (
                         "resourceLabels" in cluster
                         and tagkey in cluster["resourceLabels"]
                         and cluster["resourceLabels"][tagkey] == tagvalue
                     ):
                         for nodePool in cluster["nodePools"]:
-                            logging.warning(nodePool["instanceGroupUrls"])
-                            print(nodePool["instanceGroupUrls"])
+                            logging.debug(nodePool["instanceGroupUrls"])
                             for instanceGroup in nodePool["instanceGroupUrls"]:
                                 url = instanceGroup
-                                logging.warning(url)
-                                print(url)
                                 node_pool_name = url[url.rfind("/") + 1 :]
                                 no_of_nodes = gcp.get_instancegroup_no_of_nodes_from_url(
                                     url
                                 )
                                 if int(to_status) == 1:
-                                    logging.warning(
-                                        "Sizing up node pool %s in cluster %s "
-                                        "tagkey "
-                                        "%s tagvalue %s",
-                                        nodePool["name"],
-                                        cluster["name"],
-                                        tagkey,
-                                        tagvalue,
-                                    )
-                                    print(
+                                    logging.debug(
                                         "Sizing up node pool %s in cluster %s "
                                         "tagkey "
                                         "%s tagvalue %s",
@@ -74,16 +59,7 @@ class Gke(object):
                                     gcp.resize_node_pool(res.NumberOfNodes, url)
                                     res.key.delete()
                                 else:
-                                    logging.warning(
-                                        "Sizing down node pool %s in cluster %s "
-                                        "tagkey "
-                                        "%s tagvalue %s",
-                                        nodePool["name"],
-                                        cluster["name"],
-                                        tagkey,
-                                        tagvalue,
-                                    )
-                                    print(
+                                    logging.debug(
                                         "Sizing down node pool %s in cluster %s "
                                         "tagkey "
                                         "%s tagvalue %s",
