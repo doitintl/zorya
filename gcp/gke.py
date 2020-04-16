@@ -26,12 +26,12 @@ class Gke(object):
             try:
                 clusters = self.list_clusters()
                 for cluster in clusters:
-                    logging.debug("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
                     if (
                         "resourceLabels" in cluster
                         and tagkey in cluster["resourceLabels"]
                         and cluster["resourceLabels"][tagkey] == tagvalue
                     ):
+                        logging.debug("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
                         for nodePool in cluster["nodePools"]:
                             logging.debug(nodePool["instanceGroupUrls"])
                             for instanceGroup in nodePool["instanceGroupUrls"]:
