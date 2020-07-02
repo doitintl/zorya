@@ -39,10 +39,10 @@ def policy_checker(name):
     prev = utils.get_prev_idx(day * 24 + hour, matrix_size)
     now = arr[day * 24 + hour]
     prev = arr[prev]
-    logging.debug("Previous state %s current %s", prev, now)
+    logging.info("Previous state %s current %s", prev, now)
     if now == prev:
         # do nothing
-        logging.info("Nothing should be done for %s", name)
+        logging.info("Conditions are met, Nothing should be done for %s", name)
         return "ok", 200
     else:
         # stop/start
