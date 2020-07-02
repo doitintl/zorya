@@ -14,6 +14,8 @@ API_VERSION = "/api/v1"
 app = Flask(__name__)
 client = ndb.Client()
 
+#elad test
+
 @app.route("/tasks/change_state", methods=["POST"])
 def change_state():
     """
