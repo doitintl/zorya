@@ -1,7 +1,5 @@
 """Entry point to Zoyra."""
 import json
-import logging
-
 
 from google.cloud import ndb
 from flask import Flask, request
@@ -10,9 +8,17 @@ from model.schedulesmodel import SchedulesModel
 from tasks import policy_tasks, schedule_tasks
 from util import tz
 
+import google.cloud.logging
+
+log_client = google.cloud.logging.Client()
+log_client.setup_logging()
+
+import logging
+
 API_VERSION = "/api/v1"
 app = Flask(__name__)
 client = ndb.Client()
+
 
 @app.route("/tasks/change_state", methods=["POST"])
 def change_state():
