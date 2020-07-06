@@ -53,5 +53,5 @@ def check_if_app_engine_job(tagkey, tagvalue):
 
 
 def get_service_and_version_from_tag_value(tagvalue):
-    return tagvalue.val.split(':')
+    return tagvalue.split(':')
 

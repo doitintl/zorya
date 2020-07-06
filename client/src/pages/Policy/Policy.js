@@ -109,15 +109,16 @@ class Policy extends React.Component {
 
   getTagsError = () => {
     const { policy } = this.state;
-    const tagsRe = /^[a-z][a-z0-9_-]*[a-z0-9]$/;
+    const tagsKeyRe = /(^[a-z][a-z0-9_-]*[a-z0-9]$)|(^@app_engine_flex$)/; // Add app App Engine identifier
+    const tagsValRe = /(^[a-z][a-z0-9_-]*[a-z0-9]$)|(^[a-z][a-z0-9_-]*:[a-z0-9_-]+$)/; // Add app App Engine identifier
     let tagsError = [];
     for (let i = 0; i < policy.tags.length; i++) {
       tagsError.push([false, false]);
       forOwn(policy.tags[i], (value, key) => {
-        if (!tagsRe.test(key)) {
+        if (!tagsKeyRe.test(key)) {
           tagsError[i][0] = true;
         }
-        if (!tagsRe.test(value)) {
+        if (!tagsValRe.test(value)) {
           tagsError[i][1] = true;
         }
       });

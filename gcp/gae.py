@@ -38,7 +38,7 @@ class Gae(object):
                     version_id,
                     self.project
                 )
-                self.stop_version(service_id, version_id)
+                self.start_version(service_id, version_id)
 
             else:
                 logging.info(
@@ -47,7 +47,7 @@ class Gae(object):
                     version_id,
                     self.project
                 )
-                self.start_version(service_id, version_id)
+                self.stop_version(service_id, version_id)
 
         except HttpError as http_error:
             logging.error(http_error)
