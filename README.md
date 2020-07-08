@@ -40,7 +40,7 @@ The name of the service account you will need to assign permissions to is as fol
 ## Flow
 
 * Every hour on the hour a cron job calls `/tasks/schedule` which loop over all the policies
-* We are checking the desired state vs the previous hour desired state. If they are not the same we will apply the change.
+* We are checking the desired state vs the previous hour desired state of <b>Zorya states</b>. If they are not the same we will apply the change.
 
 [API Documentation](http://bit.ly/zorya_api_docs)
 
@@ -51,3 +51,5 @@ The name of the service account you will need to assign permissions to is as fol
 ####  Creating a Policy
 
 ![](Zorya_policies.png)
+
+App Engine Flex note - in order to add an App engine flex to the policy please look at [Adding GAP Flex to Zorya policy](./App%20Engine%20Flex%20Tagging.md).
