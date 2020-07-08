@@ -9,6 +9,6 @@ In order to add GAE Flex to the policy it needed to take the two following steps
 
 Example of tagging GAE flex:
 
-![](App Engine Flex Tagging Example.png)
+
 
 Please note, differ from the other resources that Zorya support, there is no need to add a label on the GAE service.      
