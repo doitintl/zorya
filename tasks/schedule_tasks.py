@@ -37,7 +37,7 @@ def change_state(tagkey, tagvalue, action, project):
 
 def check_if_app_engine_job(tagkey, tagvalue):
     """
-    Infer by the tag ket and tag value if its a App Engine job
+    Infer by the tag key and value if its an App Engine job
 
     Args:
         tagkey: tag key

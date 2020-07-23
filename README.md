@@ -52,4 +52,4 @@ The name of the service account you will need to assign permissions to is as fol
 
 ![](Zorya_policies.png)
 
-App Engine Flex note - in order to add an App engine flex to the policy please look at [Adding GAP Flex to Zorya policy](./App%20Engine%20Flex%20Tagging.md).
+App Engine Flex is now supported - in order to add an App engine flex to the policy please look at [Adding GAP Flex to Zorya policy](./App%20Engine%20Flex%20Tagging.md).

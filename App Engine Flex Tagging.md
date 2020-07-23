@@ -11,4 +11,4 @@ Example of tagging GAE flex:
 
 ![](App_Engine_Flex_Tagging_Example.png)
 
-Please note, differ from the other resources that Zorya support, there is no need to add a label on the GAE service.      
+Please note, unlike from the other resources that Zorya support, there is no need to add a label on the GAE service.      
