@@ -71,16 +71,25 @@ class Sql(object):
         """
         # TODO add requestId
         try:
-            database_instance_body = (
+            prev_instance_data = (
                 self.sql.instances()
                 .get(project=self.project, instance=instance)
                 .execute()
             )
-            database_instance_body["settings"]["activationPolicy"] = "NEVER"
+
+            patch_body = {
+                "settings": {
+                    "settingsVersion": prev_instance_data["settings"]["settingsVersion"],
+                    "activationPolicy": "NEVER"
+                }
+            }
+
             res = (
                 self.sql.instances()
                 .patch(
-                    instance=instance, project=self.project, body=database_instance_body
+                    project=self.project,
+                    instance=instance,
+                    body=patch_body
                 )
                 .execute()
             )
@@ -101,16 +110,25 @@ class Sql(object):
 
         """
         try:
-            database_instance_body = (
+            prev_instance_data = (
                 self.sql.instances()
                 .get(project=self.project, instance=instance)
                 .execute()
             )
-            database_instance_body["settings"]["activationPolicy"] = "ALWAYS"
+
+            patch_body = {
+                "settings": {
+                    "settingsVersion": prev_instance_data["settings"]["settingsVersion"],
+                    "activationPolicy": "ALWAYS"
+                }
+            }
+
             res = (
                 self.sql.instances()
                 .patch(
-                    instance=instance, project=self.project, body=database_instance_body
+                    project=self.project,
+                    instance=instance,
+                    body=patch_body
                 )
                 .execute()
             )
