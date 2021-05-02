@@ -84,9 +84,10 @@ class Sql(object):
                 )
                 .execute()
             )
+            return res
         except Exception as e:
             logging.error(e)
-        return res
+        return
 
     @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def start_instance(self, instance):
@@ -113,9 +114,10 @@ class Sql(object):
                 )
                 .execute()
             )
+            return res
         except Exception as e:
             logging.error(e)
-        return res
+        return
 
     @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
     def list_instances(self, tags_filter=None):
