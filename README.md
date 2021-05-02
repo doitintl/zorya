@@ -15,6 +15,13 @@ In Slavic mythology, [Zoryas](https://www.wikiwand.com/en/Zorya) are two guardia
 
 `pip install -r requirements.txt -t lib`
 
+> Note: On macOS and Applie Silicon (M1), use the following instead:
+> ```
+> GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1 \
+>   GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1 \
+>   pip install -r requirements.txt -t lib
+> ```
+
 Download and install [Yarn](https://yarnpkg.com/).
 
 ##### Deploy
