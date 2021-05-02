@@ -1,5 +1,6 @@
 # zorya
-GCP Instance, Cloud SQL Scheduler & GKE node pools
+
+Schedule GCE Instances, Cloud SQL and GKE node pools
 
 [Blog Post](http://bit.ly/zorya_blog)
 
@@ -7,42 +8,70 @@ GCP Instance, Cloud SQL Scheduler & GKE node pools
 
 In Slavic mythology, [Zoryas](https://www.wikiwand.com/en/Zorya) are two guardian goddesses. The Zoryas represent the morning star and the evening star, — if you have read or watched Neil Gaiman’s American Gods, you will probably remember these sisters).
 
+## Installation
 
-##### Install dependencies
+```shell
+pip install -r requirements.txt -t lib
+```
 
- - Note: deployment from Google Cloud Shell fails with an error [#25](https://github.com/doitintl/zorya/issues/25).
+Next step: Download and install [Yarn](https://yarnpkg.com/).
 
+### Known Issues for Installation
 
-`pip install -r requirements.txt -t lib`
+* Deployment from Google Cloud Shell fails with an error [#25](https://github.com/doitintl/zorya/issues/25).
 
-> Note: On macOS and Applie Silicon (M1), use the following instead:
-> ```
-> GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1 \
->   GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1 \
->   pip install -r requirements.txt -t lib
-> ```
+* Building on macOS running on Apple Silicon (arm M1) may fail due to issues building grpcio. Use the following workaround:
 
-Download and install [Yarn](https://yarnpkg.com/).
+>```shell
+>GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1 \
+>  GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1 \
+>  pip install -r requirements.txt -t lib
+>```
 
-##### Deploy
-`./deploy.sh project-id`
+## Enable required GCP APIs:
 
-You need to enable compute engine API (https://console.cloud.google.com/apis/library/compute.googleapis.com) for the Zorya project/app to work and communicate with compute engine instances.
+* Cloud Tasks
+* App Engine
+* Cloud Storage
+* Datastore
+* IAP
+* Cloud Build
+* Cloud Scheduler
+* Compute Engine
+* Cloud SQL Admin API
+
+## Deploy Backend and GUI:
+```shell
+./deploy.sh project-id
+```
+
 
 #### Access the app
-`gcloud app browse`
+```shell
+gcloud app browse
+```
 
 **WARNING**: By default this application is public; ensure you turn on IAP, as follows:
 
 To sign into the app, we are using [Cloud Identity-Aware Proxy (Cloud IAP)](https://cloud.google.com/iap/). Cloud IAP works by verifying a user’s identity and determining if that user should be allowed to access the application. The setup is as simple as heading over to [GCP console](https://console.cloud.google.com/iam-admin/iap), enabling IAP on your GAE app and adding the users who should have access to it.
 
-#### Authentication
-In order to allow Zorya to manage instances on your behalf in any project under your organization, you will need to create a new entry in your Organization IAM and assign Zorya’s service account with a role of XXXX
-First, navigate to https://console.cloud.google.com, then IAM from the menu and then select the name of your project that you deployed zorya in, from the dropdown at the top of the page:
+#### Authorization
+
+For Zorya to work, its service account requires the folling roles:
+
+* Cloud Tasks Enqueuer
+* Cloud Datastore User
+* Logs Writer
+
+For any project that Zorya is supposed to be managing resources for, Zorya's service account requires the following additional roles:
+
+* Compute Instance Admin (v1)
+* Kubernetes Engine Cluster Admin
+* Cloud SQL Editor
 
 ![](iam.png)
 
-The name of the service account you will need to assign permissions to is as following:`<YOUR_PROJECT_ID>@appspot.gserviceaccount.com` and will have been automatically created by Google App Engine. *NOTE:* this is done under *IAM*, selecting the account, choosing *Permissions* and then adding the role **Compute Instance Admin (v1)** to it; not under *Service Accounts*.
+The name of the service account you will need to assign permissions to is as following:`<YOUR_PROJECT_ID>@appspot.gserviceaccount.com` and will have been automatically created by Google App Engine. *NOTE:* this is done under *IAM*, selecting the account, choosing *Permissions* and then adding the roles above to it; not under *Service Accounts*.
 
 ## Flow
 
@@ -51,10 +80,10 @@ The name of the service account you will need to assign permissions to is as fol
 
 [API Documentation](http://bit.ly/zorya_api_docs)
 
-####  Creating a Schedule
+### Creating a Schedule
 
 ![](Zorya_schedule.png)
 
-####  Creating a Policy
+### Creating a Policy
 
 ![](Zorya_policies.png)
