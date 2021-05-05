@@ -26,7 +26,7 @@ import PolicyService from '../../modules/api/policy';
 import ScheduleService from '../../modules/api/schedule';
 import { getDefaultPolicy } from '../../modules/utils/policy';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
   },
@@ -82,7 +82,7 @@ class Policy extends React.Component {
     }
   }
 
-  handleChange = name => event => {
+  handleChange = (name) => (event) => {
     const { policy } = this.state;
     policy[name] = event.target.value;
     this.setState({ policy });
@@ -99,7 +99,7 @@ class Policy extends React.Component {
     }
   };
 
-  handleChangeProjects = event => {
+  handleChangeProjects = (event) => {
     const { policy } = this.state;
     policy.projects = event.target.value.replace(/\s/g, '').split(',');
     this.setState({
@@ -125,7 +125,7 @@ class Policy extends React.Component {
     return tagsError;
   };
 
-  handleSubmit = async event => {
+  handleSubmit = async (event) => {
     try {
       const { history } = this.props;
       const { policy } = this.state;
@@ -152,7 +152,7 @@ class Policy extends React.Component {
         nameError ||
         projectsError ||
         scheduleError ||
-        find(tagsError, tagErrors => tagErrors[0] || tagErrors[1])
+        find(tagsError, (tagErrors) => tagErrors[0] || tagErrors[1])
       ) {
         this.setState({
           nameError,
@@ -170,7 +170,7 @@ class Policy extends React.Component {
     }
   };
 
-  handleRequestCancel = event => {
+  handleRequestCancel = (event) => {
     const { history } = this.props;
     history.goBack();
   };
@@ -244,7 +244,7 @@ class Policy extends React.Component {
                     id: 'schedule-input',
                   }}
                 >
-                  {map(schedules, schedule => (
+                  {map(schedules, (schedule) => (
                     <option key={schedule} value={schedule}>
                       {schedule}
                     </option>

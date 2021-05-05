@@ -25,7 +25,7 @@ import ScheduleEdit from './Schedule/ScheduleEdit';
 import Policy from './Policy/Policy';
 import PolicyList from './Policy/PolicyList';
 
-const styles = theme => ({
+const styles = (theme) => ({
   '@global': {
     'html, body, #root': {
       height: '100%',
@@ -78,7 +78,4 @@ Index.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default compose(
-  withRoot,
-  withStyles(styles)
-)(Index);
+export default compose(withRoot, withStyles(styles))(Index);

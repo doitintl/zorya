@@ -16,7 +16,7 @@ import AppPageActions from '../../modules/components/AppPageActions';
 import ScheduleService from '../../modules/api/schedule';
 import { getDefaultSchedule } from '../../modules/utils/schedule';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
   },
@@ -52,25 +52,25 @@ class ScheduleCreate extends React.Component {
     }
   }
 
-  handleChange = name => event => {
+  handleChange = (name) => (event) => {
     const { schedule } = this.state;
     schedule[name] = event.target.value;
     this.setState({ schedule });
   };
 
-  handleChangeTimezone = value => {
+  handleChangeTimezone = (value) => {
     const { schedule } = this.state;
     schedule.timezone = value;
     this.setState({ schedule });
   };
 
-  handleScheduleChange = nextSchedule => {
+  handleScheduleChange = (nextSchedule) => {
     this.setState({
       schedule: nextSchedule,
     });
   };
 
-  handleCreate = async event => {
+  handleCreate = async (event) => {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
@@ -88,7 +88,7 @@ class ScheduleCreate extends React.Component {
     }
   };
 
-  handleRequestCancel = event => {
+  handleRequestCancel = (event) => {
     const { history } = this.props;
     history.goBack();
   };

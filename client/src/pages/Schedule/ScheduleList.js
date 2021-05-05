@@ -31,7 +31,7 @@ import ScheduleService from '../../modules/api/schedule';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
   },
@@ -68,7 +68,7 @@ class ScheduleList extends React.Component {
     this.refreshList();
   }
 
-  handleRequestSort = event => {
+  handleRequestSort = (event) => {
     this.setState((prevState, props) => {
       let order = 'desc';
       if (prevState.order === 'desc') {
@@ -87,12 +87,12 @@ class ScheduleList extends React.Component {
     });
   };
 
-  handleClickNavigate = path => event => {
+  handleClickNavigate = (path) => (event) => {
     const { history } = this.props;
     history.push(path);
   };
 
-  handleClickRefresh = event => {
+  handleClickRefresh = (event) => {
     this.refreshList();
   };
 
@@ -132,17 +132,17 @@ class ScheduleList extends React.Component {
     }
   };
 
-  handleDeleteClick = async event => {
+  handleDeleteClick = async (event) => {
     try {
       const { selected } = this.state;
       if (selected.length > 0) {
         const promises = [];
-        selected.forEach(schedule => {
+        selected.forEach((schedule) => {
           promises.push(this.scheduleService.delete(schedule));
         });
         const responses = await Promise.all(promises);
         console.log(responses);
-        responses.forEach(async response => {
+        responses.forEach(async (response) => {
           if (!response.ok) {
             const errorMsg = await response.text();
             console.log(errorMsg);
@@ -243,7 +243,7 @@ class ScheduleList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {map(schedules, schedule => {
+              {map(schedules, (schedule) => {
                 const isSelected = indexOf(selected, schedule) !== -1;
                 return (
                   <TableRow
@@ -257,7 +257,7 @@ class ScheduleList extends React.Component {
                     <TableCell padding="none" className={classes.checkboxCell}>
                       <Checkbox
                         checked={isSelected}
-                        onClick={event => this.handleClick(event, schedule)}
+                        onClick={(event) => this.handleClick(event, schedule)}
                       />
                     </TableCell>
 
@@ -282,7 +282,4 @@ class ScheduleList extends React.Component {
   }
 }
 
-export default compose(
-  withRouter,
-  withStyles(styles)
-)(ScheduleList);
+export default compose(withRouter, withStyles(styles))(ScheduleList);

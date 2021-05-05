@@ -15,7 +15,7 @@ import forOwn from 'lodash/forOwn';
 
 const TEXT_FIELD_WIDTH = 250;
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     marginBottom: theme.spacing.unit * 3,
   },
@@ -53,7 +53,7 @@ class PolicyTags extends React.Component {
   componentDidMount() {
     if (this.props.tags && this.props.tags.length > 0) {
       let tags = [];
-      this.props.tags.forEach(tag => {
+      this.props.tags.forEach((tag) => {
         forOwn(tag, (value, key) => {
           tags.push({
             key,
@@ -67,20 +67,20 @@ class PolicyTags extends React.Component {
     }
   }
 
-  publishChanges = shouldUpdateErrors => {
-    const tags = map(this.state.tags, tag => ({
+  publishChanges = (shouldUpdateErrors) => {
+    const tags = map(this.state.tags, (tag) => ({
       [tag.key]: tag.value,
     }));
     this.props.onChange(tags, shouldUpdateErrors);
   };
 
-  handleChange = (index, name) => event => {
+  handleChange = (index, name) => (event) => {
     const tags = this.state.tags.slice();
     tags[index][name] = event.target.value;
     this.setState({ tags }, () => this.publishChanges(false));
   };
 
-  handleClearTag = index => event => {
+  handleClearTag = (index) => (event) => {
     const tags = this.state.tags.slice();
     if (tags.length > 1) {
       tags.splice(index, 1);
@@ -88,7 +88,7 @@ class PolicyTags extends React.Component {
     }
   };
 
-  handleAddTag = event => {
+  handleAddTag = (event) => {
     const tags = this.state.tags.slice();
     tags.push({
       key: '',

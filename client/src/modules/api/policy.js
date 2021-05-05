@@ -13,7 +13,7 @@ class PolicyService {
     return response.json();
   };
 
-  get = async policy => {
+  get = async (policy) => {
     const response = await fetch(`/api/v1/get_policy?policy=${policy}`, {
       method: 'GET',
       credentials: 'same-origin',
@@ -27,7 +27,7 @@ class PolicyService {
     return response.json();
   };
 
-  delete = async policy => {
+  delete = async (policy) => {
     const response = await fetch(`/api/v1/del_policy?policy=${policy}`, {
       method: 'GET',
       credentials: 'same-origin',
@@ -41,7 +41,7 @@ class PolicyService {
     return response;
   };
 
-  add = async policy => {
+  add = async (policy) => {
     const response = await fetch(`/api/v1/add_policy`, {
       method: 'POST',
       credentials: 'same-origin',
