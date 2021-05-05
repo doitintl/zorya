@@ -3,7 +3,7 @@ import json
 import logging
 
 import numpy as np
-from google.cloud import ndb, tasks_v2
+from google.cloud import tasks_v2
 from model.policymodel import PolicyModel
 from model.schedulesmodel import SchedulesModel
 from util import location, tz, utils
@@ -23,7 +23,9 @@ def policy_checker(name):
     if not policy:
         logging.error("Policy %s not found!", name)
         return "not found", 404
-    schedule = SchedulesModel.query(SchedulesModel.Name == policy.Schedule).get()
+    schedule = SchedulesModel.query(
+        SchedulesModel.Name == policy.Schedule
+    ).get()
     if not schedule:
         logging.error("Schedule %s not found!", policy.Schedule)
         return "not found", 404
@@ -32,7 +34,9 @@ def policy_checker(name):
         schedule.Timezone,
         tz.get_time_at_timezone(schedule.Timezone),
     )
-    day, hour = tz.convert_time_to_index(tz.get_time_at_timezone(schedule.Timezone))
+    day, hour = tz.convert_time_to_index(
+        tz.get_time_at_timezone(schedule.Timezone)
+    )
     logging.debug("Working on day  %s hour  %s", day, hour)
     arr = np.asarray(schedule.Schedule["__ndarray__"], dtype=np.int).flatten()
     matrix_size = schedule.Schedule["Shape"][0] * schedule.Schedule["Shape"][1]
@@ -69,8 +73,8 @@ def policy_checker(name):
                     "tagvalue": tag[next(iter(tag))],
                     "action": str(now),
                 }
-                task["app_engine_http_request"]["body"] = (
-                    json.dumps(payload)
+                task["app_engine_http_request"]["body"] = json.dumps(
+                    payload
                 ).encode()
                 response = task_client.create_task(parent, task)
                 logging.debug("Task %s enqueued", response.name)

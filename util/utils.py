@@ -13,15 +13,15 @@ def detect_gae():
     Returns:
       True iff we're running on GAE.
     """
-    server_software = os.environ.get('GAE_ENV', '')
-    return server_software.startswith('standard')
+    server_software = os.environ.get("GAE_ENV", "")
+    return server_software.startswith("standard")
 
 
 def _get_project_id():
     logging.info("-------------------Running Localy--------------------")
-    with open('config.json', 'r') as config_file:
+    with open("config.json", "r") as config_file:
         config = json.load(config_file)
-    return config['project']
+    return config["project"]
 
 
 def get_project_id():
@@ -31,8 +31,10 @@ def get_project_id():
     :return: project_id
     """
     if detect_gae():
-        project = os.environ.get('GOOGLE_CLOUD_PROJECT',
-                                 'Specified environment variable is not set.')
+        project = os.environ.get(
+            "GOOGLE_CLOUD_PROJECT",
+            "Specified environment variable is not set.",
+        )
     else:
         project = _get_project_id()
     return project
@@ -45,9 +47,9 @@ def get_host_name():
     :return: hostname
     """
     if detect_gae():
-        hostname = '{}.appspot.com'.format(get_project_id())
+        hostname = "{}.appspot.com".format(get_project_id())
     else:
-        hostname = '{}.appspot.com'.format(_get_project_id())
+        hostname = "{}.appspot.com".format(_get_project_id())
     return hostname
 
 

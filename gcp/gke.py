@@ -31,14 +31,23 @@ class Gke(object):
                         and tagkey in cluster["resourceLabels"]
                         and cluster["resourceLabels"][tagkey] == tagvalue
                     ):
-                        logging.debug("GKE change_status cluster %s %s %s", cluster,cluster["resourceLabels"],cluster["resourceLabels"][tagkey])
+                        logging.debug(
+                            "GKE change_status cluster %s %s %s",
+                            cluster,
+                            cluster["resourceLabels"],
+                            cluster["resourceLabels"][tagkey],
+                        )
                         for nodePool in cluster["nodePools"]:
                             logging.debug(nodePool["instanceGroupUrls"])
                             for instanceGroup in nodePool["instanceGroupUrls"]:
                                 url = instanceGroup
-                                node_pool_name = url[url.rfind("/") + 1 :]
-                                no_of_nodes = gcp.get_instancegroup_no_of_nodes_from_url(
-                                    url
+                                node_pool_name = url[
+                                    url.rfind("/") + 1 :  # noqa
+                                ]
+                                no_of_nodes = (
+                                    gcp.get_instancegroup_no_of_nodes_from_url(
+                                        url
+                                    )
                                 )
                                 if int(to_status) == 1:
                                     logging.debug(
@@ -56,11 +65,13 @@ class Gke(object):
                                     logging.debug(res)
                                     if not res:
                                         continue
-                                    gcp.resize_node_pool(res.NumberOfNodes, url)
+                                    gcp.resize_node_pool(
+                                        res.NumberOfNodes, url
+                                    )
                                     res.key.delete()
                                 else:
                                     logging.debug(
-                                        "Sizing down node pool %s in cluster %s "
+                                        "Sizing down node pool %s in cluster %s "  # noqa
                                         "tagkey "
                                         "%s tagvalue %s",
                                         nodePool["name"],
@@ -83,7 +94,9 @@ class Gke(object):
                 return "Error", 500
         return "ok", 200
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def list_clusters(self):
         """
         List all clusters with the requested tags
@@ -96,7 +109,11 @@ class Gke(object):
         """
         parent = "projects/%s/locations/-" % self.project
         result = (
-            self.gke.projects().locations().clusters().list(parent=parent).execute()
+            self.gke.projects()
+            .locations()
+            .clusters()
+            .list(parent=parent)
+            .execute()
         )
         if "clusters" in result:
             return result["clusters"]

@@ -15,7 +15,10 @@ class Sql(object):
 
     def __init__(self, project):
         self.sql = discovery.build(
-            "sqladmin", "v1beta4", credentials=CREDENTIALS, cache_discovery=False
+            "sqladmin",
+            "v1beta4",
+            credentials=CREDENTIALS,
+            cache_discovery=False,
         )
         self.project = project
 
@@ -58,7 +61,9 @@ class Sql(object):
             return "Error", 500
         return "ok", 200
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def stop_instance(self, instance):
         """
         Stop an instance.
@@ -79,8 +84,10 @@ class Sql(object):
 
             patch_body = {
                 "settings": {
-                    "settingsVersion": prev_instance_data["settings"]["settingsVersion"],
-                    "activationPolicy": "NEVER"
+                    "settingsVersion": prev_instance_data["settings"][
+                        "settingsVersion"
+                    ],
+                    "activationPolicy": "NEVER",
                 }
             }
 
@@ -89,7 +96,7 @@ class Sql(object):
                 .patch(
                     project=self.project,
                     instance=instance,
-                    body=patch_body
+                    body=patch_body,
                 )
                 .execute()
             )
@@ -98,7 +105,9 @@ class Sql(object):
             logging.error(e)
         return
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def start_instance(self, instance):
         """
         Start an instance.
@@ -118,8 +127,10 @@ class Sql(object):
 
             patch_body = {
                 "settings": {
-                    "settingsVersion": prev_instance_data["settings"]["settingsVersion"],
-                    "activationPolicy": "ALWAYS"
+                    "settingsVersion": prev_instance_data["settings"][
+                        "settingsVersion"
+                    ],
+                    "activationPolicy": "ALWAYS",
                 }
             }
 
@@ -128,7 +139,7 @@ class Sql(object):
                 .patch(
                     project=self.project,
                     instance=instance,
-                    body=patch_body
+                    body=patch_body,
                 )
                 .execute()
             )
@@ -137,7 +148,9 @@ class Sql(object):
             logging.error(e)
         return
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def list_instances(self, tags_filter=None):
         """
         List all instances in  with the requested tags

@@ -58,7 +58,9 @@ class Compute(object):
                 return "Error", 500
         return "ok", 200
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def stop_instance(self, zone, instance):
         """
         Stop an instance.
@@ -76,7 +78,9 @@ class Compute(object):
             .execute()
         )
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def start_instance(self, zone, instance):
         """
         Start an instance.
@@ -94,7 +98,9 @@ class Compute(object):
             .execute()
         )
 
-    @backoff.on_exception(backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code)
+    @backoff.on_exception(
+        backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
+    )
     def list_instances(self, zone, tags_filter=None):
         """
         List all instances in zone with the requested tags

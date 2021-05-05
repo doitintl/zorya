@@ -5,6 +5,7 @@ from gcp.compute import Compute
 from gcp.sql import Sql
 from gcp.gke import Gke
 
+
 def change_state(tagkey, tagvalue, action, project):
     """
     Change a state for all matching instances in a project.
@@ -25,4 +26,4 @@ def change_state(tagkey, tagvalue, action, project):
     compute.change_status(action, tagkey, tagvalue)
     sql.change_status(action, tagkey, tagvalue)
     gke.change_status(action, tagkey, tagvalue)
-    return 'ok', 200
+    return "ok", 200

@@ -13,7 +13,7 @@ import google.cloud.logging
 log_client = google.cloud.logging.Client()
 log_client.setup_logging()
 
-import logging
+import logging  # noqa
 
 API_VERSION = "/api/v1"
 app = Flask(__name__)
@@ -36,7 +36,10 @@ def change_state():
         payload["tagvalue"],
     )
     schedule_tasks.change_state(
-        payload["tagkey"], payload["tagvalue"], payload["action"], payload["project"]
+        payload["tagkey"],
+        payload["tagvalue"],
+        payload["action"],
+        payload["project"],
     )
     return "ok", 200
 
@@ -49,7 +52,6 @@ def schedule():
 
     """
     logging.debug("From Cron start /tasks/schedule")
-
 
     with client.context():
         keys = PolicyModel.query().fetch(keys_only=True)
@@ -140,7 +142,12 @@ def del_schedule():
             return "not found", 404
         policy = PolicyModel.query(PolicyModel.Schedule == name).get()
         if policy:
-            return "Forbidden policy {} is using the schedule".format(policy.Name), 403
+            return (
+                "Forbidden policy {} is using the schedule".format(
+                    policy.Name
+                ),
+                403,
+            )
         res.key.delete()
     return "ok", 200
 
@@ -234,5 +241,5 @@ def index():
 
 
 if __name__ == "__main__":
-    logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.info)
+    logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.INFO)
     app.run(debug=False)
