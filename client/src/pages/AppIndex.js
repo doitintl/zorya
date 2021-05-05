@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Recompose
-import { compose } from 'recompose';
+import { compose } from 'react-recompose';
 
 // Router
 import { Switch, Route, Redirect } from 'react-router-dom';

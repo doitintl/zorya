@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // Recompose
-import { compose } from 'recompose';
+import { compose } from 'react-recompose';
 
 // Router
 import { withRouter } from 'react-router-dom';
