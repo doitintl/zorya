@@ -38,4 +38,8 @@ def get_location():
     return "${LOCATION}"
 EOF
 
+poetry export -f requirements.txt --output requirements.txt
+
 gcloud app deploy -q app.yaml cron.yaml
+
+rm requirements.txt
