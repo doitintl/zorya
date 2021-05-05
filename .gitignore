@@ -70,9 +70,6 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# pyenv
-.python-version
-
 # celery beat schedule file
 celerybeat-schedule
 
@@ -104,3 +101,7 @@ config.json
 
 # node
 node_modules/
+
+# IDE settings
+.idea
+.vscode
