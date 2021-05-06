@@ -37,10 +37,10 @@ const styles = (theme) => ({
     height: '100%',
   },
   button: {
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   leftIcon: {
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
   link: {
     '&:hover': {

@@ -17,19 +17,19 @@ const TEXT_FIELD_WIDTH = 250;
 
 const styles = (theme) => ({
   root: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
   textField: {
     width: TEXT_FIELD_WIDTH,
-    marginRight: theme.spacing.unit,
-    marginBottom: theme.spacing.unit,
+    marginRight: theme.spacing(1),
+    marginBottom: theme.spacing(1),
   },
   iconButton: {
     width: 32,
     height: 32,
   },
   addButton: {
-    width: TEXT_FIELD_WIDTH * 2 + theme.spacing.unit,
+    width: TEXT_FIELD_WIDTH * 2 + theme.spacing(1),
   },
   sizeSmallButton: {
     padding: 0,

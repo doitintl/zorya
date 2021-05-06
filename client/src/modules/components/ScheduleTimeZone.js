@@ -53,7 +53,7 @@ function renderSuggestion(params) {
 const styles = (theme) => ({
   container: {
     width: 250,
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
   suggestionsContainer: {
     position: 'absolute',

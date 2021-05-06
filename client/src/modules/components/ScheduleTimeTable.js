@@ -57,7 +57,7 @@ const intersects = (rectA, rectB) => {
 
 const styles = (theme) => ({
   root: {
-    margin: `${theme.spacing.unit * 2}px 0`,
+    margin: theme.spacing(2, 0),
   },
   row: {
     display: 'flex',
