@@ -1,4 +1,5 @@
 """Entry point to Zoyra."""
+import logging
 import json
 
 from google.cloud import ndb
@@ -13,7 +14,6 @@ import google.cloud.logging
 log_client = google.cloud.logging.Client()
 log_client.setup_logging()
 
-import logging
 
 API_VERSION = "/api/v1"
 app = Flask(__name__)
@@ -49,7 +49,6 @@ def schedule():
 
     """
     logging.debug("From Cron start /tasks/schedule")
-
 
     with client.context():
         keys = PolicyModel.query().fetch(keys_only=True)
@@ -234,5 +233,5 @@ def index():
 
 
 if __name__ == "__main__":
-    logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.info)
+    logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.INFO)
     app.run(debug=False)
