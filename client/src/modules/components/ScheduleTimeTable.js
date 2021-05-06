@@ -401,7 +401,7 @@ class ScheduleTimeTable extends React.Component {
                 <Button
                   disableRipple
                   disableFocusRipple
-                  variant="raised"
+                  variant="contained"
                   classes={{ root: classes.columnButtonRoot }}
                   onClick={this.toggleHour(hour)}
                 >
@@ -418,7 +418,7 @@ class ScheduleTimeTable extends React.Component {
                   key={`day-${dayIndex}`}
                   disableRipple
                   disableFocusRipple
-                  variant="raised"
+                  variant="contained"
                   classes={{ root: classes.rowButtonRoot }}
                   onClick={this.toggleDay(dayIndex)}
                 >

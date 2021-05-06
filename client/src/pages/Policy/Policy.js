@@ -199,11 +199,11 @@ class Policy extends React.Component {
             </IconButton>
 
             {edit ? (
-              <Typography variant="subheading" color="primary">
+              <Typography variant="subtitle1" color="primary">
                 Edit policy {policy.name}
               </Typography>
             ) : (
-              <Typography variant="subheading" color="primary">
+              <Typography variant="subtitle1" color="primary">
                 Create a policy
               </Typography>
             )}

@@ -107,7 +107,7 @@ class ScheduleCreate extends React.Component {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="subheading" color="primary">
+          <Typography variant="subtitle1" color="primary">
             Create a schedule
           </Typography>
         </AppPageActions>

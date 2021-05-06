@@ -95,7 +95,7 @@ class ScheduleEdit extends React.Component {
             >
               <ArrowBackIcon />
             </IconButton>
-            <Typography variant="subheading" color="primary">
+            <Typography variant="subtitle1" color="primary">
               Edit schedule {schedule.name}
             </Typography>
           </AppPageActions>

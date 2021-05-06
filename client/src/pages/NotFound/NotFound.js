@@ -16,7 +16,7 @@ class NotFound extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="subheading" color="error">
+        <Typography variant="subtitle1" color="error">
           Not Found: <code>{location.pathname}</code>
         </Typography>
       </div>
