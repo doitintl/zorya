@@ -4,9 +4,9 @@ import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    padding: theme.spacing.unit,
+    padding: theme.spacing(1),
   },
 });
 
@@ -16,7 +16,7 @@ class NotFound extends React.Component {
 
     return (
       <div className={classes.root}>
-        <Typography variant="subheading" color="error">
+        <Typography variant="subtitle1" color="error">
           Not Found: <code>{location.pathname}</code>
         </Typography>
       </div>

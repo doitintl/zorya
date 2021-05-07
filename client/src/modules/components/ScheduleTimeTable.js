@@ -55,9 +55,9 @@ const intersects = (rectA, rectB) => {
   );
 };
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    margin: `${theme.spacing.unit * 2}px 0`,
+    margin: theme.spacing(2, 0),
   },
   row: {
     display: 'flex',
@@ -118,8 +118,8 @@ class ScheduleTimeTable extends React.Component {
 
   async componentDidMount() {
     try {
-      const matrix = map(this.props.schedule.__ndarray__, dayArray =>
-        map(dayArray, hourValue => ({ current: hourValue, next: null }))
+      const matrix = map(this.props.schedule.__ndarray__, (dayArray) =>
+        map(dayArray, (hourValue) => ({ current: hourValue, next: null }))
       );
       this.setState({
         matrix,
@@ -131,7 +131,7 @@ class ScheduleTimeTable extends React.Component {
 
   publishChanges = () => {
     const { matrix } = this.state;
-    const ndarray = map(matrix, day => map(day, hour => hour.current));
+    const ndarray = map(matrix, (day) => map(day, (hour) => hour.current));
     const schedule = {
       ...this.props.schedule,
       __ndarray__: ndarray,
@@ -139,17 +139,17 @@ class ScheduleTimeTable extends React.Component {
     this.props.onScheduleChange(schedule);
   };
 
-  toggleDay = dayIndex => event => {
+  toggleDay = (dayIndex) => (event) => {
     this.setState(
       (prevState, props) => {
         const { matrix } = prevState;
         if (find(matrix[dayIndex], { current: 0 })) {
-          matrix[dayIndex] = map(matrix[dayIndex], hour => ({
+          matrix[dayIndex] = map(matrix[dayIndex], (hour) => ({
             current: 1,
             next: null,
           }));
         } else {
-          matrix[dayIndex] = map(matrix[dayIndex], hour => ({
+          matrix[dayIndex] = map(matrix[dayIndex], (hour) => ({
             current: 0,
             next: null,
           }));
@@ -160,7 +160,7 @@ class ScheduleTimeTable extends React.Component {
     );
   };
 
-  toggleHour = hourIndex => event => {
+  toggleHour = (hourIndex) => (event) => {
     this.setState(
       (prevState, props) => {
         const { matrix } = prevState;
@@ -178,7 +178,7 @@ class ScheduleTimeTable extends React.Component {
     );
   };
 
-  toggleAll = event => {
+  toggleAll = (event) => {
     this.setState(
       (prevState, props) => {
         const matrix = prevState.matrix;
@@ -229,7 +229,7 @@ class ScheduleTimeTable extends React.Component {
     return hourBlocks;
   };
 
-  handleMouseMove = event => {
+  handleMouseMove = (event) => {
     const { mouseDown, newCurrent } = this.state;
     const matrix = this.state.matrix.slice();
     const matrixRect = this.matrixDiv.getBoundingClientRect();
@@ -286,7 +286,7 @@ class ScheduleTimeTable extends React.Component {
     });
   };
 
-  handleMouseDown = event => {
+  handleMouseDown = (event) => {
     event.persist();
     if (event.button === 0) {
       const { matrix } = this.state;
@@ -322,7 +322,7 @@ class ScheduleTimeTable extends React.Component {
     }
   };
 
-  handleMouseUp = event => {
+  handleMouseUp = (event) => {
     const { mouseDown } = this.state;
     document.removeEventListener('mouseup', this.handleMouseUp, false);
     document.removeEventListener('mousemove', this.handleMouseMove, false);
@@ -342,7 +342,7 @@ class ScheduleTimeTable extends React.Component {
     });
   };
 
-  toggleSelectionBox = selectionRect => {
+  toggleSelectionBox = (selectionRect) => {
     const { newCurrent } = this.state;
     const matrix = this.state.matrix.slice();
     const matrixRect = this.matrixDiv.getBoundingClientRect();
@@ -396,12 +396,12 @@ class ScheduleTimeTable extends React.Component {
             >
               ALL
             </Button>
-            {map(hours, hour => (
+            {map(hours, (hour) => (
               <div key={`hour-${hour}`}>
                 <Button
                   disableRipple
                   disableFocusRipple
-                  variant="raised"
+                  variant="contained"
                   classes={{ root: classes.columnButtonRoot }}
                   onClick={this.toggleHour(hour)}
                 >
@@ -418,7 +418,7 @@ class ScheduleTimeTable extends React.Component {
                   key={`day-${dayIndex}`}
                   disableRipple
                   disableFocusRipple
-                  variant="raised"
+                  variant="contained"
                   classes={{ root: classes.rowButtonRoot }}
                   onClick={this.toggleDay(dayIndex)}
                 >
@@ -429,42 +429,41 @@ class ScheduleTimeTable extends React.Component {
 
             <div
               className={classNames(classes.column, classes.crosshair)}
-              ref={matrixDiv => (this.matrixDiv = matrixDiv)}
+              ref={(matrixDiv) => (this.matrixDiv = matrixDiv)}
               onMouseDown={this.handleMouseDown}
             >
-              {mouseDown &&
-                mouseCurrent && (
-                  <div>
-                    <Line
-                      border="1px dashed #fff"
-                      x0={mouseDown.x}
-                      y0={mouseDown.y}
-                      x1={mouseCurrent.x}
-                      y1={mouseDown.y}
-                    />
-                    <Line
-                      border="1px dashed #fff"
-                      x0={mouseCurrent.x}
-                      y0={mouseDown.y}
-                      x1={mouseCurrent.x}
-                      y1={mouseCurrent.y}
-                    />
-                    <Line
-                      border="1px dashed #fff"
-                      x0={mouseCurrent.x}
-                      y0={mouseCurrent.y}
-                      x1={mouseDown.x}
-                      y1={mouseCurrent.y}
-                    />
-                    <Line
-                      border="1px dashed #fff"
-                      x0={mouseDown.x}
-                      y0={mouseCurrent.y}
-                      x1={mouseDown.x}
-                      y1={mouseDown.y}
-                    />
-                  </div>
-                )}
+              {mouseDown && mouseCurrent && (
+                <div>
+                  <Line
+                    border="1px dashed #fff"
+                    x0={mouseDown.x}
+                    y0={mouseDown.y}
+                    x1={mouseCurrent.x}
+                    y1={mouseDown.y}
+                  />
+                  <Line
+                    border="1px dashed #fff"
+                    x0={mouseCurrent.x}
+                    y0={mouseDown.y}
+                    x1={mouseCurrent.x}
+                    y1={mouseCurrent.y}
+                  />
+                  <Line
+                    border="1px dashed #fff"
+                    x0={mouseCurrent.x}
+                    y0={mouseCurrent.y}
+                    x1={mouseDown.x}
+                    y1={mouseCurrent.y}
+                  />
+                  <Line
+                    border="1px dashed #fff"
+                    x0={mouseDown.x}
+                    y0={mouseCurrent.y}
+                    x1={mouseDown.x}
+                    y1={mouseDown.y}
+                  />
+                </div>
+              )}
 
               {map(matrix, (dayValues, dayIndex) => (
                 <div key={`day-${dayIndex}`} className={classes.row}>

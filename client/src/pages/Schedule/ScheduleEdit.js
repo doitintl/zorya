@@ -15,16 +15,16 @@ import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
 import ScheduleService from '../../modules/api/schedule';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
   },
   button: {
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   textField: {
     width: 250,
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
 });
 
@@ -52,19 +52,19 @@ class ScheduleEdit extends React.Component {
     }
   }
 
-  handleScheduleChange = nextSchedule => {
+  handleScheduleChange = (nextSchedule) => {
     this.setState({
       schedule: nextSchedule,
     });
   };
 
-  handleChangeTimezone = value => {
+  handleChangeTimezone = (value) => {
     const { schedule } = this.state;
     schedule.timezone = value;
     this.setState({ schedule });
   };
 
-  handleSave = async event => {
+  handleSave = async (event) => {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
@@ -75,7 +75,7 @@ class ScheduleEdit extends React.Component {
     }
   };
 
-  handleRequestCancel = event => {
+  handleRequestCancel = (event) => {
     const { history } = this.props;
     history.goBack();
   };
@@ -95,7 +95,7 @@ class ScheduleEdit extends React.Component {
             >
               <ArrowBackIcon />
             </IconButton>
-            <Typography variant="subheading" color="primary">
+            <Typography variant="subtitle1" color="primary">
               Edit schedule {schedule.name}
             </Typography>
           </AppPageActions>

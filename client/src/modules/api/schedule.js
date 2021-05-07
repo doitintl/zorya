@@ -13,7 +13,7 @@ class ScheduleService {
     return response.json();
   };
 
-  get = async schedule => {
+  get = async (schedule) => {
     const response = await fetch(`/api/v1/get_schedule?schedule=${schedule}`, {
       method: 'GET',
       credentials: 'same-origin',
@@ -27,7 +27,7 @@ class ScheduleService {
     return response.json();
   };
 
-  delete = async schedule => {
+  delete = async (schedule) => {
     const response = await fetch(`/api/v1/del_schedule?schedule=${schedule}`, {
       method: 'GET',
       credentials: 'same-origin',
@@ -41,7 +41,7 @@ class ScheduleService {
     return response;
   };
 
-  add = async schedule => {
+  add = async (schedule) => {
     const response = await fetch(`/api/v1/add_schedule`, {
       method: 'POST',
       credentials: 'same-origin',

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
 // Recompose
-import { compose } from 'recompose';
+import { compose } from 'react-recompose';
 
 // Router
 import { withRouter } from 'react-router-dom';
@@ -48,7 +48,7 @@ const links = [
   },
 ];
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     width: '100%',
     height: '100%',
@@ -105,7 +105,7 @@ class AppFrame extends React.Component {
 
   componentDidMount() {
     const { history } = this.props;
-    const currentLink = find(links, link =>
+    const currentLink = find(links, (link) =>
       startsWith(history.location.pathname, link.path)
     );
     if (currentLink) {
@@ -115,7 +115,7 @@ class AppFrame extends React.Component {
     }
   }
 
-  handleClickLink = link => event => {
+  handleClickLink = (link) => (event) => {
     const { history } = this.props;
     history.push(link.path);
     this.setState({
@@ -178,7 +178,7 @@ class AppFrame extends React.Component {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="title" color="inherit" noWrap>
+            <Typography variant="h6" color="inherit" noWrap>
               {title}
             </Typography>
           </Toolbar>
@@ -225,7 +225,4 @@ AppFrame.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default compose(
-  withRouter,
-  withStyles(styles)
-)(AppFrame);
+export default compose(withRouter, withStyles(styles))(AppFrame);

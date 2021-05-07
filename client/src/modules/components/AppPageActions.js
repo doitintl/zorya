@@ -6,7 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 
-const styles = theme => ({
+const styles = (theme) => ({
   appBar: {
     backgroundColor: theme.palette.background.default,
   },

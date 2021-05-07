@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Recompose
-import { compose } from 'recompose';
+import { compose } from 'react-recompose';
 
 // Router
 import { withRouter } from 'react-router-dom';
@@ -32,15 +32,15 @@ import PolicyService from '../../modules/api/policy';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
   },
   button: {
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   leftIcon: {
-    marginRight: theme.spacing.unit,
+    marginRight: theme.spacing(1),
   },
   link: {
     '&:hover': {
@@ -69,7 +69,7 @@ class PolicyList extends React.Component {
     this.refreshList();
   }
 
-  handleRequestSort = event => {
+  handleRequestSort = (event) => {
     this.setState((prevState, props) => {
       let order = 'desc';
       if (prevState.order === 'desc') {
@@ -88,12 +88,12 @@ class PolicyList extends React.Component {
     });
   };
 
-  handleClickNavigate = path => event => {
+  handleClickNavigate = (path) => (event) => {
     const { history } = this.props;
     history.push(path);
   };
 
-  handleClickRefresh = event => {
+  handleClickRefresh = (event) => {
     this.refreshList();
   };
 
@@ -133,17 +133,17 @@ class PolicyList extends React.Component {
     }
   };
 
-  handleDeleteClick = async event => {
+  handleDeleteClick = async (event) => {
     try {
       const { selected } = this.state;
       if (selected.length > 0) {
         const promises = [];
-        selected.forEach(policy => {
+        selected.forEach((policy) => {
           promises.push(this.policyService.delete(policy));
         });
         const responses = await Promise.all(promises);
         console.log(responses);
-        responses.forEach(async response => {
+        responses.forEach(async (response) => {
           if (!response.ok) {
             const errorMsg = await response.text();
             console.log(errorMsg);
@@ -244,7 +244,7 @@ class PolicyList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {map(policies, policy => {
+              {map(policies, (policy) => {
                 const isSelected = indexOf(selected, policy) !== -1;
                 return (
                   <TableRow
@@ -258,7 +258,7 @@ class PolicyList extends React.Component {
                     <TableCell padding="none" className={classes.checkboxCell}>
                       <Checkbox
                         checked={isSelected}
-                        onClick={event => this.handleClick(event, policy)}
+                        onClick={(event) => this.handleClick(event, policy)}
                       />
                     </TableCell>
 
@@ -283,7 +283,4 @@ class PolicyList extends React.Component {
   }
 }
 
-export default compose(
-  withRouter,
-  withStyles(styles)
-)(PolicyList);
+export default compose(withRouter, withStyles(styles))(PolicyList);

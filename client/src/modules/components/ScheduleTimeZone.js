@@ -50,10 +50,10 @@ function renderSuggestion(params) {
   );
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   container: {
     width: 250,
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
   suggestionsContainer: {
     position: 'absolute',
@@ -70,10 +70,10 @@ class ScheduleTimezone extends React.Component {
     this.state = {};
   }
 
-  getSuggestions = inputValue =>
+  getSuggestions = (inputValue) =>
     this.props.timezones
       .filter(
-        suggestion =>
+        (suggestion) =>
           !inputValue ||
           suggestion.toLowerCase().includes(inputValue.toLowerCase())
       )

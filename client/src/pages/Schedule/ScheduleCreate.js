@@ -16,16 +16,16 @@ import AppPageActions from '../../modules/components/AppPageActions';
 import ScheduleService from '../../modules/api/schedule';
 import { getDefaultSchedule } from '../../modules/utils/schedule';
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     height: '100%',
   },
   button: {
-    marginRight: theme.spacing.unit * 2,
+    marginRight: theme.spacing(2),
   },
   textField: {
     minWidth: 250,
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing(3),
   },
 });
 
@@ -52,25 +52,25 @@ class ScheduleCreate extends React.Component {
     }
   }
 
-  handleChange = name => event => {
+  handleChange = (name) => (event) => {
     const { schedule } = this.state;
     schedule[name] = event.target.value;
     this.setState({ schedule });
   };
 
-  handleChangeTimezone = value => {
+  handleChangeTimezone = (value) => {
     const { schedule } = this.state;
     schedule.timezone = value;
     this.setState({ schedule });
   };
 
-  handleScheduleChange = nextSchedule => {
+  handleScheduleChange = (nextSchedule) => {
     this.setState({
       schedule: nextSchedule,
     });
   };
 
-  handleCreate = async event => {
+  handleCreate = async (event) => {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
@@ -88,7 +88,7 @@ class ScheduleCreate extends React.Component {
     }
   };
 
-  handleRequestCancel = event => {
+  handleRequestCancel = (event) => {
     const { history } = this.props;
     history.goBack();
   };
@@ -107,7 +107,7 @@ class ScheduleCreate extends React.Component {
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="subheading" color="primary">
+          <Typography variant="subtitle1" color="primary">
             Create a schedule
           </Typography>
         </AppPageActions>

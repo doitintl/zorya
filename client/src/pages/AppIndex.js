@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Recompose
-import { compose } from 'recompose';
+import { compose } from 'react-recompose';
 
 // Router
 import { Switch, Route, Redirect } from 'react-router-dom';
@@ -25,7 +25,7 @@ import ScheduleEdit from './Schedule/ScheduleEdit';
 import Policy from './Policy/Policy';
 import PolicyList from './Policy/PolicyList';
 
-const styles = theme => ({
+const styles = (theme) => ({
   '@global': {
     'html, body, #root': {
       height: '100%',
@@ -78,7 +78,4 @@ Index.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default compose(
-  withRoot,
-  withStyles(styles)
-)(Index);
+export default compose(withRoot, withStyles(styles))(Index);
