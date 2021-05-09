@@ -3,22 +3,24 @@ import os
 import click
 
 import google.auth
-from google.auth.transport.requests import AuthorizedSession
-from google.cloud import pubsub
+import google.api_core.exceptions
 
 from zorya.app import StandaloneApplication
-from zorya.util import utils
+from zorya.util.env import ZoryaEnvironment
 
-TASK_TOPIC = "zorya_tasks"
-TASK_SBSCRIPTION = "zorya_tasks"
-ZORYA_WORKER_SERVICE = "zorya_worker_service"
+
 _, PROJECT = google.auth.default()
 
 
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
 @click.option("--project", default=PROJECT)
-@click.command()
-def cli(project):
-    """Zorya CLI starts a local webserver to configure the scheduler."""
+def start(project):
+    """Start a local webserver to configure the scheduler."""
     os.environ["ZORYA_PROJECT"] = project
 
     click.echo(
@@ -33,11 +35,22 @@ def cli(project):
 Zorya CLI Version beta-1
 
 Running with project {project!r}
-
-Checking your environment ...
-
 """  # noqa
     )
+    env = ZoryaEnvironment(project)
+    env_okay = env.check_env()
+
+    if not env_okay:
+        click.confirm(
+            """
+The environemnt has erros. Zorya will not work as expected.
+Please run `zorya env-setup` for setup information.
+
+Do you want to continue?
+""",
+            abort=True,
+        )
+
     options = {
         "bind": "%s:%s" % ("127.0.0.1", "8080"),
         "workers": 1,
@@ -45,72 +58,99 @@ Checking your environment ...
     StandaloneApplication(options).run()
 
 
-class ZoryaEnvironment:
-    service_name = ZORYA_WORKER_SERVICE
+@cli.command()
+@click.option("--project", default=PROJECT)
+def env_check(project):
+    """
+    Run the full environment check.
+    """
+    env = ZoryaEnvironment(project)
+    env_okay = env.check_env_full()
 
-    def __init__(self) -> None:
-        credentials, project_id = google.auth.default()
-        self.publisher = pubsub.PublisherClient(
-            credentials=credentials, project=project_id
+    if not env_okay:
+        click.echo(
+            """
+The environemnt has erros. Zorya will not work as expected.
+Please run `zorya env-setup` for setup information.
+""",
         )
-        self.subscriber = pubsub.SubscriberClient(
-            credentials=credentials, project=project_id
-        )
-        self.topic_name = f"projects/{project_id}/topics/{TASK_TOPIC}"
-        self.subscription_name = (
-            f"projects/{project_id}/subscriptions/{TASK_SBSCRIPTION}"
-        )
-        self.authed_session = AuthorizedSession(credentials)
 
-    def check_worker(self):
-        click.echo("Checking worker service ...")
-        try:
-            services_resp = self.authed_session.get(
-                (
-                    "https://run.googleapis.com/apis/serving.knative.dev"
-                    f"/v1/namespaces/{self.project_id}/services"
-                )
-            )
-            services = services_resp.json()["items"]
-            for service in services:
-                if service["metadata"]["name"] == self.service_name:
-                    self.service_account = service["spec"]["template"]["spec"][
-                        "serviceAccountName"
-                    ]
-                    self.service_url = service["status"]["url"]
-                    return
 
-        except:  # noqa
-            pass
+@cli.command()
+@click.option("--project", default=PROJECT)
+def env_setup(project):
+    """
+    Generate a shell script to configure your Zorya environment.
+    """
+    click.echo(
+        f"Run the following script to configure your project '{project}'"
+    )
+    click.echo(
+        f"""# The project ID for the zorya deployment.
+PROJECT_ID="{project}"
+"""
+        """# The region of the Cloud Run service.
+REGION="us-west1"
+# Zorya worker image
+IMAGE_URL =""
 
-        click.echo("Cannot find deployed worker. Make sure you ran the setup.")
-        raise click.Abort()
+# Do not change these variables
+SERVICE_ACCOUNT_ID="zorya"
+SERVICE_NAME="zorya"
+TOPIC_NAME="projects/${PROJECT_ID}/topics/zorya"
+SUBSCRIPTION_NAME=TOPIC_NAME="projects/${PROJECT_ID}/subscriptions/zorya"
+SCHEDULER_JOB="zorya"
 
-    def check_topic(self):
-        click.echo("Checking pub/sub topic ...")
+# enable APIs
+gcloud services enable firestore.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable pubsub.googleapis.com
+gcloud services enable cloudscheduler.googleapis.com
+gcloud services enable compute.googleapis.com
+gcloud services enable sqladmin.googleapis.com
 
-        try:
-            self.publisher.get_topic(self.topic_name)
-            return
+# create the zorya service account
+gcloud iam service-accounts create $SERVICE_ACCOUNT_ID \\
+  --display-name="DISPLSERVICE_ACCOUNT_IDAY_NAME"
 
-        except Exception as e:
-            print(e)
+# assign service account permissions
+gcloud projects add-iam-policy-binding PROJECT_ID \\
+  --member="serviceAccount:${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \\
+  --role="role/editor"
 
-            click.echo(f"Topic {self.topic_name!r} not found.")
-            raise click.Abort()
+# deploy worker Cloud Run service
+gcloud run deploy zorya --image $IMAGE_URL \\
+  --platform managed \\
+  --region $REGION
 
-    def check_subscription(self):
-        click.echo("Checking pub/sub subscription ...")
+# grant invoker role to service account
+gcloud run services add-iam-policy-binding $SERVICE_NAME \\
+  --member="serviceAccount:${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \\
+  --role="roles/run.invoker"
 
-        try:
-            self.subscriber.get_subscription(self.subscription_name)
-            return
+SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \\
+  --platform managed \\
+  --region europe-west1 \\
+  --format="value(status.url)" \\
+)
 
-        except Exception as e:
-            print(e)
+# create Pub/Sub topic
+gcloud pubsub topcis create $TOPIC_NAME
 
-        click.echo(f"Topic {self.subscription_name!r} not found.")
-        raise click.Abort()
+# create Pub/Sub subscription
+gcloud pubsub subscriptions create $SUBSCRIPTION_NAME \\
+  --topic=$TOPIC_NAME \\
+  --max-delivery-attempts=3 \\
+  --push-auth-service-account="${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \\
+  --push-endpoint="${SERVICE_URL}/tasks/change_state"
+
+# create Cloud Scheduler job
+gcloud scheduler jobs create http $SCHEDULER_JOB \\
+  --schedule="0 * * * *" \\
+  --uri="${SERVICE_URL}/tasks/schedule" \\
+  --oidc-service-account-email="${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com"
+"""  # noqa
+    )
 
 
 if __name__ == "__main__":

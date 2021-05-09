@@ -1,14 +1,24 @@
-REGION="us-west1"
-IMAGE_URL =""
+# The project ID for the zorya deployment.
 PROJECT_ID=$(gcloud config get-value project)
+# The region of the Cloud Run service.
+REGION="us-west1"
+# Zorya worker image
+IMAGE_URL =""
+
+# Do not change these variables
 SERVICE_ACCOUNT_ID="zorya"
 SERVICE_NAME="zorya"
 TOPIC_NAME="projects/${PROJECT_ID}/topics/zorya"
 SUBSCRIPTION_NAME=TOPIC_NAME="projects/${PROJECT_ID}/subscriptions/zorya"
 SCHEDULER_JOB="zorya"
 
-# enable APIs ...
-# ...
+# enable APIs
+gcloud services enable firestore.googleapis.com
+gcloud services enable run.googleapis.com
+gcloud services enable pubsub.googleapis.com
+gcloud services enable cloudscheduler.googleapis.com
+gcloud services enable compute.googleapis.com
+gcloud services enable sqladmin.googleapis.com
 
 # create the zorya service account
 gcloud iam service-accounts create $SERVICE_ACCOUNT_ID \
