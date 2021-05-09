@@ -5,13 +5,8 @@ curl --request POST \
   --url http://localhost:8080/api/v1/add_schedule \
   --header 'Content-Type: application/json' \
   --data '{
-  "Shape": [
-    7,
-    24
-  ],
   "timezone": "Europe/Amsterdam",
-  "Corder": true,
-  "__ndarray__": [
+  "ndarray": [
     [
       0,
       1,
@@ -195,7 +190,6 @@ curl --request POST \
       0
     ]
   ],
-  "dtype": "int64",
   "name": "my schedule name"
 }'
 curl --request GET \

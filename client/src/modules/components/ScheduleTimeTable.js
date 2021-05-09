@@ -118,7 +118,7 @@ class ScheduleTimeTable extends React.Component {
 
   async componentDidMount() {
     try {
-      const matrix = map(this.props.schedule.__ndarray__, dayArray =>
+      const matrix = map(this.props.schedule.ndarray, dayArray =>
         map(dayArray, hourValue => ({ current: hourValue, next: null }))
       );
       this.setState({
@@ -134,7 +134,7 @@ class ScheduleTimeTable extends React.Component {
     const ndarray = map(matrix, day => map(day, hour => hour.current));
     const schedule = {
       ...this.props.schedule,
-      __ndarray__: ndarray,
+      ndarray: ndarray,
     };
     this.props.onScheduleChange(schedule);
   };
@@ -165,11 +165,11 @@ class ScheduleTimeTable extends React.Component {
       (prevState, props) => {
         const { matrix } = prevState;
         let hourIsOn = true;
-        for (let i = 0; i < props.schedule.Shape[0]; i++) {
+        for (let i = 0; i < 7; i++) {
           hourIsOn = hourIsOn && !!matrix[i][hourIndex].current;
         }
         const newCurrent = hourIsOn ? 0 : 1;
-        for (let i = 0; i < props.schedule.Shape[0]; i++) {
+        for (let i = 0; i < 24; i++) {
           matrix[i][hourIndex].current = newCurrent;
         }
         return { matrix };
@@ -184,10 +184,10 @@ class ScheduleTimeTable extends React.Component {
         const matrix = prevState.matrix;
         const hasZero = find(flatten(matrix), { current: 0 });
         const newCurrent = hasZero ? 1 : 0;
-        for (let dayIndex = 0; dayIndex < props.schedule.Shape[0]; dayIndex++) {
+        for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
           for (
             let hourIndex = 0;
-            hourIndex < props.schedule.Shape[1];
+            hourIndex < 24;
             hourIndex++
           ) {
             matrix[dayIndex][hourIndex].current = newCurrent;

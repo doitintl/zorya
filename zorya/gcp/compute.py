@@ -4,7 +4,8 @@ import logging
 import backoff
 from googleapiclient import discovery
 from googleapiclient.errors import HttpError
-from util import gcp, utils
+
+from zorya.util import gcp, utils
 
 CREDENTIALS = None
 

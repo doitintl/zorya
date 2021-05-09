@@ -1,45 +1,52 @@
-#!/usr/bin/env bash
+REGION="us-west1"
+IMAGE_URL =""
+PROJECT_ID=$(gcloud config get-value project)
+SERVICE_ACCOUNT_ID="zorya"
+SERVICE_NAME="zorya"
+TOPIC_NAME="projects/${PROJECT_ID}/topics/zorya"
+SUBSCRIPTION_NAME=TOPIC_NAME="projects/${PROJECT_ID}/subscriptions/zorya"
+SCHEDULER_JOB="zorya"
 
-if [[ $# -eq 0 ]] ; then
- echo Missing project id argument
- exit
-fi
+# enable APIs ...
+# ...
 
-PROJECTID=`gcloud projects list | grep -iw "$1" | awk '{print $1}'`
+# create the zorya service account
+gcloud iam service-accounts create $SERVICE_ACCOUNT_ID \
+  --display-name="DISPLSERVICE_ACCOUNT_IDAY_NAME"
 
-if [ -z "$PROJECTID" ]; then
- echo Project $1 Not Found!
- exit
-fi
+# assign service account permissions
+gcloud projects add-iam-policy-binding PROJECT_ID \
+  --member="serviceAccount:${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="role/editor"
 
-echo Project ID $PROJECTID
-gcloud config set project $PROJECTID
+# deploy worker Cloud Run service
+gcloud run deploy zorya --image $IMAGE_URL \
+  --platform managed \
+  --region $REGION
 
-rm -rf ./build
-cd client && yarn install && yarn build && cd ..
-##Build the task queue
+# grant invoker role to service account
+gcloud run services add-iam-policy-binding $SERVICE_NAME \
+  --member="serviceAccount:${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/run.invoker"
 
+SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \
+  --platform managed \
+  --region europe-west1 \
+  --format="value(status.url)" \
+)
 
-if gcloud tasks queues list|grep zorya-tasks >/dev/null 2>&1; then
-  echo "Task Queue all ready exists"
-else
-  gcloud tasks queues create zorya-tasks
-fi
-loc=`gcloud tasks queues describe zorya-tasks|grep name`
-LOCATION="$(echo $loc | cut -d'/' -f4)"
-echo
+# create Pub/Sub topic
+gcloud pubsub topcis create $TOPIC_NAME
 
-file_location='util/location.py'
-if [ -f "$file_location" ]; then
-  rm $file_location
-  fi
-cat > $file_location <<EOF
-def get_location():
-    return "${LOCATION}"
-EOF
+# create Pub/Sub subscription
+gcloud pubsub subscriptions create $SUBSCRIPTION_NAME \
+  --topic=$TOPIC_NAME \
+  --max-delivery-attempts=3 \
+  --push-auth-service-account="${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --push-endpoint="${SERVICE_URL}/tasks/change_state"
 
-poetry export -f requirements.txt --output requirements.txt
-
-gcloud app deploy -q app.yaml cron.yaml
-
-rm requirements.txt
+# create Cloud Scheduler job
+gcloud scheduler jobs create http $SCHEDULER_JOB \
+  --schedule="0 * * * *" \
+  --uri="${SERVICE_URL}/tasks/schedule" \
+  --oidc-service-account-email="${SERVICE_ACCOUNT_ID}@${PROJECT_ID}.iam.gserviceaccount.com"

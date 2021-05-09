@@ -1,12 +1,7 @@
 
 Public
  {
-  "Shape": [
-    7,
-    24
-  ],
   "timezone": "Europe/Amsterdam",
-  "Corder": true,
   "__ndarray__": [
     [
       0,
@@ -191,7 +186,6 @@ Public
       0
     ]
   ],
-  "dtype": "int64",
   "name": "schedule_name"
 }
 Zorya API Docs
@@ -205,12 +199,7 @@ HEADERS
 Content-Typeapplication/json
 BODY
 {
-  "Shape": [
-    7,
-    24
-  ],
   "timezone": "Europe/Amsterdam",
-  "Corder": true,
   "__ndarray__": [
     [
       0,
@@ -395,7 +384,6 @@ BODY
       0
     ]
   ],
-  "dtype": "int64",
   "name": "schedule_name"
 }
 
@@ -406,12 +394,7 @@ curl --request POST \
   --url http://localhost:8080/api/v1/add_schedule \
   --header 'Content-Type: application/json' \
   --data '{
-  "Shape": [
-    7,
-    24
-  ],
   "timezone": "Europe/Amsterdam",
-  "Corder": true,
   "__ndarray__": [
     [
       0,
@@ -596,7 +579,6 @@ curl --request POST \
       0
     ]
   ],
-  "dtype": "int64",
   "name": "schedule_name"
 }'
 GET List schedules

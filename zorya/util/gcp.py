@@ -1,11 +1,11 @@
 """"GCP utils"""
-
 import logging
 
 import backoff
 import googleapiclient.discovery
 from googleapiclient.errors import HttpError
-from util import utils
+
+from zorya.util import utils
 
 
 def get_regions():

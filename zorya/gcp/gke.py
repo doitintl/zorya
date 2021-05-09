@@ -6,8 +6,9 @@ import backoff
 from google.cloud import ndb
 from googleapiclient import discovery
 from googleapiclient.errors import HttpError
-from model.gkenoodespoolsmodel import GkeNodePoolModel
-from util import gcp, utils
+
+from zorya.model.gkenoodespoolsmodel import GkeNodePoolModel
+from zorya.util import gcp, utils
 
 CREDENTIALS = None
 

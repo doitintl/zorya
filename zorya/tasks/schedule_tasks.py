@@ -1,9 +1,9 @@
 """Change a state for all matching instances in a project."""
 import logging
 
-from gcp.compute import Compute
-from gcp.sql import Sql
-from gcp.gke import Gke
+from zorya.gcp.compute import Compute
+from zorya.gcp.sql import Sql
+from zorya.gcp.gke import Gke
 
 
 def change_state(tagkey, tagvalue, action, project):
@@ -14,11 +14,7 @@ def change_state(tagkey, tagvalue, action, project):
         tagvalue: tag value
         action: stop 0 start 1
         project: project id
-
-    Returns:
-
     """
-
     compute = Compute(project)
     sql = Sql(project)
     gke = Gke(project)
