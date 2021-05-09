@@ -22,6 +22,7 @@ import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -60,6 +61,7 @@ class PolicyList extends React.Component {
       policies: [],
       selected: [],
       order: 'asc',
+      isLoading: false,
     };
 
     this.policyService = new PolicyService();
@@ -98,9 +100,11 @@ class PolicyList extends React.Component {
   };
 
   refreshList = async () => {
+    this.setState({ isLoading: true });
     const policies = await this.policyService.list();
     this.setState({
       policies,
+      isLoading: false,
     });
   };
 
@@ -244,37 +248,48 @@ class PolicyList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {map(policies, (policy) => {
-                const isSelected = indexOf(selected, policy) !== -1;
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    aria-checked={isSelected}
-                    tabIndex={-1}
-                    key={policy}
-                    selected={isSelected}
-                  >
-                    <TableCell padding="none" className={classes.checkboxCell}>
-                      <Checkbox
-                        checked={isSelected}
-                        onClick={(event) => this.handleClick(event, policy)}
-                      />
-                    </TableCell>
-
-                    <TableCell>
-                      <span
-                        onClick={this.handleClickNavigate(
-                          `/policies/browser/${policy}`
-                        )}
-                        className={classes.link}
+              {this.state.isLoading ? (
+                <TableRow>
+                  <TableCell colSpan="2">
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                map(policies, (policy) => {
+                  const isSelected = indexOf(selected, policy) !== -1;
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      aria-checked={isSelected}
+                      tabIndex={-1}
+                      key={policy}
+                      selected={isSelected}
+                    >
+                      <TableCell
+                        padding="none"
+                        className={classes.checkboxCell}
                       >
-                        {policy}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                        <Checkbox
+                          checked={isSelected}
+                          onClick={(event) => this.handleClick(event, policy)}
+                        />
+                      </TableCell>
+
+                      <TableCell>
+                        <span
+                          onClick={this.handleClickNavigate(
+                            `/policies/browser/${policy}`
+                          )}
+                          className={classes.link}
+                        >
+                          {policy}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </AppPageContent>

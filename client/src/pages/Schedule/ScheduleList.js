@@ -21,6 +21,7 @@ import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -59,6 +60,7 @@ class ScheduleList extends React.Component {
       schedules: [],
       selected: [],
       order: 'asc',
+      isLoading: false,
     };
 
     this.scheduleService = new ScheduleService();
@@ -97,9 +99,11 @@ class ScheduleList extends React.Component {
   };
 
   refreshList = async () => {
+    this.setState({ isLoading: true });
     const schedules = await this.scheduleService.list();
     this.setState({
       schedules,
+      isLoading: false,
     });
   };
 
@@ -243,37 +247,48 @@ class ScheduleList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {map(schedules, (schedule) => {
-                const isSelected = indexOf(selected, schedule) !== -1;
-                return (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    aria-checked={isSelected}
-                    tabIndex={-1}
-                    key={schedule}
-                    selected={isSelected}
-                  >
-                    <TableCell padding="none" className={classes.checkboxCell}>
-                      <Checkbox
-                        checked={isSelected}
-                        onClick={(event) => this.handleClick(event, schedule)}
-                      />
-                    </TableCell>
-
-                    <TableCell>
-                      <span
-                        onClick={this.handleClickNavigate(
-                          `/schedules/browser/${schedule}`
-                        )}
-                        className={classes.link}
+              {this.state.isLoading ? (
+                <TableRow>
+                  <TableCell colSpan="2">
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              ) : (
+                map(schedules, (schedule) => {
+                  const isSelected = indexOf(selected, schedule) !== -1;
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      aria-checked={isSelected}
+                      tabIndex={-1}
+                      key={schedule}
+                      selected={isSelected}
+                    >
+                      <TableCell
+                        padding="none"
+                        className={classes.checkboxCell}
                       >
-                        {schedule}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                        <Checkbox
+                          checked={isSelected}
+                          onClick={(event) => this.handleClick(event, schedule)}
+                        />
+                      </TableCell>
+
+                      <TableCell>
+                        <span
+                          onClick={this.handleClickNavigate(
+                            `/schedules/browser/${schedule}`
+                          )}
+                          className={classes.link}
+                        >
+                          {schedule}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
             </TableBody>
           </Table>
         </AppPageContent>
