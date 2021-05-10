@@ -1,7 +1,6 @@
 """api.py"""
-import json
-
-from flask import Blueprint, request
+from fastapi import APIRouter, Response
+from fastapi.responses import PlainTextResponse
 
 from zorya.util import tz
 from zorya.model.policymodel import PolicyModel
@@ -10,44 +9,43 @@ from zorya.model.schedulesmodel import ScheduleModel
 API_VERSION = "/api/v1"
 
 
-api = Blueprint(
-    "api",
-    __name__,
-    url_prefix=API_VERSION,
+router = APIRouter(
+    prefix=API_VERSION,
+    responses={404: {"description": "Not found"}},
 )
 
 
-@api.route("/time_zones", methods=["GET"])
+@router.get("/time_zones")
 def time_zones():
     """
     Get all time zones.
     :return: all time zone in the world wide world.
     """
-    return json.dumps({"Timezones": tz.get_all_timezones()})
+    return {"Timezones": tz.get_all_timezones()}
 
 
-@api.route("/add_schedule", methods=["POST"])
-def add_schedule():
+@router.post("/add_schedule")
+def add_schedule(schedule_model: ScheduleModel):
     """
     Add a schedule.
     """
-    ScheduleModel(**dict(request.json)).set()
+    schedule_model.set()
 
-    return "ok", 200
+    return PlainTextResponse("ok")
 
 
-@api.route("/get_schedule", methods=["GET"])
-def get_schedule():
+@router.get("/get_schedule")
+def get_schedule(schedule_name: str):
     """
     Get a schedule.
     Returns: schedule json
     """
-    schedule = ScheduleModel.get_by_name(request.args.get("schedule"))
+    schedule = ScheduleModel.get_by_name(schedule_name)
 
-    return json.dumps(schedule.api_dict())
+    return schedule.api_dict()
 
 
-@api.route("/list_schedules", methods=["GET"])
+@router.get("/list_schedules")
 def list_schedules():
     """
     Get all schedules.
@@ -55,44 +53,50 @@ def list_schedules():
     """
     schedule_ids = ScheduleModel.list_ids()
 
-    return json.dumps(schedule_ids)
+    return schedule_ids
 
 
-@api.route("/del_schedule", methods=["GET"])
-def del_schedule():
+@router.get("/del_schedule")
+def del_schedule(schedule: str, response: Response):
     """
     Delete a schedule.
     """
-    name = request.args.get("schedule")
-    ScheduleModel.get_by_name(name).delete()
-    return "ok", 200
+    try:
+        ScheduleModel.get_by_name(schedule).delete()
+    except Exception as e:
+        print(e)
+        if "Forbidden" in str(e):
+            response.status_code = 400
+            return {"error": str(e)}
+
+    return PlainTextResponse("ok")
 
 
-@api.route("/add_policy", methods=["POST"])
-def add_policy():
+@router.post("/add_policy")
+def add_policy(policy: PolicyModel):
     """
     Add policy.
     """
-    schedule = ScheduleModel(request.json["schedulename"])
+    schedule = ScheduleModel.get_by_name(policy.schedulename)
     if not schedule.exists:
         return "schedule name not found", 404
 
-    PolicyModel(**request.json).set()
+    policy.set()
 
-    return "ok", 200
+    return PlainTextResponse("ok")
 
 
-@api.route("/get_policy", methods=["GET"])
-def get_policy():
+@router.get("/get_policy")
+def get_policy(policy: str):
     """
     Get policy.
     """
-    policy = PolicyModel.get_by_name(request.args.get("policy"))
+    policy = PolicyModel.get_by_name(policy)
 
-    return json.dumps(policy.dict())
+    return policy.dict()
 
 
-@api.route("/list_policies", methods=["GET"])
+@router.get("/list_policies")
 def list_policies():
     """
     Get all polices.
@@ -100,14 +104,14 @@ def list_policies():
     """
     policy_ids = PolicyModel.list_ids()
 
-    return json.dumps(policy_ids)
+    return policy_ids
 
 
-@api.route("/del_policy", methods=["GET"])
-def del_policy():
+@router.get("/del_policy")
+def del_policy(policy: str):
     """
     Delete a policy
     """
-    PolicyModel.get_by_name(request.args.get("policy")).delete()
+    PolicyModel.get_by_name(policy).delete()
 
-    return "ok", 200
+    return PlainTextResponse("ok")

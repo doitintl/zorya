@@ -6,7 +6,7 @@ from zorya.worker.gcp.sql import Sql
 from zorya.worker.gcp.gke import Gke
 
 
-def change_state(tagkey, tagvalue, action, project):
+def change_state(*, tagkey, tagvalue, action, project):
     """
     Change a state for all matching instances in a project.
     Args:

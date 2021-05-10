@@ -22,4 +22,4 @@ COPY zorya zorya
 RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
 USER appuser
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "zorya.worker:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "zorya.worker.server:app"]

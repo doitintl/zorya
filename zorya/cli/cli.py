@@ -2,11 +2,11 @@
 import os
 import click
 
+import uvicorn
 import google.auth
 import google.api_core.exceptions
 
 from zorya.cli.env import ZoryaEnvironment
-
 
 _, PROJECT = google.auth.default()
 
@@ -17,8 +17,9 @@ def cli():
 
 
 @cli.command()
+@click.option("-p", "--port", default=8080, type=int)
 @click.option("--project", default=PROJECT)
-def start(project):
+def start(project, port):
     """Start a local webserver to configure the scheduler."""
     os.environ["ZORYA_PROJECT"] = project
 
@@ -52,13 +53,9 @@ Do you want to continue?
 
     click.echo("Starting zorya webserver locally ...")
 
-    from zorya.client.server import StandaloneApplication
+    from zorya.client.server import app
 
-    options = {
-        "bind": "%s:%s" % ("127.0.0.1", "8080"),
-        "workers": 1,
-    }
-    StandaloneApplication(options).run()
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 
 @cli.command()

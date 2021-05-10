@@ -1,42 +1,30 @@
 """Zoyra Worker"""
 import os
-import json
 import logging
 
 import google.auth
-from flask import Flask, request
+from fastapi import FastAPI
 
 from zorya.worker.tasks import policy_tasks, schedule_tasks
-
+from zorya.model.state_change import StateChange
 
 _, PROJECT = google.auth.default()
 os.environ["ZORYA_PROJECT"] = PROJECT
-app = Flask(__name__)
+
+app = FastAPI()
 
 
-@app.route("/tasks/change_state", methods=["POST"])
-def change_state():
+@app.post("/tasks/change_state")
+def change_state(state_change: StateChange):
     """
     Initiate change state.
     """
-    payload = json.loads(request.get_data(as_text=False) or "(empty payload)")
-    logging.debug(
-        "Starting change_state action %s project %s tagkey %s tagvalue %s",
-        payload["action"],
-        payload["project"],
-        payload["tagkey"],
-        payload["tagvalue"],
-    )
-    schedule_tasks.change_state(
-        payload["tagkey"],
-        payload["tagvalue"],
-        payload["action"],
-        payload["project"],
-    )
-    return "ok", 200
+    logging.debug("Starting change_state action {state_change}")
+    schedule_tasks.change_state(**state_change)
+    return
 
 
-@app.route("/tasks/schedule", methods=["GET"])
+@app.get("/tasks/schedule")
 def schedule():
     """
     Checks if it's time to run a schedule.
@@ -46,7 +34,7 @@ def schedule():
     logging.debug("From Cron start /tasks/schedule")
 
     policy_tasks.check_all()
-    return "ok", 200
+    return
 
 
 if __name__ == "__main__":
