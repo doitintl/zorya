@@ -60,8 +60,8 @@ class ZoryaEnvironment:
     def check_apis(self):
         try:
             api_resp = self.authed_session.get(
-                f"https://serviceusage.googleapis.com/v1/projects/{self.project_id}/"
-                f"services?filter=state:ENABLED"
+                f"https://serviceusage.googleapis.com/v1/projects"
+                f"/{self.project_id}/services?filter=state:ENABLED"
             )
             api_resp.raise_for_status()
         except requests.exceptions.HTTPError:
@@ -88,7 +88,8 @@ class ZoryaEnvironment:
             sa_resp.raise_for_status()
         except requests.exceptions.HTTPError:
             click.echo(
-                f"Service Account: Cannot get service account {self.service_account}"
+                "Service Account: Cannot get "
+                f"service account {self.service_account}"
             )
             return False
 
@@ -196,7 +197,8 @@ class ZoryaEnvironment:
             for location in locations_resp.json().get("locations", []):
                 location_resp = self.authed_session.get(
                     "https://cloudscheduler.googleapis.com/v1/projects"
-                    f"/{self.project_id}/locations/{location['locationId']}/jobs"
+                    f"/{self.project_id}/locations"
+                    f"/{location['locationId']}/jobs"
                 )
                 location_resp.raise_for_status()
                 for job in location_resp.json().get("jobs", []):
@@ -245,8 +247,8 @@ class ZoryaEnvironment:
             != self.service_account
         ):
             click.echo(
-                "Subscription: push_endpoint.oidc_token.service_account_email doesn't "
-                f"match service account {self.service_account}"
+                "Subscription: push_endpoint.oidc_token.service_account_email "
+                f"doesn't match service account {self.service_account}"
             )
             return False
 
