@@ -1,9 +1,8 @@
 """Interactions with GKE."""
-import os
 import logging
+from zorya.model.node_pool import NodePoolModel
 
 import backoff
-from google.cloud import firestore
 from googleapiclient import discovery
 from googleapiclient.errors import HttpError
 
@@ -108,13 +107,12 @@ def process_instanceGroup(to_status, url, **kwargs):
 def size_up(url):
     name = url.split("/")[-1]
 
-    db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
-    node_pool_ref = db.collection("zorya/v1/gke-node-pools").document(name)
-    node_pool_snap = node_pool_ref.get()
-    if node_pool_snap.exists:
-        num_nodes = node_pool_snap.get("NumberOfNodes")
+    node_pool = NodePoolModel.get_by_name(name)
+
+    if node_pool.exists:
+        num_nodes = node_pool.num_nodes
         gcp.resize_node_pool(num_nodes, url)
-        node_pool_ref.delete()
+        node_pool.delete()
 
 
 def size_down(url):
@@ -123,7 +121,6 @@ def size_down(url):
     if no_of_nodes == 0:
         return
 
-    db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
-    node_pool_ref = db.collection("zorya/v1/gke-node-pools").document(name)
-    node_pool_ref.set({"name": name, "no_of_nodes": no_of_nodes})
+    node_pool = NodePoolModel.get_by_name(name)
+    node_pool = node_pool.set({"name": name, "no_of_nodes": no_of_nodes})
     gcp.resize_node_pool(0, url)
