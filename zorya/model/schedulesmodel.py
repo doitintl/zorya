@@ -1,6 +1,7 @@
 """Database representation of schedule."""
 import json
 import enum
+from typing import ClassVar, Any
 
 import pydantic
 
@@ -10,16 +11,14 @@ from zorya.util import tz
 
 
 class ScheduleModel(pydantic.BaseModel, FireStoreMixin):
+    document_type: ClassVar[str] = "schedules"
+
     name: str
     timezone: str = pydantic.Field(
         default="UTC",
         choices=enum.Enum("TimezonesEnum", tz.get_all_timezones()),
     )
-    ndarray: str
-
-    @staticmethod
-    def document_type():
-        return "schedules"
+    ndarray: Any
 
     @pydantic.validator("ndarray")
     def must_be_json_string(cls, v):

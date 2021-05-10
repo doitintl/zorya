@@ -1,5 +1,6 @@
 """Model for policy."""
 import os
+import abc
 
 from google.cloud import firestore
 
@@ -7,9 +8,10 @@ db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
 
 
 class FireStoreMixin:
-    @staticmethod
-    def document_type():
-        return "BASE"
+    @property
+    @abc.abstractmethod
+    def document_type(self) -> str:
+        pass
 
     @property
     def document_id(self):
@@ -25,7 +27,7 @@ class FireStoreMixin:
 
     @classmethod
     def collection(cls):
-        return db.collection(f"zorya/v1/{cls.document_type()}")
+        return db.collection(f"zorya/v1/{cls.document_type}")
 
     @classmethod
     def get_by_name(cls, name):
