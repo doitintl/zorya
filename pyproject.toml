@@ -19,7 +19,7 @@ gunicorn = "^20.1.0"
 pydantic = "^1.8.1"
 fastapi = "^0.64.0"
 aiofiles = "^0.6.0"
-uvicorn = "^0.13.4"
+uvicorn = {extras = ["standard"], version = "^0.12.0"}
 
 [tool.poetry.dev-dependencies]
 black = "^21.5b0"
