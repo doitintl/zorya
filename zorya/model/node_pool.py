@@ -1,11 +1,12 @@
 """Model for policy."""
-from zorya.model.base import BaseModel
+import pydantic
+from zorya.model.mixins import FireStoreMixin
 
 
-class NodePoolModel(BaseModel):
+class NodePoolModel(pydantic.BaseModel, FireStoreMixin):
+    name: str
+    num_nodes: int = 0
+
     @staticmethod
     def document_type():
         return "noodPooles"
-
-    name: str
-    num_nodes: int = 0

@@ -1,20 +1,23 @@
 """Model for policy."""
 import os
 
-import pydantic
 from google.cloud import firestore
 
 db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
 
 
-class BaseModel(pydantic.BaseModel):
+class FireStoreMixin:
     @staticmethod
     def document_type():
         return "BASE"
 
     @property
+    def document_id(self):
+        return self.name
+
+    @property
     def ref(self):
-        return self.collection().document(self.name)
+        return self.collection().document(self.document_id)
 
     @property
     def exists(self):

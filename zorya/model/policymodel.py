@@ -1,17 +1,12 @@
 """Model for policy."""
-import os
 from typing import List, Any, Dict
 
-from google.cloud import firestore
+import pydantic
 
-from zorya.model.base import BaseModel
-
-
-db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
+from zorya.model.mixins import FireStoreMixin
 
 
-class PolicyModel(BaseModel):
-
+class PolicyModel(pydantic.BaseModel, FireStoreMixin):
     name: str
     tags: List[Dict[str, str]] = None
     projects: List[Any] = None

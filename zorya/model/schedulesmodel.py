@@ -1,22 +1,21 @@
 """Database representation of schedule."""
 import json
 import enum
-from typing import Any
 
 import pydantic
 
-from zorya.model.base import BaseModel
+from zorya.model.mixins import FireStoreMixin
 from zorya.model.policymodel import PolicyModel
 from zorya.util import tz
 
 
-class ScheduleModel(BaseModel):
+class ScheduleModel(pydantic.BaseModel, FireStoreMixin):
     name: str
     timezone: str = pydantic.Field(
         default="UTC",
         choices=enum.Enum("TimezonesEnum", tz.get_all_timezones()),
     )
-    ndarray: Any
+    ndarray: str
 
     @staticmethod
     def document_type():
@@ -36,7 +35,7 @@ class ScheduleModel(BaseModel):
     def delete(self):
         for policy in self.used_by():
             raise Exception(
-                f"Forbidden policy {policy.id} is using the schedule"
+                f"Forbidden policy {policy.id!r} is using the schedule"
             )
         self.ref.delete()
 
