@@ -3,21 +3,11 @@ from datetime import datetime
 
 import numpy as np
 import pytz
-import tzlocal
 
 
 def get_all_timezones():
     """Get a list of all timezones."""
     return pytz.all_timezones
-
-
-def get_local_timezone():
-    """
-    Get the local timezone.
-    Returns: local time zone.
-
-    """
-    return tzlocal.get_localzone()
 
 
 def get_time_at_timezone(timezone):

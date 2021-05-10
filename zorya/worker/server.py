@@ -1,12 +1,16 @@
 """Zoyra Worker"""
+import os
 import json
+import logging
 
+import google.auth
 from flask import Flask, request
 
-from zorya.tasks import policy_tasks, schedule_tasks
+from zorya.worker.tasks import policy_tasks, schedule_tasks
 
-import logging  # noqa
 
+_, PROJECT = google.auth.default()
+os.environ["ZORYA_PROJECT"] = PROJECT
 app = Flask(__name__)
 
 

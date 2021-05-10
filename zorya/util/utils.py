@@ -1,13 +1,4 @@
 """Misc utils."""
-import google.auth
-
-
-def get_project_id():
-    """
-    Get the project if from the default env.
-    """
-    _, project_id = google.auth.default()
-    return project_id
 
 
 def fatal_code(e):

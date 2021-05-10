@@ -5,8 +5,7 @@ import click
 import google.auth
 import google.api_core.exceptions
 
-from zorya.app import StandaloneApplication
-from zorya.util.env import ZoryaEnvironment
+from zorya.cli.env import ZoryaEnvironment
 
 
 _, PROJECT = google.auth.default()
@@ -50,6 +49,10 @@ Do you want to continue?
 """,
             abort=True,
         )
+
+    click.echo("Starting zorya webserver locally ...")
+
+    from zorya.client.server import StandaloneApplication
 
     options = {
         "bind": "%s:%s" % ("127.0.0.1", "8080"),

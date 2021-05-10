@@ -2,7 +2,7 @@
 import gunicorn.app.base
 from flask import Flask, redirect
 
-from zorya.blueprints.api import api
+from zorya.client.blueprints.api import api
 
 
 app = Flask(

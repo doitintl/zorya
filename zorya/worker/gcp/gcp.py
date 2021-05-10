@@ -1,4 +1,5 @@
 """"GCP utils"""
+import os
 import logging
 
 import backoff
@@ -18,7 +19,7 @@ def get_regions():
         "compute", "v1", cache_discovery=False
     )
 
-    request = compute.regions().list(project=utils.get_project_id())
+    request = compute.regions().list(project=os.environ["ZORYA_PROJECT"])
 
     response = request.execute()
     rg = []
@@ -37,7 +38,7 @@ def get_zones():
         "compute", "v1", cache_discovery=False
     )
 
-    request = compute.zones().list(project=utils.get_project_id())
+    request = compute.zones().list(project=os.environ["ZORYA_PROJECT"])
 
     response = request.execute()
     zones = []

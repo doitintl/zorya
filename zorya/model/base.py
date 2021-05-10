@@ -6,7 +6,6 @@ db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
 
 
 class BaseModel:
-    DOCUMENT_TYPE = "BASE"
     name: str
 
     @property
