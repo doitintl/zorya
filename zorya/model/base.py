@@ -1,35 +1,36 @@
 """Model for policy."""
 import os
+
+import pydantic
 from google.cloud import firestore
 
 db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
 
 
-class BaseModel:
-    name: str
+class BaseModel(pydantic.BaseModel):
+    @staticmethod
+    def document_type():
+        return "BASE"
 
     @property
     def ref(self):
-        if not self._ref:
-            self._ref = self.collection().document(self.name)
-        return self._ref
+        return self.collection().document(self.name)
 
     @property
     def exists(self):
-        if not self._snap:
-            self._snap = self.ref.get()
-        return self._snap.exists
+        return self.ref.get().exists
 
     @classmethod
     def collection(cls):
-        return db.collection(f"zorya/v1/{cls.DOCUMENT_TYPE}")
+        return db.collection(f"zorya/v1/{cls.document_type()}")
 
     @classmethod
     def get_by_name(cls, name):
-        schedule_ref = cls.collection().document(name)
+        ref = cls.collection().document(name)
+        snap = ref.get()
 
-        schedule_raw = schedule_ref.snap.to_dict()
-        return cls(**schedule_raw)
+        instance = cls(**snap.to_dict())
+        return instance
 
     @classmethod
     def list_ids(cls):
@@ -37,8 +38,15 @@ class BaseModel:
         return [ref.id for ref in refs]
 
     @classmethod
-    def delete(cls, name):
-        cls(name).ref.delete()
+    def list(cls):
+        refs = cls.collection().stream()
+        for ref in refs:
+            snap = ref.get()
+            policy = cls(**snap.to_dict())
+            yield policy
+
+    def delete(self):
+        self.ref.delete()
 
     def set(self):
         self.ref.set(self.dict())

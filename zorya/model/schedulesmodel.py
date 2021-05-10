@@ -1,28 +1,26 @@
 """Database representation of schedule."""
-import os
 import json
 import enum
 from typing import Any
 
 import pydantic
-from google.cloud import firestore
 
 from zorya.model.base import BaseModel
 from zorya.model.policymodel import PolicyModel
 from zorya.util import tz
 
-db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
 
-
-class ScheduleModel(pydantic.BaseModel, BaseModel):
-    DOCUMENT_TYPE = "schedules"
-
+class ScheduleModel(BaseModel):
     name: str
     timezone: str = pydantic.Field(
         default="UTC",
         choices=enum.Enum("TimezonesEnum", tz.get_all_timezones()),
     )
     ndarray: Any
+
+    @staticmethod
+    def document_type():
+        return "schedules"
 
     @pydantic.validator("ndarray")
     def must_be_json_string(cls, v):

@@ -4,7 +4,7 @@ import logging
 
 import numpy as np
 import google.auth
-from google.cloud import firestore, pubsub
+from google.cloud import pubsub
 
 from zorya.model.policymodel import PolicyModel
 from zorya.model.schedulesmodel import SchedulesModel
@@ -12,16 +12,11 @@ from zorya.util import tz, utils
 
 MATRIX_SIZE = 7 * 24
 TASK_TOPIC = "zorya_tasks"
-db = firestore.Client()
 
 
 def check_all():
-    policy_refs = db.colelction("zorya/v1/policies").stream()
-    for policy_ref in policy_refs:
-        policy_ref = policy_ref.get()
-        if policy_ref.exists:
-            policy = PolicyModel(**policy_ref.to_dict())
-            check_one(policy)
+    for policy in PolicyModel.list():
+        check_one(policy)
 
 
 def check_one(policy):
@@ -30,13 +25,10 @@ def check_one(policy):
     Args:
         name: policy
     """
-    schedule_ref = db.collection("zorya/v1/schedules").where(
-        "name" == policy.schedulename
-    )
-    if not schedule_ref.get().exists:
+    schedule = SchedulesModel.get_by_name(policy.schedulename)
+    if not schedule.exists:
         logging.error("Schedule %s not found!", policy.schedulename)
         return "not found", 404
-    schedule = SchedulesModel(**schedule_ref.get().to_dict())
 
     local_time = tz.get_time_at_timezone(schedule.timezone)
     logging.debug("Time at Timezone %s is %s", schedule.timezone, local_time)
@@ -91,7 +83,3 @@ def check_one(policy):
         future.result()
 
     return "ok", 200
-
-
-def push_task_to_queue(payload):
-    pass
