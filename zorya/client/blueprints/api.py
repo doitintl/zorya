@@ -3,8 +3,8 @@ from fastapi import APIRouter, Response
 from fastapi.responses import PlainTextResponse
 
 from zorya.util import tz
-from zorya.model.policymodel import PolicyModel
-from zorya.model.schedulesmodel import ScheduleModel
+from zorya.model.policy import Policy
+from zorya.model.schedule import Schedule
 
 API_VERSION = "/api/v1"
 
@@ -25,7 +25,7 @@ def time_zones():
 
 
 @router.post("/add_schedule")
-def add_schedule(schedule_model: ScheduleModel):
+def add_schedule(schedule_model: Schedule):
     """
     Add a schedule.
     """
@@ -40,7 +40,7 @@ def get_schedule(schedule_name: str):
     Get a schedule.
     Returns: schedule json
     """
-    schedule = ScheduleModel.get_by_name(schedule_name)
+    schedule = Schedule.get_by_name(schedule_name)
 
     return schedule.api_dict()
 
@@ -51,7 +51,7 @@ def list_schedules():
     Get all schedules.
     Returns: A list of schedules
     """
-    schedule_ids = ScheduleModel.list_ids()
+    schedule_ids = Schedule.list_ids()
 
     return schedule_ids
 
@@ -62,7 +62,7 @@ def del_schedule(schedule: str, response: Response):
     Delete a schedule.
     """
     try:
-        ScheduleModel.get_by_name(schedule).delete()
+        Schedule.get_by_name(schedule).delete()
     except Exception as e:
         print(e)
         if "Forbidden" in str(e):
@@ -73,11 +73,11 @@ def del_schedule(schedule: str, response: Response):
 
 
 @router.post("/add_policy")
-def add_policy(policy: PolicyModel):
+def add_policy(policy: Policy):
     """
     Add policy.
     """
-    schedule = ScheduleModel.get_by_name(policy.schedulename)
+    schedule = Schedule.get_by_name(policy.schedulename)
     if not schedule.exists:
         return "schedule name not found", 404
 
@@ -91,7 +91,7 @@ def get_policy(policy: str):
     """
     Get policy.
     """
-    policy = PolicyModel.get_by_name(policy)
+    policy = Policy.get_by_name(policy)
 
     return policy.dict()
 
@@ -102,7 +102,7 @@ def list_policies():
     Get all polices.
     Returns: List of policies
     """
-    policy_ids = PolicyModel.list_ids()
+    policy_ids = Policy.list_ids()
 
     return policy_ids
 
@@ -112,6 +112,6 @@ def del_policy(policy: str):
     """
     Delete a policy
     """
-    PolicyModel.get_by_name(policy).delete()
+    Policy.get_by_name(policy).delete()
 
     return PlainTextResponse("ok")

@@ -1,66 +1,52 @@
 """Interactions with compute engine."""
-
 import logging
 
 import backoff
 from googleapiclient import discovery
 from googleapiclient.errors import HttpError
 
+from zorya.worker.logging import Logger
 from zorya.util import utils
-
-CREDENTIALS = None
 
 
 class Sql(object):
     """Compute engine actions."""
 
-    def __init__(self, project):
+    def __init__(self, project, logger=None):
         self.sql = discovery.build(
-            "sqladmin",
-            "v1beta4",
-            credentials=CREDENTIALS,
-            cache_discovery=False,
+            "sqladmin", "v1beta4", cache_discovery=False
         )
         self.project = project
+        self.logger = logger or Logger()
 
-    def change_status(self, to_status, tagkey, tagvalue):
+    def change_status(self, action, tagkey, tagvalue):
         """
         Stop/start instance based on tags
         Args:
-            to_status: 0 stop 1 start
+            action: 0 stop 1 start
             tagkey: tag key
             tagvalue: tag value
-
-        Returns:
-
         """
         tag_filter = "settings.userLabels." + tagkey + "=" + tagvalue
-        logging.debug("Filter %s", filter)
-        try:
-            instances = self.list_instances(tag_filter)
-            for instance in instances:
-                if int(to_status) == 1:
-                    logging.info(
-                        "Starting SQL %s in project %s tagkey %s tagvalue %s",
-                        instance["name"],
-                        self.project,
-                        tagkey,
-                        tagvalue,
-                    )
-                    self.start_instance(instance["name"])
-                else:
-                    logging.info(
-                        "Stopping SQL %s in project %s tagkey %s tagvalue %s",
-                        instance["name"],
-                        self.project,
-                        tagkey,
-                        tagvalue,
-                    )
-                    self.stop_instance(instance["name"])
-        except HttpError as http_error:
-            logging.error(http_error)
-            return "Error", 500
-        return "ok", 200
+
+        instances = self.list_instances(tag_filter)
+        if not instances:
+            self.logger("skipping state change for CloudSQL instances")
+            return
+
+        self.logger(
+            f"running state change for {len(instances)} CloudSQL instances"
+        )
+        for instance in instances:
+            logger = self.logger.refine(instance=instance)
+            if int(action) == 1:
+                logger("Starting CloudSQL instance", instance=instance)
+                self.start_instance(instance["name"])
+            else:
+                logger("Stopping CloudSQL instance", instance=instance)
+                self.stop_instance(instance["name"])
+
+        return
 
     @backoff.on_exception(
         backoff.expo, HttpError, max_tries=8, giveup=utils.fatal_code
@@ -102,6 +88,7 @@ class Sql(object):
                 .execute()
             )
             return res
+
         except Exception as e:
             logging.error(e)
         return
@@ -115,9 +102,6 @@ class Sql(object):
         Args:
             zone: zone
             instance: instance name
-
-        Returns:
-
         """
         try:
             prev_instance_data = (

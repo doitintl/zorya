@@ -10,7 +10,7 @@ def get_all_timezones():
     return pytz.all_timezones
 
 
-def get_time_at_timezone(timezone):
+def local_day_hour(timezone):
     """
     Get the current time a a time zone.
     Args:
@@ -19,25 +19,11 @@ def get_time_at_timezone(timezone):
     Returns: time at the requestd timezone
 
     """
-    tz = pytz.timezone(timezone)
-    now = datetime.now(tz=tz)
-    target_tz = pytz.timezone(timezone)
-    return target_tz.normalize(now.astimezone(target_tz))
+    now = datetime.now(tz=pytz.timezone(timezone))
 
-
-def convert_time_to_index(time):
-    """
-    Convert a time to and index in an 7x24 array.
-    Args:
-        time:
-
-    Returns: x,y of the index
-
-    """
     days = np.arange(0, 7)
     days = np.roll(days, 1)
+
     for index, item in enumerate(days):
-        if item == time.weekday():
-            day = index
-    hour = time.hour
-    return day, hour
+        if item == now.weekday():
+            return index, now.hour

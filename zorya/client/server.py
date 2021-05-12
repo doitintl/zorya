@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 
 from zorya.client.blueprints import api
 
+
 app = FastAPI()
 app.mount(
     "/static",
@@ -20,24 +21,34 @@ app.include_router(api.router)
 
 @app.get("/asset-manifest.json")
 def asset_manifest():
-    return FileResponse("static/asset-manifest.json")
+    return FileResponse(
+        pkg_resources.resource_filename(__name__, "static/asset-manifest.json")
+    )
 
 
 @app.get("/manifest.json")
 def manifest():
-    return FileResponse("static/manifest.json")
+    return FileResponse(
+        pkg_resources.resource_filename(__name__, "static/manifest.json")
+    )
 
 
 @app.get("/service-worker.js")
 def service_worker():
-    return FileResponse("static/service-worker.js")
+    return FileResponse(
+        pkg_resources.resource_filename(__name__, "static/service-worker.js")
+    )
 
 
 @app.get("/favicon.png")
 def favicon():
-    return FileResponse("static/favicon.png")
+    return FileResponse(
+        pkg_resources.resource_filename(__name__, "static/favicon.png")
+    )
 
 
 @app.get("/{catchall:path}")
 def index():
-    return FileResponse("static/index.html")
+    return FileResponse(
+        pkg_resources.resource_filename(__name__, "static/index.html")
+    )
