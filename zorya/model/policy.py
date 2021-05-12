@@ -6,7 +6,7 @@ import pydantic
 from zorya.model.mixins import FireStoreMixin
 
 
-class PolicyModel(pydantic.BaseModel, FireStoreMixin):
+class Policy(pydantic.BaseModel, FireStoreMixin):
     document_type: ClassVar[str] = "policies"
 
     name: str

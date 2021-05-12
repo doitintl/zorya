@@ -45,8 +45,8 @@ class FireStoreMixin:
     @classmethod
     def list(cls):
         refs = cls.collection().stream()
-        for ref in refs:
-            snap = ref.get()
+        for snap in refs:
+            # snap = ref.get()
             policy = cls(**snap.to_dict())
             yield policy
 

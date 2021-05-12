@@ -10,3 +10,8 @@ class NodePoolModel(pydantic.BaseModel, FireStoreMixin):
 
     name: str
     num_nodes: int = 0
+
+    @classmethod
+    def get_by_url(cls, url):
+        name = url.split("/")[-1]
+        return cls.get_by_name(name)

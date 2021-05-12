@@ -4,13 +4,16 @@ import enum
 from typing import ClassVar, Any
 
 import pydantic
+import numpy as np
 
 from zorya.model.mixins import FireStoreMixin
-from zorya.model.policymodel import PolicyModel
-from zorya.util import tz
+from zorya.model.policy import Policy
+from zorya.util import tz, utils
+
+MATRIX_SIZE = 7 * 24
 
 
-class ScheduleModel(pydantic.BaseModel, FireStoreMixin):
+class Schedule(pydantic.BaseModel, FireStoreMixin):
     document_type: ClassVar[str] = "schedules"
 
     name: str
@@ -19,6 +22,7 @@ class ScheduleModel(pydantic.BaseModel, FireStoreMixin):
         choices=enum.Enum("TimezonesEnum", tz.get_all_timezones()),
     )
     ndarray: Any
+    _now: int = None
 
     @pydantic.validator("ndarray")
     def must_be_json_string(cls, v):
@@ -40,7 +44,28 @@ class ScheduleModel(pydantic.BaseModel, FireStoreMixin):
 
     def used_by(self):
         return (
-            PolicyModel.collection()
-            .where("schedulename", "==", self.name)
-            .stream()
+            Policy.collection().where("schedulename", "==", self.name).stream()
         )
+
+    def parse_ndarray(self):
+        return np.asarray(
+            json.loads(self.ndarray),
+            dtype=np.int,
+        ).flatten()
+
+    @property
+    def desired_state(self):
+        return self._now
+
+    @property
+    def changed(self):
+        arr = self.parse_ndarray()
+        local_time = tz.get_time_at_timezone(self.timezone)
+        day, hour = tz.convert_time_to_index(local_time)
+        prev_index = utils.get_prev_idx(day * 24 + hour, MATRIX_SIZE)
+        prev = arr[prev_index]
+
+        if self._now is None:
+            self._now = arr[day * 24 + hour]
+
+        return self._now == prev
