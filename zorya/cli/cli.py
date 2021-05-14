@@ -1,14 +1,14 @@
 """cli.py"""
-import os
 import click
-
 import uvicorn
-import google.auth
-import google.api_core.exceptions
 
 from zorya.cli.env import ZoryaEnvironment
+from zorya.settings import settings
 
-_, PROJECT = google.auth.default()
+
+def set_setting(ctx, param, value):
+    settings.__setattr__(param.name, value)
+    return value
 
 
 @click.group()
@@ -17,11 +17,12 @@ def cli():
 
 
 @cli.command()
-@click.option("-p", "--port", default=8080, type=int)
-@click.option("--project", default=PROJECT)
-def start(project, port):
+@click.option("--port", default=8080, type=int)
+@click.option(
+    "--project_id", callback=set_setting, default=settings.project_id
+)
+def start(project_id, port):
     """Start a local webserver to configure the scheduler."""
-    os.environ["ZORYA_PROJECT"] = project
 
     click.echo(
         f"""
@@ -34,10 +35,10 @@ def start(project, port):
 
 Zorya CLI Version beta-1
 
-Running with project {project!r}
+Running with project {project_id!r}
 """  # noqa
     )
-    env = ZoryaEnvironment(project)
+    env = ZoryaEnvironment(project_id)
     env_okay = env.check_env()
 
     if not env_okay:
@@ -53,18 +54,20 @@ Do you want to continue?
 
     click.echo("Starting zorya webserver locally ...")
 
-    from zorya.client.server import app
+    from zorya.server.main import app
 
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 
 @cli.command()
-@click.option("--project", default=PROJECT)
-def env_check(project):
+@click.option(
+    "--project_id", callback=set_setting, default=settings.project_id
+)
+def env_check(project_id):
     """
     Run the full environment check.
     """
-    env = ZoryaEnvironment(project)
+    env = ZoryaEnvironment(project_id)
     env_okay = env.check_env_full()
 
     if not env_okay:
@@ -77,30 +80,37 @@ Please run `zorya env-setup` for setup information.
 
 
 @cli.command()
-@click.option("--project", default=PROJECT)
-def env_setup(project):
+@click.option("--project", callback=set_setting, default=settings.project_id)
+def env_setup(project_id):
     """
     Generate a shell script to configure your Zorya environment.
     """
     click.echo(
-        f"Run the following script to configure your project '{project}'"
+        f"Run the following script to configure your project {project_id!r}"
     )
-    click.echo(
-        f"""# The project ID for the zorya deployment.
-PROJECT_ID="{project}"
-"""
-        """# The region of the Cloud Run service.
-REGION="us-west1"
+    header = """
+# The project ID for the zorya deployment.
+PROJECT_ID="{project_id}"
+# The region of the Cloud Run service.
+REGION="{cloud_run_region}"
 # Zorya worker image
-IMAGE_URL =""
+IMAGE_URL="{image_url}"
 
 # Do not change these variables
-SERVICE_ACCOUNT_ID="zorya"
-SERVICE_NAME="zorya"
-TOPIC_NAME="projects/${PROJECT_ID}/topics/zorya"
-SUBSCRIPTION_NAME=TOPIC_NAME="projects/${PROJECT_ID}/subscriptions/zorya"
-SCHEDULER_JOB="zorya"
+TASK_URI="{task_uri}"
+SERVICE_ACCOUNT_ID="{service_account_id}"
+SERVICE_NAME="{service_name}"
+TOPIC_NAME="projects/$PROJECT_ID/topics/{topic_id}"
+SUBSCRIPTION_NAME="projects/$PROJECT_ID/subscriptions/{subscription_id}"
+SCHEDULER_NAME="{scheduler_name}"
+SCHEDULER_SCHEDULE="{scheduler_schedule}"
 
+""".format(
+        **settings.dict()
+    )
+    click.echo(
+        header
+        + """
 # enable APIs
 gcloud services enable firestore.googleapis.com
 gcloud services enable run.googleapis.com

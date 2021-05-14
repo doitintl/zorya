@@ -2,7 +2,7 @@
 from fastapi import Request
 from fastapi.routing import APIRoute
 
-from zorya.worker.logging import Logger
+from zorya.logging import Logger
 
 
 class LoggedRoute(APIRoute):
@@ -16,15 +16,15 @@ class LoggedRoute(APIRoute):
                 body = await request.body()
                 body = body.decode("utf-8")
 
-            request.state.logger = Logger(request=request)
-            request.state.logger(
+            logger = Logger(request=request)
+            logger(
                 "request",
                 body=body,
             )
 
             response = await original_route_handler(request)
 
-            request.state.logger(
+            logger(
                 "response",
                 body=decode_body(response.body),
             )

@@ -106,4 +106,4 @@ node_modules/
 .idea
 .vscode
 
-zorya/client/static
+static

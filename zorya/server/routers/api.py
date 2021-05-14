@@ -1,18 +1,16 @@
 """api.py"""
-from fastapi import APIRouter, Response
+import pytz
+from fastapi import APIRouter, Response, Query
 from fastapi.responses import PlainTextResponse
 
-from zorya.util import tz
 from zorya.model.policy import Policy
 from zorya.model.schedule import Schedule
+from zorya.server.logged_route import LoggedRoute
 
 API_VERSION = "/api/v1"
 
 
-router = APIRouter(
-    prefix=API_VERSION,
-    responses={404: {"description": "Not found"}},
-)
+router = APIRouter(prefix=API_VERSION, route_class=LoggedRoute)
 
 
 @router.get("/time_zones")
@@ -21,7 +19,7 @@ def time_zones():
     Get all time zones.
     :return: all time zone in the world wide world.
     """
-    return {"Timezones": tz.get_all_timezones()}
+    return {"Timezones": pytz.all_timezones}
 
 
 @router.post("/add_schedule")
@@ -35,7 +33,7 @@ def add_schedule(schedule_model: Schedule):
 
 
 @router.get("/get_schedule")
-def get_schedule(schedule_name: str):
+def get_schedule(schedule_name: str = Query(..., alias="schedule")):
     """
     Get a schedule.
     Returns: schedule json
@@ -57,14 +55,16 @@ def list_schedules():
 
 
 @router.get("/del_schedule")
-def del_schedule(schedule: str, response: Response):
+def del_schedule(
+    response: Response,
+    schedule_name: str = Query(..., alias="schedule"),
+):
     """
     Delete a schedule.
     """
     try:
-        Schedule.get_by_name(schedule).delete()
+        Schedule.get_by_name(schedule_name).delete()
     except Exception as e:
-        print(e)
         if "Forbidden" in str(e):
             response.status_code = 400
             return {"error": str(e)}
@@ -87,11 +87,13 @@ def add_policy(policy: Policy):
 
 
 @router.get("/get_policy")
-def get_policy(policy: str):
+def get_policy(
+    policy_name: str = Query(..., alias="policy"),
+):
     """
     Get policy.
     """
-    policy = Policy.get_by_name(policy)
+    policy = Policy.get_by_name(policy_name)
 
     return policy.dict()
 
@@ -108,10 +110,10 @@ def list_policies():
 
 
 @router.get("/del_policy")
-def del_policy(policy: str):
+def del_policy(policy_name: str = Query(..., alias="policy")):
     """
     Delete a policy
     """
-    Policy.get_by_name(policy).delete()
+    Policy.get_by_name(policy_name).delete()
 
     return PlainTextResponse("ok")

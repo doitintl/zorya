@@ -1,5 +1,4 @@
 """Check if there is a need to take an action for a policy."""
-import os
 import json
 
 import google.auth
@@ -7,6 +6,7 @@ from google.cloud import pubsub
 
 from zorya.model.policy import Policy
 from zorya.model.schedule import Schedule
+from zorya.settings import settings
 
 
 TASK_TOPIC = "zorya"
@@ -37,10 +37,9 @@ def check_one(policy, logger):
     logger(f"state is changing to {schedule.desired_state}")
 
     credentials, _ = google.auth.default()
-    project_id = os.environ["ZORYA_PROJECT"]
 
     publisher = pubsub.PublisherClient(credentials=credentials)
-    topic_name = f"projects/{project_id}/topics/{TASK_TOPIC}"
+    topic_name = f"projects/{settings.project_id}/topics/{TASK_TOPIC}"
 
     futures = []
 

@@ -6,35 +6,6 @@ import requests
 from fastapi import Request
 
 
-# def cloud_logger(
-#     message,
-#     request: Request = None,
-#     severity="NOTICE",
-#     **kwarags,
-# ):
-#     if not runtime_project_id:
-#         logging.info(message)
-#         return
-
-#     trace_header = None
-#     if request:
-#         trace_header = request.headers.get("X-Cloud-Trace-Context")
-
-#     if trace_header:
-#         trace = trace_header.split("/")
-#         kwarags[
-#             "logging.googleapis.com/trace"
-#         ] = f"projects/{runtime_project_id}/traces/{trace[0]}"
-
-#     entry = dict(
-#         severity=severity,
-#         message=message,
-#         **kwarags,
-#     )
-
-#     print(json.dumps(entry))
-
-
 class Logger:
     def __init__(self, request: Request = None, **kwargs):
         self.request = request

@@ -1,14 +1,15 @@
 """Database representation of schedule."""
 import json
 import enum
+from datetime import datetime
 from typing import ClassVar, Any
 
+import pytz
 import pydantic
 import numpy as np
 
-from zorya.model.mixins import FireStoreMixin
 from zorya.model.policy import Policy
-from zorya.util import tz, utils
+from zorya.model.mixins import FireStoreMixin
 
 MATRIX_SIZE = 7 * 24
 
@@ -19,7 +20,7 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
     name: str
     timezone: str = pydantic.Field(
         default="UTC",
-        choices=enum.Enum("TimezonesEnum", tz.get_all_timezones()),
+        choices=enum.Enum("TimezonesEnum", pytz.all_timezones),
     )
     ndarray: Any
     _now: int = None
@@ -60,12 +61,46 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
     @property
     def changed(self):
         arr = self.parse_ndarray()
-        local_time = tz.get_time_at_timezone(self.timezone)
-        day, hour = tz.convert_time_to_index(local_time)
-        prev_index = utils.get_prev_idx(day * 24 + hour, MATRIX_SIZE)
+        day, hour = local_day_hour(self.timezone)
+        prev_index = get_prev_idx(day * 24 + hour, MATRIX_SIZE)
         prev = arr[prev_index]
 
         if self._now is None:
             self._now = arr[day * 24 + hour]
 
         return self._now == prev
+
+
+def local_day_hour(timezone):
+    """
+    Get the current time a a time zone.
+    Args:
+        timezone:
+
+    Returns: time at the requestd timezone
+
+    """
+    now = datetime.now(tz=pytz.timezone(timezone))
+
+    days = np.arange(0, 7)
+    days = np.roll(days, 1)
+
+    for index, item in enumerate(days):
+        if item == now.weekday():
+            return index, now.hour
+
+
+def get_prev_idx(idx, matrix_size):
+    """
+    Get the previous index in the matrix.
+    Args:
+        idx: current index
+        matrix_size: matrix size
+
+    Returns:
+
+    """
+    if idx == 0:
+        return matrix_size - 1
+    else:
+        return idx - 1

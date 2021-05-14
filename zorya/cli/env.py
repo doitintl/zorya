@@ -5,11 +5,8 @@ import google.auth
 from google.auth.transport.requests import AuthorizedSession
 from google.cloud import pubsub
 
-TASK_TOPIC = "zorya-tasks"
-TASK_SBSCRIPTION = "zorya-tasks"
-ZORYA_WORKER_SERVICE = "zorya-worker-service"
-SERVICE_ACCOUNT_ID = "zorya"
-SCHEDULER_JOB = "zorya"
+from zorya.settings import settings
+
 API_SERVICES = [
     "firestore.googleapis.com",
     "run.googleapis.com",
@@ -21,22 +18,24 @@ API_SERVICES = [
 
 
 class ZoryaEnvironment:
-    service_name = ZORYA_WORKER_SERVICE
+    service_name = settings.service_name
 
     def __init__(self, project_id) -> None:
         self.project_id = project_id
 
         credentials, _ = google.auth.default()
-        self.service_account = (
-            f"{SERVICE_ACCOUNT_ID}@{project_id}.iam.gserviceaccount.com"
-        )
         self.publisher = pubsub.PublisherClient(credentials=credentials)
         self.subscriber = pubsub.SubscriberClient(credentials=credentials)
-        self.topic_name = f"projects/{project_id}/topics/{TASK_TOPIC}"
-        self.subscription_name = (
-            f"projects/{project_id}/subscriptions/{TASK_SBSCRIPTION}"
-        )
         self.authed_session = AuthorizedSession(credentials)
+
+        self.service_account = (
+            f"{settings.service_account_id}@{project_id}"
+            ".iam.gserviceaccount.com"
+        )
+        self.topic_name = f"projects/{project_id}/topics/{settings.topic_id}"
+        self.subscription_name = (
+            f"projects/{project_id}/subscriptions/{settings.subscription_id}"
+        )
 
     def check_env(self):
         return (
@@ -202,7 +201,7 @@ class ZoryaEnvironment:
                 )
                 location_resp.raise_for_status()
                 for job in location_resp.json().get("jobs", []):
-                    if job["name"].split("/").pop() == SCHEDULER_JOB:
+                    if job["name"].split("/").pop() == settings.scheduler_name:
                         click.echo("Scheduler: check completed")
                         return True
 
@@ -210,7 +209,9 @@ class ZoryaEnvironment:
             click.echo("Scheduler: Cannot list scheduler jobs")
             return False
 
-        click.echo(f"Scheduler: Cannot find scheduler job {SCHEDULER_JOB}")
+        click.echo(
+            f"Scheduler: Cannot find scheduler job {settings.scheduler_name}"
+        )
         return False
 
     def check_topic(self):

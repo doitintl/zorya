@@ -1,10 +1,11 @@
 """Model for policy."""
-import os
 import abc
 
 from google.cloud import firestore
 
-db = firestore.Client(project=os.environ["ZORYA_PROJECT"])
+from zorya.settings import settings
+
+db = firestore.Client(project=settings.project_id)
 
 
 class FireStoreMixin:
