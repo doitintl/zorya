@@ -1,7 +1,7 @@
 """Entry point to Zoyra."""
 import pkg_resources
 
-from fastapi import FastAPI, responses, exceptions
+from fastapi import FastAPI, responses, exceptions, Request
 from fastapi.staticfiles import StaticFiles
 
 from zorya.server.routers import api
@@ -58,7 +58,9 @@ def index():
 
 
 @app.exception_handler(exceptions.RequestValidationError)
-def log_all_exceptions(request, exception):
+def log_all_exceptions(
+    request: Request, exception: exceptions.RequestValidationError
+):
     Logger(request=request)(
         "request validation error",
         detail=exception.errors(),

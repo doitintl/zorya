@@ -33,5 +33,5 @@ class LoggedRoute(APIRoute):
         return custom_route_handler
 
 
-def decode_body(body, codec="utf-8"):
+def decode_body(body: bytes, codec: str = "utf-8") -> str:
     return body.decode(codec)

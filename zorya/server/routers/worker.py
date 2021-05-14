@@ -30,7 +30,6 @@ def task(
     logger = logger.refine(state_change=state_change.dict())
 
     schedule_tasks.change_state(state_change, logger=logger)
-    return
 
 
 @router.get(settings.scheduler_uri)
@@ -39,4 +38,3 @@ def schedule(request: Request):
     Checks if it's time to run a schedule.
     """
     policy_tasks.check_all(request)
-    return

@@ -1,47 +1,36 @@
 """Interactions with compute engine."""
-import backoff
-import google.auth
-from requests.exceptions import HTTPError
+from typing import List
 
-from zorya.logging import Logger
-from zorya.resources.utils import fatal_code
-from zorya.model.state_change import StateChange
+import pydantic
+
+from zorya.resources.gcp_base import GCPBase
 
 
-class CloudSql(object):
-    def __init__(self, state_change: StateChange, logger: Logger = None):
-        self.state_change = state_change
-        self.logger = logger or Logger()
+class CloudSQLInstance(pydantic.BaseModel):
+    name: str
 
-        credentials, _ = google.auth.default()
-        self.authed_session = google.auth.AuthorizedSession(credentials)
-        self.tag_filter = (
-            "settings.userLabels."
-            f"{state_change.tagkey}={state_change.tagvalue}"
-        )
-        self.instances = self.list_instances(self.tag_filter)
 
+class CloudSql(GCPBase):
     def change_status(self):
-        self.logger(
-            f"running state change for {len(self.instances)} CloudSQL instances"
-        )
-        for instance in self.instances:
+        self.logger("running state change for CloudSQL instances")
+
+        for instance in self.list_instances():
             logger = self.logger.refine(instance=instance)
             if int(self.change_status.action) == 1:
                 logger("Starting CloudSQL instance", instance=instance)
-                self.start_instance(instance["name"])
+                self.start_instance(instance.name)
             else:
                 logger("Stopping CloudSQL instance", instance=instance)
-                self.stop_instance(instance["name"])
+                self.stop_instance(instance.name)
 
-    @backoff.on_exception(
-        backoff.expo, HTTPError, max_tries=8, giveup=fatal_code
-    )
-    def stop_instance(self, instance):
-        prev_instance_data = self.authed_session.get(
-            "https://sqladmin.googleapis.com/sql/v1beta4/projects"
-            f"/{self.change_status.project}/instances/{instance}",
+    def stop_instance(self, instance: str) -> None:
+        res = self.authed_session.get(
+            "https://sqladmin.googleapis.com/sql/v1beta4"
+            f"/projects/{self.change_status.project}"
+            f"/instances/{instance}",
         )
+        res.raise_for_status()
+        prev_instance_data = res.json()
 
         patch_body = {
             "settings": {
@@ -53,21 +42,22 @@ class CloudSql(object):
         }
 
         res = self.authed_session.patch(
-            "https://sqladmin.googleapis.com/sql/v1beta4/projects"
-            f"/{self.change_status.project}/instances/{instance}",
+            "https://sqladmin.googleapis.com/sql/v1beta4"
+            f"/projects/{self.change_status.project}"
+            f"/instances/{instance}",
             data=patch_body,
         )
         res.raise_for_status()
-        return res.json()
 
-    @backoff.on_exception(
-        backoff.expo, HTTPError, max_tries=8, giveup=fatal_code
-    )
-    def start_instance(self, instance):
-        prev_instance_data = self.authed_session.get(
-            "https://sqladmin.googleapis.com/sql/v1beta4/projects"
-            f"/{self.change_status.project}/instances/{instance}",
+    def start_instance(self, instance: str) -> None:
+        res = self.authed_session.get(
+            "https://sqladmin.googleapis.com/sql/v1beta4"
+            f"/projects/{self.change_status.project}"
+            f"/instances/{instance}",
         )
+
+        res.raise_for_status()
+        prev_instance_data = res.json()
 
         patch_body = {
             "settings": {
@@ -79,22 +69,26 @@ class CloudSql(object):
         }
 
         res = self.authed_session.patch(
-            "https://sqladmin.googleapis.com/sql/v1beta4/projects"
-            f"/{self.change_status.project}/instances/{instance}",
-            body=patch_body,
+            "https://sqladmin.googleapis.com/sql/v1beta4"
+            f"/projects/{self.change_status.project}"
+            f"/instances/{instance}",
+            data=patch_body,
         )
         res.raise_for_status()
-        return res.json()
 
-    @backoff.on_exception(
-        backoff.expo, HTTPError, max_tries=8, giveup=fatal_code
-    )
-    def list_instances(self, tags_filter=None):
+    def list_instances(self) -> List[CloudSQLInstance]:
+        tag_filter = (
+            "settings.userLabels."
+            f"{self.state_change.tagkey}={self.state_change.tagvalue}"
+        )
+
         res = self.authed_session.get(
-            "https://sqladmin.googleapis.com/sql/v1beta4/projects"
-            f"/{self.state_change.project}/instances?filter={tags_filter}",
-            project=self.change_status.project,
+            "https://sqladmin.googleapis.com/sql/v1beta4"
+            f"/projects/{self.state_change.project}"
+            "/instances"
+            f"?filter={tag_filter}"
         )
-
         res.raise_for_status()
-        return res.json().get("items", [])
+
+        for x in res.json().get("items", []):
+            yield CloudSQLInstance(**x)

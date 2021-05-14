@@ -1,72 +1,53 @@
 """Interactions with compute engine."""
-import backoff
-import google.auth
-from requests.exceptions import HTTPError
+from typing import Generator
 
-from zorya.logging import Logger
-from zorya.resources.utils import fatal_code
-from zorya.model.state_change import StateChange
+from zorya.resources.gcp_base import GCPBase
+from zorya.model.gce_instance import GCEInstance
 
 
-class GoogleComputEngine(object):
-    def __init__(self, state_change: StateChange, logger: Logger = None):
-        self.state_change = state_change
-        self.logger = logger or Logger()
+class GoogleComputEngine(GCPBase):
+    def change_status(self) -> None:
+        self.logger("running state change for compute instances")
 
-        credentials, _ = google.auth.default()
-        self.authed_session = google.auth.AuthorizedSession(credentials)
-        self.tag_filter = (
-            f"labels.{state_change.tagkey}={state_change.tagvalue}"
-        )
-        self.instances = self.list_instances(self.tag_filter)
-
-    def change_status(self):
-        self.logger(
-            f"running state change for {len(self.instances)} compute instances"
-        )
-        for instance in self.instances:
+        for instance in self.list_instances():
             if int(self.state_change.action) == 1:
                 self.logger("Starting compute instance", instance=instance)
-                self.start_instance(instance["zone"], instance["name"])
+                self.start_instance(instance.zone, instance.name)
             else:
                 self.logger("Stopping compute instance", instance=instance)
-                self.stop_instance(instance["zone"], instance["name"])
-        return
+                self.stop_instance(instance.zone, instance.name)
 
-    @backoff.on_exception(
-        backoff.expo,
-        HTTPError,
-        max_tries=8,
-        giveup=fatal_code,
-    )
-    def stop_instance(self, zone, instance_name):
-        return self.authed_session(
-            "https://compute.googleapis.com/compute/v1/projects"
-            f"/{self.state_change.project}/zones/{zone}/instances/{instance_name}/stop"
+    def stop_instance(self, zone: str, instance_name: str) -> None:
+        res = self.authed_session.post(
+            "https://compute.googleapis.com/compute/v1"
+            f"/projects/{self.state_change.project}"
+            f"/zones/{zone}"
+            f"/instances/{instance_name}"
+            "/stop"
+        )
+        res.raise_for_status()
+
+    def start_instance(self, zone: str, instance_name: str) -> None:
+        res = self.authed_session.post(
+            "https://compute.googleapis.com/compute/v1"
+            f"/projects/{self.state_change.project}"
+            f"/zones/{zone}"
+            f"/instances/{instance_name}"
+            "/start"
+        )
+        res.raise_for_status()
+
+    def list_instances(self) -> Generator[GCEInstance, None, None]:
+        tag_filter = (
+            f"labels.{self.state_change.tagkey}={self.state_change.tagvalue}"
+        )
+        res = self.authed_session.get(
+            f"https://compute.googleapis.com/compute/v1"
+            "/projects/{self.change_status.project}"
+            "/aggregated/instances"
+            f"?filter={tag_filter}"
         )
 
-    @backoff.on_exception(
-        backoff.expo,
-        HTTPError,
-        max_tries=8,
-        giveup=fatal_code,
-    )
-    def start_instance(self, zone, instance_name):
-        return self.authed_session(
-            "https://compute.googleapis.com/compute/v1/projects"
-            f"/{self.state_change.project}/zones/{zone}/instances/{instance_name}/start"
-        )
-
-    @backoff.on_exception(
-        backoff.expo,
-        HTTPError,
-        max_tries=8,
-        giveup=fatal_code,
-    )
-    def list_instances(self):
-        result = self.authed_session.get(
-            f"https://compute.googleapis.com/compute/v1/projects"
-            f"/{self.change_status.project}/aggregated/instances"
-            f"?filter={self.tag_filter}"
-        )
-        return result.get("items", [])
+        res.raise_for_status()
+        for x in res.json().get("items", []):
+            yield GCEInstance(**x)

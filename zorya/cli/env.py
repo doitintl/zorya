@@ -3,6 +3,7 @@ import click
 import requests.exceptions
 import google.auth
 from google.auth.transport.requests import AuthorizedSession
+from google.api_core.exceptions import NotFound
 from google.cloud import pubsub
 
 from zorya.settings import settings
@@ -20,7 +21,7 @@ API_SERVICES = [
 class ZoryaEnvironment:
     service_name = settings.service_name
 
-    def __init__(self, project_id) -> None:
+    def __init__(self, project_id: str) -> None:
         self.project_id = project_id
 
         credentials, _ = google.auth.default()
@@ -217,7 +218,7 @@ class ZoryaEnvironment:
     def check_topic(self):
         try:
             self.publisher.get_topic(topic=self.topic_name)
-        except google.api_core.exceptions.NotFound:
+        except NotFound:
             click.echo(f"Topic: Connot find {self.topic_name!r}")
             return False
 
@@ -229,7 +230,7 @@ class ZoryaEnvironment:
             subscription = self.subscriber.get_subscription(
                 subscription=self.subscription_name
             )
-        except google.api_core.exceptions.NotFound:
+        except NotFound:
             click.echo(f"Subscription: Cannot find {self.subscription_name!r}")
             return False
 

@@ -2,7 +2,7 @@
 import json
 import enum
 from datetime import datetime
-from typing import ClassVar, Any
+from typing import ClassVar, Any, Tuple
 
 import pytz
 import pydantic
@@ -23,7 +23,7 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
         choices=enum.Enum("TimezonesEnum", pytz.all_timezones),
     )
     ndarray: Any
-    _now: int = None
+    _now: int = 0
 
     @pydantic.validator("ndarray")
     def must_be_json_string(cls, v):
@@ -51,7 +51,7 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
     def parse_ndarray(self):
         return np.asarray(
             json.loads(self.ndarray),
-            dtype=np.int,
+            dtype=np.intc,
         ).flatten()
 
     @property
@@ -71,15 +71,7 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
         return self._now == prev
 
 
-def local_day_hour(timezone):
-    """
-    Get the current time a a time zone.
-    Args:
-        timezone:
-
-    Returns: time at the requestd timezone
-
-    """
+def local_day_hour(timezone) -> Tuple[int, int]:
     now = datetime.now(tz=pytz.timezone(timezone))
 
     days = np.arange(0, 7)
@@ -88,6 +80,8 @@ def local_day_hour(timezone):
     for index, item in enumerate(days):
         if item == now.weekday():
             return index, now.hour
+
+    return (0, 0)
 
 
 def get_prev_idx(idx, matrix_size):

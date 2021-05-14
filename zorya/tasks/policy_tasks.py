@@ -39,7 +39,7 @@ def check_one(policy, logger):
     credentials, _ = google.auth.default()
 
     publisher = pubsub.PublisherClient(credentials=credentials)
-    topic_name = f"projects/{settings.project_id}/topics/{TASK_TOPIC}"
+    topic_name = f"projects/{settings.project_id}/topics/{settings.topic_id}"
 
     futures = []
 
@@ -51,7 +51,7 @@ def check_one(policy, logger):
                 "project": project,
                 "tagkey": tagkey,
                 "tagvalue": tagvalue,
-                "action": schedule.now_str,
+                "action": schedule.desired_state,
             }
 
             logger("inserting task", payload=payload)
