@@ -23,7 +23,7 @@ const styles = (theme) => ({
     marginRight: theme.spacing(2),
   },
   textField: {
-    width: 250,
+    width: 350,
     marginBottom: theme.spacing(3),
   },
 });
@@ -51,6 +51,12 @@ class ScheduleEdit extends React.Component {
       console.error(ex);
     }
   }
+
+  handleChange = (name) => (event) => {
+    const { schedule } = this.state;
+    schedule[name] = event.target.value;
+    this.setState({ schedule });
+  };
 
   handleScheduleChange = (nextSchedule) => {
     this.setState({
@@ -105,7 +111,17 @@ class ScheduleEdit extends React.Component {
               disabled
               id="schedule-name"
               className={classes.textField}
+              label="Schedule Name (ID)"
               value={schedule.name}
+              margin="none"
+            />
+
+            <TextField
+              id="schedule-displayname"
+              className={classes.textField}
+              value={schedule.displayname}
+              label="Schedule Display-Name"
+              onChange={this.handleChange('displayname')}
               margin="none"
             />
 

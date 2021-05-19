@@ -26,6 +26,7 @@ const styles = (theme) => ({
   textField: {
     minWidth: 250,
     marginBottom: theme.spacing(3),
+    marginRight: theme.spacing(2),
   },
 });
 
@@ -116,13 +117,23 @@ class ScheduleCreate extends React.Component {
           <TextField
             id="schedule-name"
             error={nameError}
-            helperText=""
-            placeholder="Schedule name"
+            helperText="Required. May only contain letters, digits and underscores. It may not end with an underscore."
+            placeholder="Schedule Name (ID)"
             className={classes.textField}
             value={schedule.name}
             onChange={this.handleChange('name')}
             margin="none"
             autoFocus
+          />
+
+          <TextField
+            id="schedule-displayname"
+            helperText="Optional. Text to display instead of Schedule Name (ID)"
+            placeholder="Schedule Displayname"
+            className={classes.textField}
+            value={schedule.displayname}
+            onChange={this.handleChange('displayname')}
+            margin="none"
           />
 
           <ScheduleTimeZone
