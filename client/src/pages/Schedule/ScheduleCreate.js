@@ -7,6 +7,11 @@ import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
@@ -36,6 +41,8 @@ class ScheduleCreate extends React.Component {
     this.state = {
       schedule: getDefaultSchedule(),
       nameError: false,
+      backendError: false,
+      backendErrorMessage: 'unspecified error',
       timezones: [],
     };
 
@@ -85,13 +92,24 @@ class ScheduleCreate extends React.Component {
       await this.scheduleService.add(schedule);
       history.push('/schedules/browser');
     } catch (ex) {
-      console.error(ex);
+      this.handleBackendError(ex.message);
     }
   };
 
   handleRequestCancel = (event) => {
     const { history } = this.props;
     history.goBack();
+  };
+
+  handleBackendError = (errorMessage) => {
+    this.setState({
+      backendErrorMessage: errorMessage,
+      backendError: true,
+    });
+  };
+
+  handleBackendErrorClose = () => {
+    this.setState({ backendError: false });
   };
 
   render() {
@@ -165,6 +183,31 @@ class ScheduleCreate extends React.Component {
           >
             Cancel
           </Button>
+
+          <Dialog
+            open={this.state.backendError}
+            onClose={this.handleBackendErrorClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {'Transaction Failed'}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                {this.state.backendErrorMessage}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={this.handleBackendErrorClose}
+                color="primary"
+                autoFocus
+              >
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
         </AppPageContent>
       </div>
     );
