@@ -1,11 +1,10 @@
 """Model for policy."""
 from typing import ClassVar, List
 
-import pydantic
-from zorya.model.mixins import FireStoreMixin
+from zorya.models.firestore_base import FireStoreBase
 
 
-class GKENodePool(pydantic.BaseModel, FireStoreMixin):
+class GKENodePool(FireStoreBase):
     document_type: ClassVar[str] = "noodPooles"
 
     name: str

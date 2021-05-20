@@ -3,13 +3,15 @@ import abc
 from typing import List
 
 from google.cloud import firestore
+import pydantic
 
+from zorya.exceptions import DocumentNotFound
 from zorya.settings import settings
 
 db = firestore.Client(project=settings.project_id)
 
 
-class FireStoreMixin:
+class FireStoreBase(pydantic.BaseModel):
     @property
     @abc.abstractmethod
     def document_type(self) -> str:
@@ -35,6 +37,9 @@ class FireStoreMixin:
     def get_by_name(cls, name: str):
         ref = cls.collection().document(name)
         snap = ref.get()
+
+        if not snap.exists:
+            raise DocumentNotFound(ref.path)
 
         instance = cls(**snap.to_dict())
         return instance

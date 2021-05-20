@@ -1,13 +1,20 @@
 """gcp_base.py"""
+from __future__ import annotations
+
 import abc
+from typing import TYPE_CHECKING
+
 import google.auth
 from google.auth.transport.requests import AuthorizedSession
-import requests
-from requests.adapters import HTTPAdapter
+
 from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 
 from zorya.logging import Logger
-from zorya.model.state_change import StateChange
+
+if TYPE_CHECKING:
+    import requests
+    from zorya.models.state_change import StateChange
 
 
 class GCPBase:
@@ -15,21 +22,24 @@ class GCPBase:
         self,
         state_change: StateChange,
         logger: Logger = None,
+        authed_session: requests.Session = None,
     ) -> None:
         self.state_change = state_change
         self.logger = logger or Logger()
 
-    @property
-    def authed_session(self) -> requests.Session:
-        if not self._authed_session:
+        self.authed_session = authed_session
+        if not self.authed_session:
             credentials, _ = google.auth.default()
-            self._authed_session = AuthorizedSession(credentials)
+            self.authed_session = AuthorizedSession(credentials)
             retries = Retry(
                 total=8,
                 backoff_factor=0.1,
                 status_forcelist=[500, 502, 503, 504],
             )
-            self._authed_session.mount(
+            self.authed_session.mount(
                 "http://", HTTPAdapter(max_retries=retries)
             )
-        return self._authed_session
+
+    @abc.abstractmethod
+    def change_status(self) -> None:
+        pass

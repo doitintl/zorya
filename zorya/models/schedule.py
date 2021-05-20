@@ -8,13 +8,12 @@ import pytz
 import pydantic
 import numpy as np
 
-from zorya.model.policy import Policy
-from zorya.model.mixins import FireStoreMixin
+from zorya.models.firestore_base import FireStoreBase
 
 MATRIX_SIZE = 7 * 24
 
 
-class Schedule(pydantic.BaseModel, FireStoreMixin):
+class Schedule(FireStoreBase):
     document_type: ClassVar[str] = "schedules"
 
     name: str
@@ -27,6 +26,8 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
 
     @pydantic.validator("ndarray")
     def must_be_json_string(cls, v):
+        if not v:
+            v = np.zeros((7, 24)).tolist()
         if not isinstance(v, str):
             return json.dumps(v)
         return v
@@ -37,16 +38,7 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
         return data
 
     def delete(self):
-        for policy in self.used_by():
-            raise Exception(
-                f"Forbidden policy {policy.id!r} is using the schedule"
-            )
         self.ref.delete()
-
-    def used_by(self):
-        return (
-            Policy.collection().where("schedulename", "==", self.name).stream()
-        )
 
     def parse_ndarray(self):
         return np.asarray(
@@ -61,6 +53,9 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
     @property
     def changed(self):
         arr = self.parse_ndarray()
+        # if arr.shape != (1, 168):
+        #     return False
+
         day, hour = local_day_hour(self.timezone)
         prev_index = get_prev_idx(day * 24 + hour, MATRIX_SIZE)
         prev = arr[prev_index]
@@ -68,7 +63,7 @@ class Schedule(pydantic.BaseModel, FireStoreMixin):
         if self._now is None:
             self._now = arr[day * 24 + hour]
 
-        return self._now == prev
+        return self._now != prev
 
 
 def local_day_hour(timezone) -> Tuple[int, int]:

@@ -1,9 +1,9 @@
 """Zoyra Worker"""
 from fastapi import APIRouter, Request, Depends
 
-from zorya.model.state_change import StateChange
-from zorya.model.pubsub import PubSubEnvelope
-from zorya.tasks import policy_tasks, schedule_tasks
+from zorya.models.state_change import StateChange
+from zorya.models.pubsub import PubSubEnvelope
+from zorya.models.policy import Policy
 from zorya.server.logged_route import LoggedRoute
 from zorya.logging import Logger
 from zorya.settings import settings
@@ -29,12 +29,14 @@ def task(
     """
     logger = logger.refine(state_change=state_change.dict())
 
-    schedule_tasks.change_state(state_change, logger=logger)
+    state_change.change_state(logger=logger)
 
 
 @router.get(settings.scheduler_uri)
-def schedule(request: Request):
+def schedule(
+    logger: Logger = Depends(request_logger),
+):
     """
     Checks if it's time to run a schedule.
     """
-    policy_tasks.check_all(request)
+    Policy.check_all(logger)

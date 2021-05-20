@@ -7,10 +7,9 @@ import pydantic
 
 
 class PubSubMessage(pydantic.BaseModel):
-    messageId: str
+    message_id: str
     data: str
     publish_time: datetime
-    message_id: str
 
     @property
     def payload_json(self):

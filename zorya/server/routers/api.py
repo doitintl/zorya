@@ -1,10 +1,12 @@
 """api.py"""
 import pytz
+from starlette.responses import JSONResponse
+from zorya.exceptions import DocumentNotFound
 from fastapi import APIRouter, Response, Query
 from fastapi.responses import PlainTextResponse
 
-from zorya.model.policy import Policy
-from zorya.model.schedule import Schedule
+from zorya.models.policy import Policy
+from zorya.models.schedule import Schedule
 from zorya.server.logged_route import LoggedRoute
 
 API_VERSION = "/api/v1"
@@ -38,7 +40,10 @@ def get_schedule(schedule_name: str = Query(..., alias="schedule")):
     Get a schedule.
     Returns: schedule json
     """
-    schedule = Schedule.get_by_name(schedule_name)
+    try:
+        schedule = Schedule.get_by_name(schedule_name)
+    except DocumentNotFound:
+        return JSONResponse({"details": "schedule not found"}, status_code=404)
 
     return schedule.api_dict()
 
@@ -63,12 +68,23 @@ def del_schedule(
     Delete a schedule.
     """
     try:
-        Schedule.get_by_name(schedule_name).delete()
-    except Exception as e:
-        if "Forbidden" in str(e):
-            response.status_code = 400
-            return {"error": str(e)}
+        schedule = Schedule.get_by_name(schedule_name)
+    except DocumentNotFound:
+        return JSONResponse({"details": "schedule not found"}, status_code=404)
 
+    used_by_policies = (
+        Policy.collection().where("schedulename", "==", schedule.name).stream()
+    )
+
+    for policy in used_by_policies:
+        return JSONResponse(
+            {
+                "details": f"Forbidden policy {policy.id!r} is using the schedule"
+            },
+            status_code=400,
+        )
+
+    schedule.delete()
     return PlainTextResponse("ok")
 
 
@@ -77,9 +93,10 @@ def add_policy(policy: Policy):
     """
     Add policy.
     """
-    schedule = Schedule.get_by_name(policy.schedulename)
-    if not schedule.exists:
-        return "schedule name not found", 404
+    try:
+        Schedule.get_by_name(policy.schedulename)
+    except DocumentNotFound:
+        return JSONResponse({"details": "schedule not found"}, status_code=404)
 
     policy.set()
 
@@ -93,7 +110,10 @@ def get_policy(
     """
     Get policy.
     """
-    policy = Policy.get_by_name(policy_name)
+    try:
+        policy = Policy.get_by_name(policy_name)
+    except DocumentNotFound:
+        return JSONResponse({"details": "policy not found"}, status_code=404)
 
     return policy.dict()
 
@@ -114,6 +134,11 @@ def del_policy(policy_name: str = Query(..., alias="policy")):
     """
     Delete a policy
     """
-    Policy.get_by_name(policy_name).delete()
+    try:
+        policy = Policy.get_by_name(policy_name)
+    except DocumentNotFound:
+        return JSONResponse({"details": "policy not found"}, status_code=404)
+
+    policy.delete()
 
     return PlainTextResponse("ok")

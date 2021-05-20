@@ -1,7 +1,7 @@
 """gke_cluster.py"""
 from typing import List, Dict
 import pydantic
-from zorya.model.gke_node_pool import GKENodePool
+from zorya.models.gke_node_pool import GKENodePool
 
 
 class GoogleKubernetesEngineCluster(pydantic.BaseModel):
