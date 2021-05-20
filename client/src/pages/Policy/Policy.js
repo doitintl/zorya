@@ -12,6 +12,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -34,12 +35,13 @@ const styles = (theme) => ({
     marginRight: theme.spacing(2),
   },
   textField: {
-    width: 250,
+    width: 450,
     marginBottom: theme.spacing(3),
+    marginRight: theme.spacing(2),
   },
   formControl: {
-    width: 250,
-    marginBottom: theme.spacing(3),
+    width: 450,
+    marginBottom: theme.spacing(4),
   },
 });
 
@@ -49,6 +51,7 @@ class Policy extends React.Component {
     this.state = {
       policy: null,
       schedules: null,
+      isLoading: false,
 
       nameError: false,
       scheduleError: false,
@@ -63,6 +66,7 @@ class Policy extends React.Component {
   async componentDidMount() {
     try {
       const { match } = this.props;
+      this.setState({ isLoading: true });
       const schedules = await this.scheduleService.list();
       let policy;
       if (match.params.policy) {
@@ -70,12 +74,13 @@ class Policy extends React.Component {
       } else {
         policy = getDefaultPolicy();
         if (schedules && schedules.length) {
-          policy.schedulename = schedules[0];
+          policy.schedulename = schedules[0].name;
         }
       }
       this.setState({
         policy,
         schedules,
+        isLoading: false,
       });
     } catch (ex) {
       console.error(ex);
@@ -162,7 +167,6 @@ class Policy extends React.Component {
         });
       } else {
         const response = await this.policyService.add(policy);
-        console.log(response);
         history.push('/policies/browser');
       }
     } catch (ex) {
@@ -215,13 +219,26 @@ class Policy extends React.Component {
                 disabled={edit}
                 id="policy-name"
                 error={nameError}
-                helperText=""
-                label="Policy name"
+                helperText="Required. May only contain letters, digits and underscores. It may not end with an underscore."
+                label="Policy Name (ID)"
                 className={classes.textField}
                 value={this.state.policy.name}
                 onChange={this.handleChange('name')}
                 margin="none"
                 autoFocus
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
+
+              <TextField
+                id="policy-displayname"
+                helperText="Optional. Text to display instead of Name (ID)"
+                label="Policy Displayname (optional)"
+                className={classes.textField}
+                value={this.state.policy.displayname}
+                onChange={this.handleChange('displayname')}
+                margin="none"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -245,8 +262,8 @@ class Policy extends React.Component {
                   }}
                 >
                   {map(schedules, (schedule) => (
-                    <option key={schedule} value={schedule}>
-                      {schedule}
+                    <option key={schedule.name} value={schedule.name}>
+                      {schedule.displayName || schedule.name}
                     </option>
                   ))}
                 </Select>
@@ -295,7 +312,13 @@ class Policy extends React.Component {
         </div>
       );
     } else {
-      return <div />;
+      return this.state.isLoading ? (
+        <AppPageContent>
+          <CircularProgress />
+        </AppPageContent>
+      ) : (
+        <div />
+      );
     }
   }
 }

@@ -80,8 +80,12 @@ class PolicyList extends React.Component {
 
       const policies =
         order === 'desc'
-          ? prevState.policies.sort((a, b) => (b < a ? -1 : 1))
-          : prevState.policies.sort((a, b) => (a < b ? -1 : 1));
+          ? prevState.policies.sort((a, b) =>
+              b.displayname || b.name < a.displayname || a.name ? -1 : 1
+            )
+          : prevState.policies.sort((a, b) =>
+              a.displayname || a.name < b.displayname || b.name ? -1 : 1
+            );
 
       return {
         policies,
@@ -110,11 +114,11 @@ class PolicyList extends React.Component {
 
   handleClick = (event, policy) => {
     const { selected } = this.state;
-    const selectedIndex = indexOf(selected, policy);
+    const selectedIndex = indexOf(selected, policy.name);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, policy);
+      newSelected = newSelected.concat(selected, policy.name);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -131,7 +135,7 @@ class PolicyList extends React.Component {
 
   handleSelectAllClick = (event, checked) => {
     if (checked) {
-      this.setState({ selected: this.state.policies });
+      this.setState({ selected: this.state.policies.map((p) => p.name) });
     } else {
       this.setState({ selected: [] });
     }
@@ -256,14 +260,14 @@ class PolicyList extends React.Component {
                 </TableRow>
               ) : (
                 map(policies, (policy) => {
-                  const isSelected = indexOf(selected, policy) !== -1;
+                  const isSelected = indexOf(selected, policy.name) !== -1;
                   return (
                     <TableRow
                       hover
                       role="checkbox"
                       aria-checked={isSelected}
                       tabIndex={-1}
-                      key={policy}
+                      key={policy.name}
                       selected={isSelected}
                     >
                       <TableCell
@@ -279,11 +283,11 @@ class PolicyList extends React.Component {
                       <TableCell>
                         <span
                           onClick={this.handleClickNavigate(
-                            `/policies/browser/${policy}`
+                            `/policies/browser/${policy.name}`
                           )}
                           className={classes.link}
                         >
-                          {policy}
+                          {policy.displayName || policy.name}
                         </span>
                       </TableCell>
                     </TableRow>

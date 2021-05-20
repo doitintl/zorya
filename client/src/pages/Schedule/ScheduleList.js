@@ -79,8 +79,12 @@ class ScheduleList extends React.Component {
 
       const schedules =
         order === 'desc'
-          ? prevState.schedules.sort((a, b) => (b < a ? -1 : 1))
-          : prevState.schedules.sort((a, b) => (a < b ? -1 : 1));
+          ? prevState.schedules.sort((a, b) =>
+              b.displayname || b.name < a.displayname || a.name ? -1 : 1
+            )
+          : prevState.schedules.sort((a, b) =>
+              a.displayname || a.name < b.displayname || b.name ? -1 : 1
+            );
 
       return {
         schedules,
@@ -109,11 +113,11 @@ class ScheduleList extends React.Component {
 
   handleClick = (event, schedule) => {
     const { selected } = this.state;
-    const selectedIndex = indexOf(selected, schedule);
+    const selectedIndex = indexOf(selected, schedule.name);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, schedule);
+      newSelected = newSelected.concat(selected, schedule.name);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -130,7 +134,7 @@ class ScheduleList extends React.Component {
 
   handleSelectAllClick = (event, checked) => {
     if (checked) {
-      this.setState({ selected: this.state.schedules });
+      this.setState({ selected: this.state.schedules.map((p) => p.name) });
     } else {
       this.setState({ selected: [] });
     }
@@ -255,14 +259,14 @@ class ScheduleList extends React.Component {
                 </TableRow>
               ) : (
                 map(schedules, (schedule) => {
-                  const isSelected = indexOf(selected, schedule) !== -1;
+                  const isSelected = indexOf(selected, schedule.name) !== -1;
                   return (
                     <TableRow
                       hover
                       role="checkbox"
                       aria-checked={isSelected}
                       tabIndex={-1}
-                      key={schedule}
+                      key={schedule.name}
                       selected={isSelected}
                     >
                       <TableCell
@@ -278,11 +282,11 @@ class ScheduleList extends React.Component {
                       <TableCell>
                         <span
                           onClick={this.handleClickNavigate(
-                            `/schedules/browser/${schedule}`
+                            `/schedules/browser/${schedule.name}`
                           )}
                           className={classes.link}
                         >
-                          {schedule}
+                          {schedule.displayName || schedule.name}
                         </span>
                       </TableCell>
                     </TableRow>

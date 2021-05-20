@@ -1,6 +1,6 @@
 class PolicyService {
   list = async () => {
-    const response = await fetch(`/api/v1/list_policies`, {
+    const response = await fetch(`/api/v1/list_policies?verbose=true`, {
       method: 'GET',
       credentials: 'same-origin',
     });

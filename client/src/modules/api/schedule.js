@@ -1,6 +1,6 @@
 class ScheduleService {
   list = async () => {
-    const response = await fetch(`/api/v1/list_schedules`, {
+    const response = await fetch(`/api/v1/list_schedules?verbose=true`, {
       method: 'GET',
       credentials: 'same-origin',
     });

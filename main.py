@@ -84,6 +84,8 @@ def add_schedule():
         }
 
         schedules_model.Name = request.json["name"]
+        schedules_model.DisplayName = request.json.get(
+            "displayname", request.json.get("name"))
         schedules_model.Timezone = request.json["timezone"]
         schedules_model.key = ndb.Key("SchedulesModel", request.json["name"])
         schedules_model.put()
@@ -104,6 +106,7 @@ def get_schedule():
         if not res:
             return "not found", 404
         schedule.update({"name": res.Name})
+        schedule.update({"displayname": res.DisplayName or res.Name})
         schedule.update(res.Schedule)
         schedule.update({"timezone": res.Timezone})
         logging.debug(json.dumps(res.Schedule))
@@ -119,9 +122,17 @@ def list_schedules():
     """
     schedules_list = []
     with client.context():
-        keys = SchedulesModel.query().fetch(keys_only=True)
-        for key in keys:
-            schedules_list.append(key.id())
+        verbose = request.args.get("verbose") == "true"
+        if verbose:
+            schedules = SchedulesModel.query().fetch()
+            for schedule in schedules:
+                schedules_list.append(
+                    {"name": schedule.Name, "displayName": schedule.DisplayName}
+                )
+        else:
+            keys = SchedulesModel.query().fetch(keys_only=True)
+            for key in keys:
+                schedules_list.append(key.id())
     return json.dumps(schedules_list)
 
 
@@ -153,6 +164,7 @@ def add_policy():
     """
     logging.debug(json.dumps(request.json))
     name = request.json["name"]
+    display_name = request.json.get("displayname", name)
     tags = request.json["tags"]
     projects = request.json["projects"]
     schedule_name = request.json["schedulename"]
@@ -163,6 +175,7 @@ def add_policy():
 
         policy_model = PolicyModel()
         policy_model.Name = name
+        policy_model.DisplayName = display_name
         policy_model.Tags = tags
         policy_model.Projects = projects
         policy_model.Schedule = schedule_name
@@ -186,6 +199,7 @@ def get_policy():
         if not res:
             return "not found", 404
         policy.update({"name": res.Name})
+        policy.update({"displayname": res.DisplayName or res.Name})
         policy.update({"schedulename": res.Schedule})
         policy.update({"tags": res.Tags})
         policy.update({"projects": res.Projects})
@@ -201,9 +215,18 @@ def list_policies():
     """
     policies_list = []
     with client.context():
-        keys = PolicyModel.query().fetch(keys_only=True)
-        for key in keys:
-            policies_list.append(key.id())
+        verbose = request.args.get("verbose") == "true"
+        if verbose:
+            policies = PolicyModel.query().fetch()
+            for policy in policies:
+                policies_list.append(
+                    {"name": policy.Name, "displayName": policy.DisplayName}
+                )
+        else:
+            keys = PolicyModel.query().fetch(keys_only=True)
+            for key in keys:
+                policies_list.append(key.id())
+
     return json.dumps(policies_list)
 
 
