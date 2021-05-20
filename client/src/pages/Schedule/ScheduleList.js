@@ -146,7 +146,7 @@ class ScheduleList extends React.Component {
       if (selected.length > 0) {
         const promises = [];
         selected.forEach((schedule) => {
-          promises.push(this.scheduleService.delete(schedule.name));
+          promises.push(this.scheduleService.delete(schedule));
         });
         const responses = await Promise.all(promises);
         console.log(responses);
