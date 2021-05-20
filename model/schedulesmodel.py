@@ -8,7 +8,7 @@ from util import tz
 class SchedulesModel(ndb.Model):
     """Stores scheduling data."""
     Name = ndb.StringProperty(indexed=True, required=True)
-    DisplayName = ndb.StringProperty(indexed=True, required=False)
+    DisplayName = ndb.StringProperty(indexed=True)
     Timezone = ndb.StringProperty(
         default='UTC', choices=tz.get_all_timezones(), required=True)
     Schedule = ndb.JsonProperty(required=True)
