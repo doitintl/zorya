@@ -123,6 +123,7 @@ def list_schedules():
     schedules_list = []
     with client.context():
         verbose = request.args.get("verbose") == "true"
+        if verbose:
             schedules = SchedulesModel.query().fetch()
             for schedule in schedules:
                 schedules_list.append(
@@ -215,6 +216,7 @@ def list_policies():
     policies_list = []
     with client.context():
         verbose = request.args.get("verbose") == "true"
+        if verbose:
             policies = PolicyModel.query().fetch()
             for policy in policies:
                 policies_list.append(
