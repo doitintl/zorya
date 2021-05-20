@@ -23,6 +23,7 @@ import forOwn from 'lodash/forOwn';
 import PolicyTags from '../../modules/components/PolicyTags';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
+import ErrorAlert from '../../modules/components/ErrorAlert';
 import PolicyService from '../../modules/api/policy';
 import ScheduleService from '../../modules/api/schedule';
 import { getDefaultPolicy } from '../../modules/utils/policy';
@@ -57,6 +58,10 @@ class Policy extends React.Component {
       scheduleError: false,
       projectsError: false,
       tagsError: [],
+
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
     };
 
     this.policyService = new PolicyService();
@@ -82,8 +87,8 @@ class Policy extends React.Component {
         schedules,
         isLoading: false,
       });
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Loading Failed:', error.message);
     }
   }
 
@@ -166,17 +171,33 @@ class Policy extends React.Component {
           tagsError,
         });
       } else {
-        const response = await this.policyService.add(policy);
+        await this.policyService.add(policy);
         history.push('/policies/browser');
       }
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Update failed:', error.message);
     }
   };
 
   handleRequestCancel = (event) => {
     const { history } = this.props;
     history.goBack();
+  };
+
+  handleBackendError = (title, message) => {
+    this.setState({
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
+    });
+  };
+
+  handleErrorClose = () => {
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
   };
 
   render() {
@@ -188,6 +209,9 @@ class Policy extends React.Component {
       scheduleError,
       projectsError,
       tagsError,
+      backendErrorTitle,
+      backendErrorMessage,
+      showBackendError,
     } = this.state;
 
     if (policy) {
@@ -308,6 +332,12 @@ class Policy extends React.Component {
             >
               Cancel
             </Button>
+            <ErrorAlert
+              showError={showBackendError}
+              errorTitle={backendErrorTitle}
+              errorMessage={backendErrorMessage}
+              onClose={this.handleErrorClose}
+            />
           </AppPageContent>
         </div>
       );
@@ -317,7 +347,12 @@ class Policy extends React.Component {
           <CircularProgress />
         </AppPageContent>
       ) : (
-        <div />
+        <ErrorAlert
+          showError={showBackendError}
+          errorTitle={backendErrorTitle}
+          errorMessage={backendErrorMessage}
+          onClose={this.handleErrorClose}
+        />
       );
     }
   }

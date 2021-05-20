@@ -7,17 +7,14 @@ import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
 import ScheduleTimeZone from '../../modules/components/ScheduleTimeZone';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
+import ErrorAlert from '../../modules/components/ErrorAlert';
 import ScheduleService from '../../modules/api/schedule';
 
 const styles = (theme) => ({
@@ -38,9 +35,10 @@ class ScheduleEdit extends React.Component {
     super(props, context);
     this.state = {
       schedule: null,
-      backendError: false,
-      backendErrorTitle: 'An Error Occurred:',
-      backendErrorMessage: 'Unspecified Error',
+      isLoading: false,
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
     };
 
     this.scheduleService = new ScheduleService();
@@ -48,12 +46,14 @@ class ScheduleEdit extends React.Component {
 
   async componentDidMount() {
     const { match } = this.props;
+    this.setState({ isLoading: true });
     try {
       const schedule = await this.scheduleService.get(match.params.schedule);
       const timezones = await this.scheduleService.timezones();
       this.setState({
         schedule,
         timezones: timezones.Timezones,
+        isLoading: false,
       });
     } catch (error) {
       this.handleBackendError('Loading Failed:', error.message);
@@ -94,21 +94,32 @@ class ScheduleEdit extends React.Component {
     history.goBack();
   };
 
-  handleBackendError = (errorTitle, errorMessage) => {
+  handleBackendError = (title, message) => {
     this.setState({
-      backendErrorTitle: errorTitle,
-      backendErrorMessage: errorMessage,
-      backendError: true,
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
     });
   };
 
-  handleBackendErrorClose = () => {
-    this.setState({ backendError: false });
+  handleErrorClose = () => {
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
   };
 
   render() {
     const { classes } = this.props;
-    const { schedule, timezones } = this.state;
+    const {
+      schedule,
+      timezones,
+      isLoading,
+      showBackendError,
+      backendErrorTitle,
+      backendErrorMessage,
+    } = this.state;
 
     return (
       <div className={classes.root}>
@@ -124,7 +135,7 @@ class ScheduleEdit extends React.Component {
             Edit schedule {schedule ? schedule.name : ''}
           </Typography>
         </AppPageActions>
-
+        {isLoading && <CircularProgress />}
         {schedule && (
           <AppPageContent>
             <TextField
@@ -176,30 +187,12 @@ class ScheduleEdit extends React.Component {
             </Button>
           </AppPageContent>
         )}
-        <Dialog
-          open={this.state.backendError}
-          onClose={this.handleBackendErrorClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {this.state.backendErrorTitle}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {this.state.backendErrorMessage}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={this.handleBackendErrorClose}
-              color="primary"
-              autoFocus
-            >
-              OK
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ErrorAlert
+          showError={showBackendError}
+          errorTitle={backendErrorTitle}
+          errorMessage={backendErrorMessage}
+          onClose={this.handleErrorClose}
+        />
       </div>
     );
   }

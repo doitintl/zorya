@@ -7,17 +7,14 @@ import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
 import ScheduleTimeZone from '../../modules/components/ScheduleTimeZone';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
+import ErrorAlert from '../../modules/components/ErrorAlert';
 import ScheduleService from '../../modules/api/schedule';
 import { getDefaultSchedule } from '../../modules/utils/schedule';
 
@@ -41,9 +38,11 @@ class ScheduleCreate extends React.Component {
     this.state = {
       schedule: getDefaultSchedule(),
       nameError: false,
-      backendError: false,
-      backendErrorMessage: 'unspecified error',
       timezones: [],
+      isLoading: false,
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
     };
 
     this.scheduleService = new ScheduleService();
@@ -51,12 +50,14 @@ class ScheduleCreate extends React.Component {
 
   async componentDidMount() {
     try {
+      this.setState({ isLoading: true });
       const response = await this.scheduleService.timezones();
       this.setState({
         timezones: response.Timezones,
+        isLoading: false,
       });
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Loading timezones failed:', error.message);
     }
   }
 
@@ -91,8 +92,8 @@ class ScheduleCreate extends React.Component {
       }
       await this.scheduleService.add(schedule);
       history.push('/schedules/browser');
-    } catch (ex) {
-      this.handleBackendError(ex.message);
+    } catch (error) {
+      this.handleBackendError('Saving failed:', error.message);
     }
   };
 
@@ -101,20 +102,33 @@ class ScheduleCreate extends React.Component {
     history.goBack();
   };
 
-  handleBackendError = (errorMessage) => {
+  handleBackendError = (title, message) => {
     this.setState({
-      backendErrorMessage: errorMessage,
-      backendError: true,
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
     });
   };
 
-  handleBackendErrorClose = () => {
-    this.setState({ backendError: false });
+  handleErrorClose = () => {
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
   };
 
   render() {
     const { classes } = this.props;
-    const { schedule, timezones, nameError } = this.state;
+    const {
+      schedule,
+      timezones,
+      nameError,
+      isLoading,
+      showBackendError,
+      backendErrorTitle,
+      backendErrorMessage,
+    } = this.state;
 
     return (
       <div className={classes.root}>
@@ -154,11 +168,15 @@ class ScheduleCreate extends React.Component {
             margin="none"
           />
 
-          <ScheduleTimeZone
-            selected={schedule.timezone}
-            timezones={timezones}
-            onSelect={this.handleChangeTimezone}
-          />
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <ScheduleTimeZone
+              selected={schedule.timezone}
+              timezones={timezones}
+              onSelect={this.handleChangeTimezone}
+            />
+          )}
 
           <ScheduleTimeTable
             schedule={schedule}
@@ -184,30 +202,12 @@ class ScheduleCreate extends React.Component {
             Cancel
           </Button>
 
-          <Dialog
-            open={this.state.backendError}
-            onClose={this.handleBackendErrorClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {'Creation Failed:'}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {this.state.backendErrorMessage}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={this.handleBackendErrorClose}
-                color="primary"
-                autoFocus
-              >
-                OK
-              </Button>
-            </DialogActions>
-          </Dialog>
+          <ErrorAlert
+            showError={showBackendError}
+            errorTitle={backendErrorTitle}
+            errorMessage={backendErrorMessage}
+            onClose={this.handleErrorClose}
+          />
         </AppPageContent>
       </div>
     );

@@ -22,11 +22,6 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Lodash
 import map from 'lodash/map';
@@ -36,6 +31,7 @@ import indexOf from 'lodash/indexOf';
 import ScheduleService from '../../modules/api/schedule';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
+import ErrorAlert from '../../modules/components/ErrorAlert';
 
 const styles = (theme) => ({
   root: {
@@ -66,9 +62,9 @@ class ScheduleList extends React.Component {
       selected: [],
       order: 'asc',
       isLoading: false,
-      backendError: false,
-      backendErrorTitle: 'An Error Ocurred:',
-      backendErrorMessage: 'unspecified Error',
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
     };
 
     this.scheduleService = new ScheduleService();
@@ -183,21 +179,33 @@ class ScheduleList extends React.Component {
     }
   };
 
-  handleBackendError = (title, errorMessage) => {
+  handleBackendError = (title, message) => {
     this.setState({
       backendErrorTitle: title,
-      backendErrorMessage: errorMessage,
-      backendError: true,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
     });
   };
 
-  handleBackendErrorClose = () => {
-    this.setState({ backendError: false });
+  handleErrorClose = () => {
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
   };
 
   render() {
     const { classes } = this.props;
-    const { schedules, selected, order } = this.state;
+    const {
+      schedules,
+      selected,
+      order,
+      isLoading,
+      backendErrorTitle,
+      backendErrorMessage,
+      showBackendError,
+    } = this.state;
 
     const rowCount = schedules.length;
     const numSelected = selected.length;
@@ -276,7 +284,7 @@ class ScheduleList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.isLoading ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell colSpan="2">
                     <CircularProgress />
@@ -320,30 +328,12 @@ class ScheduleList extends React.Component {
               )}
             </TableBody>
           </Table>
-          <Dialog
-            open={this.state.backendError}
-            onClose={this.handleBackendErrorClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {this.state.backendErrorTitle}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                {this.state.backendErrorMessage}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button
-                onClick={this.handleBackendErrorClose}
-                color="primary"
-                autoFocus
-              >
-                OK
-              </Button>
-            </DialogActions>
-          </Dialog>
+          <ErrorAlert
+            showError={showBackendError}
+            errorTitle={backendErrorTitle}
+            errorMessage={backendErrorMessage}
+            onClose={this.handleErrorClose}
+          />
         </AppPageContent>
       </div>
     );

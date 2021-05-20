@@ -32,6 +32,7 @@ import indexOf from 'lodash/indexOf';
 import PolicyService from '../../modules/api/policy';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
+import ErrorAlert from '../../modules/components/ErrorAlert';
 
 const styles = (theme) => ({
   root: {
@@ -62,6 +63,9 @@ class PolicyList extends React.Component {
       selected: [],
       order: 'asc',
       isLoading: false,
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
     };
 
     this.policyService = new PolicyService();
@@ -105,11 +109,15 @@ class PolicyList extends React.Component {
 
   refreshList = async () => {
     this.setState({ isLoading: true });
-    const policies = await this.policyService.list();
-    this.setState({
-      policies,
-      isLoading: false,
-    });
+    try {
+      const policies = await this.policyService.list();
+      this.setState({
+        policies,
+        isLoading: false,
+      });
+    } catch (error) {
+      this.handleBackendError('Loading Failed:', error.message);
+    }
   };
 
   handleClick = (event, policy) => {
@@ -147,16 +155,17 @@ class PolicyList extends React.Component {
       if (selected.length > 0) {
         const promises = [];
         selected.forEach((policy) => {
-          promises.push(this.policyService.delete(policy));
+          promises.push(
+            this.policyService.delete(policy).catch((error) => error)
+          );
         });
         const responses = await Promise.all(promises);
-        console.log(responses);
-        responses.forEach(async (response) => {
-          if (!response.ok) {
-            const errorMsg = await response.text();
-            console.log(errorMsg);
-          }
-        });
+        const errorMessages = responses
+          .filter((response) => response instanceof Error)
+          .map((error) => error.message);
+        if (errorMessages.length) {
+          throw Error(errorMessages.join('; '));
+        }
         this.setState(
           {
             selected: [],
@@ -166,14 +175,38 @@ class PolicyList extends React.Component {
           }
         );
       }
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Deletion failed:', error.message);
     }
+  };
+
+  handleBackendError = (title, message) => {
+    this.setState({
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
+    });
+  };
+
+  handleErrorClose = () => {
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
   };
 
   render() {
     const { classes } = this.props;
-    const { policies, selected, order } = this.state;
+    const {
+      policies,
+      selected,
+      order,
+      isLoading,
+      backendErrorTitle,
+      backendErrorMessage,
+      showBackendError,
+    } = this.state;
 
     const rowCount = policies.length;
     const numSelected = selected.length;
@@ -252,7 +285,7 @@ class PolicyList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.isLoading ? (
+              {isLoading ? (
                 <TableRow>
                   <TableCell colSpan="2">
                     <CircularProgress />
@@ -297,6 +330,12 @@ class PolicyList extends React.Component {
             </TableBody>
           </Table>
         </AppPageContent>
+        <ErrorAlert
+          showError={showBackendError}
+          errorTitle={backendErrorTitle}
+          errorMessage={backendErrorMessage}
+          onClose={this.handleErrorClose}
+        />
       </div>
     );
   }
