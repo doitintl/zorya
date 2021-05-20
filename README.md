@@ -69,7 +69,7 @@ For any project that Zorya is supposed to be managing resources for, Zorya's ser
 * Kubernetes Engine Cluster Admin
 * Cloud SQL Editor
 
-![](iam.png)
+![](docs/iam.png)
 
 The name of the service account you will need to assign permissions to is as following:`<YOUR_PROJECT_ID>@appspot.gserviceaccount.com` and will have been automatically created by Google App Engine. *NOTE:* this is done under *IAM*, selecting the account, choosing *Permissions* and then adding the roles above to it; not under *Service Accounts*.
 
@@ -82,8 +82,8 @@ The name of the service account you will need to assign permissions to is as fol
 
 ### Creating a Schedule
 
-![](Zorya_schedule.png)
+![](docs/Zorya_schedule.png)
 
 ### Creating a Policy
 
-![](Zorya_policies.png)
+![](docs/Zorya_policies.png)
