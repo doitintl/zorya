@@ -7,6 +7,11 @@ import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
@@ -33,6 +38,9 @@ class ScheduleEdit extends React.Component {
     super(props, context);
     this.state = {
       schedule: null,
+      backendError: false,
+      backendErrorTitle: 'An Error Occurred:',
+      backendErrorMessage: 'Unspecified Error',
     };
 
     this.scheduleService = new ScheduleService();
@@ -47,8 +55,8 @@ class ScheduleEdit extends React.Component {
         schedule,
         timezones: timezones.Timezones,
       });
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Loading Failed:', error.message);
     }
   }
 
@@ -76,8 +84,8 @@ class ScheduleEdit extends React.Component {
       const { schedule } = this.state;
       await this.scheduleService.add(schedule);
       history.push('/schedules/browser');
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Saving failed:', error.message);
     }
   };
 
@@ -86,26 +94,38 @@ class ScheduleEdit extends React.Component {
     history.goBack();
   };
 
+  handleBackendError = (errorTitle, errorMessage) => {
+    this.setState({
+      backendErrorTitle: errorTitle,
+      backendErrorMessage: errorMessage,
+      backendError: true,
+    });
+  };
+
+  handleBackendErrorClose = () => {
+    this.setState({ backendError: false });
+  };
+
   render() {
     const { classes } = this.props;
     const { schedule, timezones } = this.state;
 
-    if (schedule) {
-      return (
-        <div className={classes.root}>
-          <AppPageActions>
-            <IconButton
-              color="primary"
-              aria-label="Back"
-              onClick={this.handleRequestCancel}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography variant="subtitle1" color="primary">
-              Edit schedule {schedule.name}
-            </Typography>
-          </AppPageActions>
+    return (
+      <div className={classes.root}>
+        <AppPageActions>
+          <IconButton
+            color="primary"
+            aria-label="Back"
+            onClick={this.handleRequestCancel}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="subtitle1" color="primary">
+            Edit schedule {schedule ? schedule.name : ''}
+          </Typography>
+        </AppPageActions>
 
+        {schedule && (
           <AppPageContent>
             <TextField
               disabled
@@ -155,11 +175,33 @@ class ScheduleEdit extends React.Component {
               Cancel
             </Button>
           </AppPageContent>
-        </div>
-      );
-    } else {
-      return <div />;
-    }
+        )}
+        <Dialog
+          open={this.state.backendError}
+          onClose={this.handleBackendErrorClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {this.state.backendErrorTitle}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {this.state.backendErrorMessage}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={this.handleBackendErrorClose}
+              color="primary"
+              autoFocus
+            >
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    );
   }
 }
 

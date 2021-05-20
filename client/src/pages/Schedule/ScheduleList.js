@@ -22,6 +22,11 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Lodash
 import map from 'lodash/map';
@@ -61,6 +66,9 @@ class ScheduleList extends React.Component {
       selected: [],
       order: 'asc',
       isLoading: false,
+      backendError: false,
+      backendErrorTitle: 'An Error Ocurred:',
+      backendErrorMessage: 'unspecified Error',
     };
 
     this.scheduleService = new ScheduleService();
@@ -104,11 +112,15 @@ class ScheduleList extends React.Component {
 
   refreshList = async () => {
     this.setState({ isLoading: true });
-    const schedules = await this.scheduleService.list();
-    this.setState({
-      schedules,
-      isLoading: false,
-    });
+    try {
+      const schedules = await this.scheduleService.list();
+      this.setState({
+        schedules,
+        isLoading: false,
+      });
+    } catch (error) {
+      this.handleBackendError('Listing failed:', error.message);
+    }
   };
 
   handleClick = (event, schedule) => {
@@ -146,16 +158,17 @@ class ScheduleList extends React.Component {
       if (selected.length > 0) {
         const promises = [];
         selected.forEach((schedule) => {
-          promises.push(this.scheduleService.delete(schedule));
+          promises.push(
+            this.scheduleService.delete(schedule).catch((error) => error)
+          );
         });
         const responses = await Promise.all(promises);
-        console.log(responses);
-        responses.forEach(async (response) => {
-          if (!response.ok) {
-            const errorMsg = await response.text();
-            console.log(errorMsg);
-          }
-        });
+        const errorMessages = responses
+          .filter((response) => response instanceof Error)
+          .map((error) => error.message);
+        if (errorMessages.length) {
+          throw Error(errorMessages.join('; '));
+        }
         this.setState(
           {
             selected: [],
@@ -165,9 +178,21 @@ class ScheduleList extends React.Component {
           }
         );
       }
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Deletion failed:', error.message);
     }
+  };
+
+  handleBackendError = (title, errorMessage) => {
+    this.setState({
+      backendErrorTitle: title,
+      backendErrorMessage: errorMessage,
+      backendError: true,
+    });
+  };
+
+  handleBackendErrorClose = () => {
+    this.setState({ backendError: false });
   };
 
   render() {
@@ -295,6 +320,30 @@ class ScheduleList extends React.Component {
               )}
             </TableBody>
           </Table>
+          <Dialog
+            open={this.state.backendError}
+            onClose={this.handleBackendErrorClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {this.state.backendErrorTitle}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                {this.state.backendErrorMessage}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={this.handleBackendErrorClose}
+                color="primary"
+                autoFocus
+              >
+                OK
+              </Button>
+            </DialogActions>
+          </Dialog>
         </AppPageContent>
       </div>
     );

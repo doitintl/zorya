@@ -191,7 +191,7 @@ class ScheduleCreate extends React.Component {
             aria-describedby="alert-dialog-description"
           >
             <DialogTitle id="alert-dialog-title">
-              {'Transaction Failed'}
+              {'Creation Failed:'}
             </DialogTitle>
             <DialogContent>
               <DialogContentText id="alert-dialog-description">
