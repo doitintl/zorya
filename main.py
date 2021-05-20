@@ -84,7 +84,8 @@ def add_schedule():
         }
 
         schedules_model.Name = request.json["name"]
-        schedules_model.DisplayName = request.json["displayname"] or request.json["name"]
+        schedules_model.DisplayName = request.json.get(
+            "displayname", request.json.get("name"))
         schedules_model.Timezone = request.json["timezone"]
         schedules_model.key = ndb.Key("SchedulesModel", request.json["name"])
         schedules_model.put()
@@ -162,7 +163,7 @@ def add_policy():
     """
     logging.debug(json.dumps(request.json))
     name = request.json["name"]
-    display_name = request.json["displayname"] or name
+    display_name = request.json.get("displayname", name)
     tags = request.json["tags"]
     projects = request.json["projects"]
     schedule_name = request.json["schedulename"]
