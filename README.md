@@ -1,5 +1,8 @@
 # zorya2
 
+[![License](https://img.shields.io/github/license/doitintl/zorya.svg)](LICENSE)[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/release/python-360/)
+
+
 Development resources are usually only needed during business hours. zorya is CLI and a tiny web application to schedule Google Cloud Platform resources. You can define schedules for Compute Engine instances, Cloud SQL instances, and Google Kubernetes Engine node pools with a visual UI.
 
 The service architecture consists of:
