@@ -1,89 +1,112 @@
-# zorya
+# zorya2
 
-Schedule GCE Instances, Cloud SQL and GKE node pools
+Development resources are usually only needed during business hours. zorya is CLI and a tiny web application to schedule Google Cloud Platform resources. You can define schedules for Compute Engine instances, Cloud SQL instances, and Google Kubernetes Engine node pools with a visual UI.
 
-[Blog Post](http://bit.ly/zorya_blog)
+The service architecture consists of:
 
-[![License](https://img.shields.io/github/license/doitintl/zorya.svg)](LICENSE) [![GitHub stars](https://img.shields.io/github/stars/doitintl/zorya.svg?style=social&label=Stars&style=for-the-badge)](https://github.com/doitintl/zorya)
+- Cloud Run service exposing a REST API for the checks and tasks
+- Firestore to persist policies, schedules, and settings
+- Cloud Scheduler job for regular execution of the cheks
+- Pub/Sub for task execution
+- zorya CLI that starts a web server locally to configure policies and schedules stored in firestore
 
-In Slavic mythology, [Zoryas](https://www.wikiwand.com/en/Zorya) are two guardian goddesses. The Zoryas represent the morning star and the evening star, — if you have read or watched Neil Gaiman’s American Gods, you will probably remember these sisters).
+## How to
 
-## Installation
+1. Create Google new Google Cloud project. (Recommended, see FAQ)
+2. Install zorya via the Python package manager `pip`.
+3. Install and authenticate the gcloud SDK on your local machine ([docs](https://cloud.google.com/sdk/docs/install)) and set your
+4. 
+5. Run `zorya env-setup to generate a bash script to deploy the zorya worker service to Cloud Run, and configure the other cloud resources like activating APIs, setting up Pub/Sub, etc. Run the command and wait until all steps have been completed.
+6. Run `zorya env-check to verify the deployed environment.
+7. Run `zorya start to start the local web server.
+8. Open `http://localhost:8080` to open the zorya web UI.
+9. Create a schedule first by specifying a name and the hours you want the resources to be up/down.
+10. Create a policy by specifying a name, a comma separated list of projects where the policy should take effect, tags by which the resources are identified, and the schedule this should run on.
+11. Every hour a job is checking all policies if the state of their schedule has changed. If yes, resources in the projects with the specified tags are started/stopped accordingly.
+
+## Install the zorya CLI
+
+zorya is a python-based command line interface and web server. Install it via the python package manager `pip`. Python 3.7 or higher is required.
 
 ```shell
-pip install -r requirements.txt -t lib
+python3 -m pip install zorya
 ```
 
-Next step: Download and install [Yarn](https://yarnpkg.com/).
+## Supported resources
 
-### Known Issues for Installation
+You can define schedules for the following resource types:
 
-* Deployment from Google Cloud Shell fails with an error [#25](https://github.com/doitintl/zorya/issues/25).
+- Compute Engine Instances
+- Cloud SQL instances
+- Google Kubernetes Engine node pools
+- Google App Engine flex instances (coming soon)
 
-* Building on macOS running on Apple Silicon (arm M1) may fail due to issues building grpcio. Use the following workaround:
+## Cost to run
 
->```shell
->GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1 \
->  GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1 \
->  pip install -r requirements.txt -t lib
->```
+Most of the elements are serverless and only used when running a check or running a task. Here is breakdown what elements charge what:
 
-## Enable required GCP APIs:
+- Cloud Run: …
+- Firestore: …
+- Pub/Sub: …
+- Cloud Scheduler: ...
 
-* Cloud Tasks
-* App Engine
-* Cloud Storage
-* Datastore
-* IAP
-* Cloud Build
-* Cloud Scheduler
-* Compute Engine
-* Cloud SQL Admin API
+## Permissions
 
-## Deploy Backend and GUI:
+The zorya worker service needs permission start/stop resources. The service is running with the service account `zorya-worker@{ZORYA_PROJECT_ID}.iam.gserviceaccount.com`. For every other Google Cloud project zorya should manage resources in run this command:
+
 ```shell
-./deploy.sh project-id
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member=serviceAccount:zorya-worker@${ZORYA_PROJECT_ID}.iam.gserviceaccount.com \
+    --role=
 ```
 
+## Frequently Asked Questions
 
-#### Access the app
+### Why is the webserver not running in the cloud?
+
+Because it doesn't have to. Running it locally is light-weight and suffiecient for most scenarios. Also, Cloud Run currently does not provide a simple and secure authentication method like IAP. Until that changes, you will have to fall back to zorya for a deployed web UI.
+
+### Can I reuse an existing Google Cloud project instead of creating a new one?
+
+We generally recommend creating a new one because it nicely separates the zorya resources from other resources. However, if you prefer to use an existing one, you can do that. The only requierement is that the Datastore API has not yet been activated.
+
+## Python Development
+
+zorya is using poetry for dependency management. Make sure it’s available in your environment by running:
+
 ```shell
-gcloud app browse
+poetry --version 
 ```
 
-**WARNING**: By default this application is public; ensure you turn on IAP, as follows:
+Open the repository and run:
 
-To sign into the app, we are using [Cloud Identity-Aware Proxy (Cloud IAP)](https://cloud.google.com/iap/). Cloud IAP works by verifying a user’s identity and determining if that user should be allowed to access the application. The setup is as simple as heading over to [GCP console](https://console.cloud.google.com/iam-admin/iap), enabling IAP on your GAE app and adding the users who should have access to it.
+```shell
+# create virtual environment and install dependencies
+poetry install
+# format
+poetry run black */**.py
+# lint
+poetry run flake8
+# test
+poetry run pytest
+```
 
-#### Authorization
+## Javascript Development
 
-For Zorya to work, its service account requires the folling roles:
+The zorya web UI is build with react.js and requires node.js and yarn. Make sure it’s available in your environment by running:
 
-* Cloud Tasks Enqueuer
-* Cloud Datastore User
-* Logs Writer
+```shell
+node --version
+npm --version
+yarn --version
+```
 
-For any project that Zorya is supposed to be managing resources for, Zorya's service account requires the following additional roles:
+Open the client folder and run:
 
-* Compute Instance Admin (v1)
-* Kubernetes Engine Cluster Admin
-* Cloud SQL Editor
+```shell
+# install dependencies
+yarn install
+# run dev server
+yarn start
+```
 
-![](docs/iam.png)
-
-The name of the service account you will need to assign permissions to is as following:`<YOUR_PROJECT_ID>@appspot.gserviceaccount.com` and will have been automatically created by Google App Engine. *NOTE:* this is done under *IAM*, selecting the account, choosing *Permissions* and then adding the roles above to it; not under *Service Accounts*.
-
-## Flow
-
-* Every hour on the hour a cron job calls `/tasks/schedule` which loop over all the policies
-* We are checking the desired state vs the previous hour desired state. If they are not the same we will apply the change.
-
-[API Documentation](http://bit.ly/zorya_api_docs)
-
-### Creating a Schedule
-
-![](docs/Zorya_schedule.png)
-
-### Creating a Policy
-
-![](docs/Zorya_policies.png)
