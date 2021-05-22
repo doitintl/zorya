@@ -17,6 +17,11 @@ const styles = (theme) => ({
       height: 'calc(100% - 64px)',
     },
   },
+  centered: {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+  },
 });
 
 class AppPageContent extends React.Component {
@@ -33,7 +38,11 @@ class AppPageContent extends React.Component {
 
     return (
       <div className={classes.root}>
-        {showLoadingSpinner ? <CircularProgress /> : children}
+        {showLoadingSpinner ? (
+          <CircularProgress classes={{ root: classes.centered }} />
+        ) : (
+          children
+        )}
         <ErrorAlert
           showError={showBackendError}
           errorTitle={backendErrorTitle}
