@@ -126,7 +126,8 @@ class Policy extends React.Component {
   getTagsError = () => {
     const { policy } = this.state;
     const tagsKeyRe = /(^[a-z][a-z0-9_-]*[a-z0-9]$)|(^@app_engine_flex$)/; // Add app App Engine identifier
-    const tagsValRe = /(^[a-z][a-z0-9_-]*[a-z0-9]$)|(^[a-z][a-z0-9_-]*:[a-z0-9_-]+$)/; // Add app App Engine identifier
+    const tagsValRe =
+      /(^[a-z][a-z0-9_-]*[a-z0-9]$)|(^[a-z][a-z0-9_-]*:[a-z0-9_-]+$)/; // Add app App Engine identifier
     let tagsError = [];
     for (let i = 0; i < policy.tags.length; i++) {
       tagsError.push([false, false]);

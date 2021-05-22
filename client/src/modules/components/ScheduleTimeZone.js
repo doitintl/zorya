@@ -25,13 +25,8 @@ function renderInput(inputProps) {
 }
 
 function renderSuggestion(params) {
-  const {
-    suggestion,
-    index,
-    itemProps,
-    highlightedIndex,
-    selectedItem,
-  } = params;
+  const { suggestion, index, itemProps, highlightedIndex, selectedItem } =
+    params;
   const isHighlighted = highlightedIndex === index;
   const isSelected = selectedItem === suggestion;
 
