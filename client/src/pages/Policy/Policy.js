@@ -12,7 +12,6 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -23,7 +22,6 @@ import forOwn from 'lodash/forOwn';
 import PolicyTags from '../../modules/components/PolicyTags';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
-import ErrorAlert from '../../modules/components/ErrorAlert';
 import PolicyService from '../../modules/api/policy';
 import ScheduleService from '../../modules/api/schedule';
 import { getDefaultPolicy } from '../../modules/utils/policy';
@@ -36,12 +34,12 @@ const styles = (theme) => ({
     marginRight: theme.spacing(2),
   },
   textField: {
-    width: 450,
+    width: 550,
     marginBottom: theme.spacing(3),
     marginRight: theme.spacing(2),
   },
   formControl: {
-    width: 450,
+    width: 550,
     marginBottom: theme.spacing(4),
   },
 });
@@ -73,6 +71,10 @@ class Policy extends React.Component {
       const { match } = this.props;
       this.setState({ isLoading: true });
       const schedules = await this.scheduleService.list();
+      if (!schedules || !schedules.length) {
+        throw new Error('Create at least one Schedule first');
+      }
+
       let policy;
       if (match.params.policy) {
         policy = await this.policyService.get(match.params.policy);
@@ -88,7 +90,11 @@ class Policy extends React.Component {
         isLoading: false,
       });
     } catch (error) {
-      this.handleBackendError('Loading Failed:', error.message);
+      this.handleBackendError(
+        'Loading Failed:',
+        error.message,
+        '/policies/browser'
+      );
     }
   }
 
@@ -171,7 +177,9 @@ class Policy extends React.Component {
           tagsError,
         });
       } else {
+        this.setState({ isLoading: true });
         await this.policyService.add(policy);
+        this.setState({ isLoading: false });
         history.push('/policies/browser');
       }
     } catch (error) {
@@ -184,20 +192,26 @@ class Policy extends React.Component {
     history.goBack();
   };
 
-  handleBackendError = (title, message) => {
+  handleBackendError = (title, message, exitPage) => {
     this.setState({
       backendErrorTitle: title,
       backendErrorMessage: message,
       showBackendError: true,
       isLoading: false,
+      exitPage,
     });
   };
 
   handleErrorClose = () => {
+    const { history } = this.props;
+    const { exitPage } = this.state;
     this.setState({
       showBackendError: false,
       isLoading: false,
     });
+    if (exitPage) {
+      history.push(exitPage);
+    }
   };
 
   render() {
@@ -209,152 +223,142 @@ class Policy extends React.Component {
       scheduleError,
       projectsError,
       tagsError,
+      isLoading,
       backendErrorTitle,
       backendErrorMessage,
       showBackendError,
     } = this.state;
 
-    if (policy) {
-      return (
-        <div className={classes.root}>
-          <AppPageActions>
-            <IconButton
-              color="primary"
-              aria-label="Back"
-              onClick={this.handleRequestCancel}
-            >
-              <ArrowBackIcon />
-            </IconButton>
+    return (
+      <div className={classes.root}>
+        <AppPageActions>
+          <IconButton
+            color="primary"
+            aria-label="Back"
+            onClick={this.handleRequestCancel}
+          >
+            <ArrowBackIcon />
+          </IconButton>
 
-            {edit ? (
-              <Typography variant="subtitle1" color="primary">
-                Edit policy {policy.name}
-              </Typography>
-            ) : (
-              <Typography variant="subtitle1" color="primary">
-                Create a policy
-              </Typography>
-            )}
-          </AppPageActions>
+          {edit ? (
+            <Typography variant="subtitle1" color="primary">
+              Edit policy {policy ? policy.name : ''}
+            </Typography>
+          ) : (
+            <Typography variant="subtitle1" color="primary">
+              Create a policy
+            </Typography>
+          )}
+        </AppPageActions>
 
-          <AppPageContent>
-            <FormGroup row={false}>
-              <TextField
-                disabled={edit}
-                id="policy-name"
-                error={nameError}
-                helperText="Required. May only contain letters, digits and underscores. It may not end with an underscore."
-                label="Policy Name (ID)"
-                className={classes.textField}
-                value={this.state.policy.name}
-                onChange={this.handleChange('name')}
-                margin="none"
-                autoFocus
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-
-              <TextField
-                id="policy-displayname"
-                helperText="Optional. Text to display instead of Name (ID)"
-                label="Policy Displayname (optional)"
-                className={classes.textField}
-                value={this.state.policy.displayname}
-                onChange={this.handleChange('displayname')}
-                margin="none"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
-
-              <FormControl className={classes.formControl}>
-                <InputLabel
-                  shrink
-                  error={scheduleError}
-                  htmlFor="schedule-input"
-                >
-                  Schedule name
-                </InputLabel>
-                <Select
-                  error={scheduleError}
-                  native
-                  value={this.state.policy.schedulename}
-                  onChange={this.handleChange('schedulename')}
-                  inputProps={{
-                    id: 'schedule-input',
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
+          {policy && (
+            <div>
+              <FormGroup row={false}>
+                <TextField
+                  disabled={edit}
+                  id="policy-name"
+                  error={nameError}
+                  helperText="Required. May only contain letters, digits and underscores. It may not end with an underscore."
+                  label="Policy Name (ID)"
+                  className={classes.textField}
+                  value={this.state.policy.name}
+                  onChange={this.handleChange('name')}
+                  margin="none"
+                  autoFocus
+                  InputLabelProps={{
+                    shrink: true,
                   }}
-                >
-                  {map(schedules, (schedule) => (
-                    <option key={schedule.name} value={schedule.name}>
-                      {schedule.displayName || schedule.name}
-                    </option>
-                  ))}
-                </Select>
-              </FormControl>
+                />
 
-              <TextField
-                id="projects-list"
-                error={projectsError}
-                helperText="Separated by comma"
-                label="Projects"
-                className={classes.textField}
-                value={policy.projects.join(',')}
-                onChange={this.handleChangeProjects}
-                margin="none"
-                InputLabelProps={{
-                  shrink: true,
-                }}
-              />
+                <TextField
+                  id="policy-displayname"
+                  helperText="Optional. Text to display instead of Name (ID)"
+                  label="Policy Displayname"
+                  className={classes.textField}
+                  value={this.state.policy.displayname}
+                  onChange={this.handleChange('displayname')}
+                  margin="none"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
 
-              <PolicyTags
-                error={tagsError}
-                tags={policy.tags}
-                onChange={this.handleChangeTags}
-              />
-            </FormGroup>
+                <FormControl className={classes.formControl}>
+                  <InputLabel
+                    shrink
+                    error={scheduleError}
+                    htmlFor="schedule-input"
+                  >
+                    Schedule name
+                  </InputLabel>
+                  <Select
+                    error={scheduleError}
+                    native
+                    value={this.state.policy.schedulename}
+                    onChange={this.handleChange('schedulename')}
+                    inputProps={{
+                      id: 'schedule-input',
+                    }}
+                  >
+                    {map(schedules, (schedule) => (
+                      <option key={schedule.name} value={schedule.name}>
+                        {schedule.displayName || schedule.name}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
 
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={this.handleSubmit}
-            >
-              Save
-            </Button>
-            <Button
-              className={classes.button}
-              variant="outlined"
-              color="primary"
-              size="small"
-              onClick={this.handleRequestCancel}
-            >
-              Cancel
-            </Button>
-            <ErrorAlert
-              showError={showBackendError}
-              errorTitle={backendErrorTitle}
-              errorMessage={backendErrorMessage}
-              onClose={this.handleErrorClose}
-            />
-          </AppPageContent>
-        </div>
-      );
-    } else {
-      return this.state.isLoading ? (
-        <AppPageContent>
-          <CircularProgress />
+                <TextField
+                  id="projects-list"
+                  error={projectsError}
+                  helperText="Separated by comma"
+                  label="Projects"
+                  className={classes.textField}
+                  value={policy.projects.join(',')}
+                  onChange={this.handleChangeProjects}
+                  margin="none"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+
+                <PolicyTags
+                  error={tagsError}
+                  tags={policy.tags}
+                  onChange={this.handleChangeTags}
+                />
+              </FormGroup>
+
+              <Button
+                className={classes.button}
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={this.handleSubmit}
+              >
+                Save
+              </Button>
+              <Button
+                className={classes.button}
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={this.handleRequestCancel}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
         </AppPageContent>
-      ) : (
-        <ErrorAlert
-          showError={showBackendError}
-          errorTitle={backendErrorTitle}
-          errorMessage={backendErrorMessage}
-          onClose={this.handleErrorClose}
-        />
-      );
-    }
+      </div>
+    );
   }
 }
 

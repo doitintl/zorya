@@ -22,7 +22,6 @@ import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -32,7 +31,6 @@ import indexOf from 'lodash/indexOf';
 import PolicyService from '../../modules/api/policy';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
-import ErrorAlert from '../../modules/components/ErrorAlert';
 
 const styles = (theme) => ({
   root: {
@@ -154,6 +152,7 @@ class PolicyList extends React.Component {
       const { selected } = this.state;
       if (selected.length > 0) {
         const promises = [];
+        this.setState({ isLoading: true });
         selected.forEach((policy) => {
           promises.push(
             this.policyService.delete(policy).catch((error) => error)
@@ -169,6 +168,7 @@ class PolicyList extends React.Component {
         this.setState(
           {
             selected: [],
+            isLoading: false,
           },
           () => {
             this.refreshList();
@@ -255,8 +255,13 @@ class PolicyList extends React.Component {
             Delete
           </Button>
         </AppPageActions>
-
-        <AppPageContent>
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -285,57 +290,40 @@ class PolicyList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan="2">
-                    <CircularProgress />
-                  </TableCell>
-                </TableRow>
-              ) : (
-                map(policies, (policy) => {
-                  const isSelected = indexOf(selected, policy.name) !== -1;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isSelected}
-                      tabIndex={-1}
-                      key={policy.name}
-                      selected={isSelected}
-                    >
-                      <TableCell
-                        padding="none"
-                        className={classes.checkboxCell}
-                      >
-                        <Checkbox
-                          checked={isSelected}
-                          onClick={(event) => this.handleClick(event, policy)}
-                        />
-                      </TableCell>
+              {map(policies, (policy) => {
+                const isSelected = indexOf(selected, policy.name) !== -1;
+                return (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    tabIndex={-1}
+                    key={policy.name}
+                    selected={isSelected}
+                  >
+                    <TableCell padding="none" className={classes.checkboxCell}>
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={(event) => this.handleClick(event, policy)}
+                      />
+                    </TableCell>
 
-                      <TableCell>
-                        <span
-                          onClick={this.handleClickNavigate(
-                            `/policies/browser/${policy.name}`
-                          )}
-                          className={classes.link}
-                        >
-                          {policy.displayName || policy.name}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
+                    <TableCell>
+                      <span
+                        onClick={this.handleClickNavigate(
+                          `/policies/browser/${policy.name}`
+                        )}
+                        className={classes.link}
+                      >
+                        {policy.displayName || policy.name}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </AppPageContent>
-        <ErrorAlert
-          showError={showBackendError}
-          errorTitle={backendErrorTitle}
-          errorMessage={backendErrorMessage}
-          onClose={this.handleErrorClose}
-        />
       </div>
     );
   }

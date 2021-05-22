@@ -21,7 +21,6 @@ import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -31,7 +30,6 @@ import indexOf from 'lodash/indexOf';
 import ScheduleService from '../../modules/api/schedule';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
-import ErrorAlert from '../../modules/components/ErrorAlert';
 
 const styles = (theme) => ({
   root: {
@@ -153,6 +151,7 @@ class ScheduleList extends React.Component {
       const { selected } = this.state;
       if (selected.length > 0) {
         const promises = [];
+        this.setState({ isLoading: true });
         selected.forEach((schedule) => {
           promises.push(
             this.scheduleService.delete(schedule).catch((error) => error)
@@ -168,6 +167,7 @@ class ScheduleList extends React.Component {
         this.setState(
           {
             selected: [],
+            isLoading: false,
           },
           () => {
             this.refreshList();
@@ -255,7 +255,13 @@ class ScheduleList extends React.Component {
           </Button>
         </AppPageActions>
 
-        <AppPageContent>
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -284,56 +290,39 @@ class ScheduleList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan="2">
-                    <CircularProgress />
-                  </TableCell>
-                </TableRow>
-              ) : (
-                map(schedules, (schedule) => {
-                  const isSelected = indexOf(selected, schedule.name) !== -1;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isSelected}
-                      tabIndex={-1}
-                      key={schedule.name}
-                      selected={isSelected}
-                    >
-                      <TableCell
-                        padding="none"
-                        className={classes.checkboxCell}
-                      >
-                        <Checkbox
-                          checked={isSelected}
-                          onClick={(event) => this.handleClick(event, schedule)}
-                        />
-                      </TableCell>
+              {map(schedules, (schedule) => {
+                const isSelected = indexOf(selected, schedule.name) !== -1;
+                return (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    tabIndex={-1}
+                    key={schedule.name}
+                    selected={isSelected}
+                  >
+                    <TableCell padding="none" className={classes.checkboxCell}>
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={(event) => this.handleClick(event, schedule)}
+                      />
+                    </TableCell>
 
-                      <TableCell>
-                        <span
-                          onClick={this.handleClickNavigate(
-                            `/schedules/browser/${schedule.name}`
-                          )}
-                          className={classes.link}
-                        >
-                          {schedule.displayName || schedule.name}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
+                    <TableCell>
+                      <span
+                        onClick={this.handleClickNavigate(
+                          `/schedules/browser/${schedule.name}`
+                        )}
+                        className={classes.link}
+                      >
+                        {schedule.displayName || schedule.name}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
-          <ErrorAlert
-            showError={showBackendError}
-            errorTitle={backendErrorTitle}
-            errorMessage={backendErrorMessage}
-            onClose={this.handleErrorClose}
-          />
         </AppPageContent>
       </div>
     );

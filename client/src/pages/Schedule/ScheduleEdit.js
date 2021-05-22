@@ -7,14 +7,12 @@ import Button from '@material-ui/core/Button';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import IconButton from '@material-ui/core/IconButton';
 import TextField from '@material-ui/core/TextField';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Project
 import ScheduleTimeTable from '../../modules/components/ScheduleTimeTable';
 import ScheduleTimeZone from '../../modules/components/ScheduleTimeZone';
 import AppPageContent from '../../modules/components/AppPageContent';
 import AppPageActions from '../../modules/components/AppPageActions';
-import ErrorAlert from '../../modules/components/ErrorAlert';
 import ScheduleService from '../../modules/api/schedule';
 
 const styles = (theme) => ({
@@ -39,6 +37,7 @@ class ScheduleEdit extends React.Component {
       showBackendError: false,
       backendErrorTitle: null,
       backendErrorMessage: null,
+      exitPage: null,
     };
 
     this.scheduleService = new ScheduleService();
@@ -56,7 +55,11 @@ class ScheduleEdit extends React.Component {
         isLoading: false,
       });
     } catch (error) {
-      this.handleBackendError('Loading Failed:', error.message);
+      this.handleBackendError(
+        'Loading Failed:',
+        error.message,
+        '/schedules/browser'
+      );
     }
   }
 
@@ -82,7 +85,9 @@ class ScheduleEdit extends React.Component {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
+      this.setState({ isLoading: true });
       await this.scheduleService.add(schedule);
+      this.setState({ isLoading: false });
       history.push('/schedules/browser');
     } catch (error) {
       this.handleBackendError('Saving failed:', error.message);
@@ -94,20 +99,26 @@ class ScheduleEdit extends React.Component {
     history.goBack();
   };
 
-  handleBackendError = (title, message) => {
+  handleBackendError = (title, message, exitPage) => {
     this.setState({
       backendErrorTitle: title,
       backendErrorMessage: message,
       showBackendError: true,
       isLoading: false,
+      exitPage,
     });
   };
 
   handleErrorClose = () => {
+    const { history } = this.props;
+    const { exitPage } = this.state;
     this.setState({
       showBackendError: false,
       isLoading: false,
     });
+    if (exitPage) {
+      history.push(exitPage);
+    }
   };
 
   render() {
@@ -135,64 +146,65 @@ class ScheduleEdit extends React.Component {
             Edit schedule {schedule ? schedule.name : ''}
           </Typography>
         </AppPageActions>
-        {isLoading && <CircularProgress />}
-        {schedule && (
-          <AppPageContent>
-            <TextField
-              disabled
-              id="schedule-name"
-              className={classes.textField}
-              label="Schedule Name (ID)"
-              value={schedule.name}
-              margin="none"
-            />
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
+          {schedule && (
+            <div>
+              <TextField
+                disabled
+                id="schedule-name"
+                className={classes.textField}
+                label="Schedule Name (ID)"
+                value={schedule.name}
+                margin="none"
+              />
 
-            <TextField
-              id="schedule-displayname"
-              className={classes.textField}
-              value={schedule.displayname}
-              label="Schedule Display-Name"
-              onChange={this.handleChange('displayname')}
-              margin="none"
-            />
+              <TextField
+                id="schedule-displayname"
+                className={classes.textField}
+                value={schedule.displayname}
+                label="Schedule Display-Name"
+                onChange={this.handleChange('displayname')}
+                margin="none"
+              />
 
-            <ScheduleTimeZone
-              selected={schedule.timezone}
-              timezones={timezones}
-              onSelect={this.handleChangeTimezone}
-            />
+              <ScheduleTimeZone
+                selected={schedule.timezone}
+                timezones={timezones}
+                onSelect={this.handleChangeTimezone}
+              />
 
-            <ScheduleTimeTable
-              schedule={schedule}
-              onScheduleChange={this.handleScheduleChange}
-            />
+              <ScheduleTimeTable
+                schedule={schedule}
+                onScheduleChange={this.handleScheduleChange}
+              />
 
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={this.handleSave}
-            >
-              Save
-            </Button>
-            <Button
-              className={classes.button}
-              variant="outlined"
-              color="primary"
-              size="small"
-              onClick={this.handleRequestCancel}
-            >
-              Cancel
-            </Button>
-          </AppPageContent>
-        )}
-        <ErrorAlert
-          showError={showBackendError}
-          errorTitle={backendErrorTitle}
-          errorMessage={backendErrorMessage}
-          onClose={this.handleErrorClose}
-        />
+              <Button
+                className={classes.button}
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={this.handleSave}
+              >
+                Save
+              </Button>
+              <Button
+                className={classes.button}
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={this.handleRequestCancel}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </AppPageContent>
       </div>
     );
   }
