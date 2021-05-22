@@ -33,6 +33,11 @@ class ScheduleEdit extends React.Component {
     super(props, context);
     this.state = {
       schedule: null,
+      isLoading: false,
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
+      exitPage: null,
     };
 
     this.scheduleService = new ScheduleService();
@@ -40,15 +45,21 @@ class ScheduleEdit extends React.Component {
 
   async componentDidMount() {
     const { match } = this.props;
+    this.setState({ isLoading: true });
     try {
       const schedule = await this.scheduleService.get(match.params.schedule);
       const timezones = await this.scheduleService.timezones();
       this.setState({
         schedule,
         timezones: timezones.Timezones,
+        isLoading: false,
       });
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError(
+        'Loading Failed:',
+        error.message,
+        '/schedules/browser'
+      );
     }
   }
 
@@ -74,10 +85,12 @@ class ScheduleEdit extends React.Component {
     try {
       const { history } = this.props;
       const { schedule } = this.state;
+      this.setState({ isLoading: true });
       await this.scheduleService.add(schedule);
+      this.setState({ isLoading: false });
       history.push('/schedules/browser');
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Saving failed:', error.message);
     }
   };
 
@@ -86,80 +99,114 @@ class ScheduleEdit extends React.Component {
     history.goBack();
   };
 
+  handleBackendError = (title, message, exitPage) => {
+    this.setState({
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
+      exitPage,
+    });
+  };
+
+  handleErrorClose = () => {
+    const { history } = this.props;
+    const { exitPage } = this.state;
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
+    if (exitPage) {
+      history.push(exitPage);
+    }
+  };
+
   render() {
     const { classes } = this.props;
-    const { schedule, timezones } = this.state;
+    const {
+      schedule,
+      timezones,
+      isLoading,
+      showBackendError,
+      backendErrorTitle,
+      backendErrorMessage,
+    } = this.state;
 
-    if (schedule) {
-      return (
-        <div className={classes.root}>
-          <AppPageActions>
-            <IconButton
-              color="primary"
-              aria-label="Back"
-              onClick={this.handleRequestCancel}
-            >
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography variant="subtitle1" color="primary">
-              Edit schedule {schedule.name}
-            </Typography>
-          </AppPageActions>
+    return (
+      <div className={classes.root}>
+        <AppPageActions>
+          <IconButton
+            color="primary"
+            aria-label="Back"
+            onClick={this.handleRequestCancel}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="subtitle1" color="primary">
+            Edit schedule {schedule ? schedule.name : ''}
+          </Typography>
+        </AppPageActions>
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
+          {schedule && (
+            <div>
+              <TextField
+                disabled
+                id="schedule-name"
+                className={classes.textField}
+                label="Schedule Name (ID)"
+                value={schedule.name}
+                margin="none"
+              />
 
-          <AppPageContent>
-            <TextField
-              disabled
-              id="schedule-name"
-              className={classes.textField}
-              label="Schedule Name (ID)"
-              value={schedule.name}
-              margin="none"
-            />
+              <TextField
+                id="schedule-displayname"
+                className={classes.textField}
+                value={schedule.displayname}
+                label="Schedule Display-Name"
+                onChange={this.handleChange('displayname')}
+                margin="none"
+              />
 
-            <TextField
-              id="schedule-displayname"
-              className={classes.textField}
-              value={schedule.displayname}
-              label="Schedule Display-Name"
-              onChange={this.handleChange('displayname')}
-              margin="none"
-            />
+              <ScheduleTimeZone
+                selected={schedule.timezone}
+                timezones={timezones}
+                onSelect={this.handleChangeTimezone}
+              />
 
-            <ScheduleTimeZone
-              selected={schedule.timezone}
-              timezones={timezones}
-              onSelect={this.handleChangeTimezone}
-            />
+              <ScheduleTimeTable
+                schedule={schedule}
+                onScheduleChange={this.handleScheduleChange}
+              />
 
-            <ScheduleTimeTable
-              schedule={schedule}
-              onScheduleChange={this.handleScheduleChange}
-            />
-
-            <Button
-              className={classes.button}
-              variant="contained"
-              color="primary"
-              size="small"
-              onClick={this.handleSave}
-            >
-              Save
-            </Button>
-            <Button
-              className={classes.button}
-              variant="outlined"
-              color="primary"
-              size="small"
-              onClick={this.handleRequestCancel}
-            >
-              Cancel
-            </Button>
-          </AppPageContent>
-        </div>
-      );
-    } else {
-      return <div />;
-    }
+              <Button
+                className={classes.button}
+                variant="contained"
+                color="primary"
+                size="small"
+                onClick={this.handleSave}
+              >
+                Save
+              </Button>
+              <Button
+                className={classes.button}
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={this.handleRequestCancel}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </AppPageContent>
+      </div>
+    );
   }
 }
 

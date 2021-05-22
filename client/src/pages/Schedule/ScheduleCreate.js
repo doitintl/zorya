@@ -37,6 +37,11 @@ class ScheduleCreate extends React.Component {
       schedule: getDefaultSchedule(),
       nameError: false,
       timezones: [],
+      isLoading: false,
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
+      exitPage: null,
     };
 
     this.scheduleService = new ScheduleService();
@@ -44,12 +49,18 @@ class ScheduleCreate extends React.Component {
 
   async componentDidMount() {
     try {
+      this.setState({ isLoading: true });
       const response = await this.scheduleService.timezones();
       this.setState({
         timezones: response.Timezones,
+        isLoading: false,
       });
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError(
+        'Loading timezones failed:',
+        error.message,
+        '/schedules/browser'
+      );
     }
   }
 
@@ -82,10 +93,12 @@ class ScheduleCreate extends React.Component {
         });
         return;
       }
+      this.setState({ isLoading: true });
       await this.scheduleService.add(schedule);
+      this.setState({ isLoading: false });
       history.push('/schedules/browser');
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Saving failed:', error.message);
     }
   };
 
@@ -94,9 +107,39 @@ class ScheduleCreate extends React.Component {
     history.goBack();
   };
 
+  handleBackendError = (title, message, exitPage) => {
+    this.setState({
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
+      exitPage,
+    });
+  };
+
+  handleErrorClose = () => {
+    const { history } = this.props;
+    const { exitPage } = this.state;
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
+    if (exitPage) {
+      history.push(exitPage);
+    }
+  };
+
   render() {
     const { classes } = this.props;
-    const { schedule, timezones, nameError } = this.state;
+    const {
+      schedule,
+      timezones,
+      nameError,
+      isLoading,
+      showBackendError,
+      backendErrorTitle,
+      backendErrorMessage,
+    } = this.state;
 
     return (
       <div className={classes.root}>
@@ -113,7 +156,13 @@ class ScheduleCreate extends React.Component {
           </Typography>
         </AppPageActions>
 
-        <AppPageContent>
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
           <TextField
             id="schedule-name"
             error={nameError}

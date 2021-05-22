@@ -147,10 +147,10 @@ def del_schedule():
     with client.context():
         res = SchedulesModel.query(SchedulesModel.Name == name).get()
         if not res:
-            return "not found", 404
+            return "Schedule '{}' not found.".format(name), 404
         policy = PolicyModel.query(PolicyModel.Schedule == name).get()
         if policy:
-            return "Forbidden policy {} is using the schedule".format(policy.Name), 403
+            return "Forbidden. Schedule '{}' is in use by policy '{}'.".format(name, policy.Name), 403
         res.key.delete()
     return "ok", 200
 
@@ -171,7 +171,7 @@ def add_policy():
     with client.context():
         res = SchedulesModel.query(SchedulesModel.Name == schedule_name).get()
         if not res:
-            return "not found", 404
+            return "Schedule '{}' not found.".format(schedule_name), 404
 
         policy_model = PolicyModel()
         policy_model.Name = name
@@ -197,7 +197,7 @@ def get_policy():
         res = PolicyModel.query(PolicyModel.Name == name).get()
         logging.debug(res)
         if not res:
-            return "not found", 404
+            return "Policy '{}' not found.".format(name), 404
         policy.update({"name": res.Name})
         policy.update({"displayname": res.DisplayName or res.Name})
         policy.update({"schedulename": res.Schedule})
@@ -241,7 +241,7 @@ def del_policy():
     with client.context():
         res = PolicyModel.query(PolicyModel.Name == name).get()
         if not res:
-            return "not found", 404
+            return "Policy '{}' not found.".format(name), 404
         res.key.delete()
     return "ok", 200
 

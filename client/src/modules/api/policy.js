@@ -7,7 +7,8 @@ class PolicyService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response.json();
@@ -21,7 +22,8 @@ class PolicyService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response.json();
@@ -35,7 +37,8 @@ class PolicyService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response;
@@ -53,7 +56,8 @@ class PolicyService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response;

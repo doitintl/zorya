@@ -22,7 +22,6 @@ import AddIcon from '@material-ui/icons/Add';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Lodash
 import map from 'lodash/map';
@@ -62,6 +61,9 @@ class PolicyList extends React.Component {
       selected: [],
       order: 'asc',
       isLoading: false,
+      showBackendError: false,
+      backendErrorTitle: null,
+      backendErrorMessage: null,
     };
 
     this.policyService = new PolicyService();
@@ -105,11 +107,15 @@ class PolicyList extends React.Component {
 
   refreshList = async () => {
     this.setState({ isLoading: true });
-    const policies = await this.policyService.list();
-    this.setState({
-      policies,
-      isLoading: false,
-    });
+    try {
+      const policies = await this.policyService.list();
+      this.setState({
+        policies,
+        isLoading: false,
+      });
+    } catch (error) {
+      this.handleBackendError('Loading Failed:', error.message);
+    }
   };
 
   handleClick = (event, policy) => {
@@ -146,34 +152,61 @@ class PolicyList extends React.Component {
       const { selected } = this.state;
       if (selected.length > 0) {
         const promises = [];
+        this.setState({ isLoading: true });
         selected.forEach((policy) => {
-          promises.push(this.policyService.delete(policy));
+          promises.push(
+            this.policyService.delete(policy).catch((error) => error)
+          );
         });
         const responses = await Promise.all(promises);
-        console.log(responses);
-        responses.forEach(async (response) => {
-          if (!response.ok) {
-            const errorMsg = await response.text();
-            console.log(errorMsg);
-          }
-        });
+        const errorMessages = responses
+          .filter((response) => response instanceof Error)
+          .map((error) => error.message);
+        if (errorMessages.length) {
+          throw Error(errorMessages.join('; '));
+        }
         this.setState(
           {
             selected: [],
+            isLoading: false,
           },
           () => {
             this.refreshList();
           }
         );
       }
-    } catch (ex) {
-      console.error(ex);
+    } catch (error) {
+      this.handleBackendError('Deletion failed:', error.message);
     }
+  };
+
+  handleBackendError = (title, message) => {
+    this.setState({
+      backendErrorTitle: title,
+      backendErrorMessage: message,
+      showBackendError: true,
+      isLoading: false,
+    });
+  };
+
+  handleErrorClose = () => {
+    this.setState({
+      showBackendError: false,
+      isLoading: false,
+    });
   };
 
   render() {
     const { classes } = this.props;
-    const { policies, selected, order } = this.state;
+    const {
+      policies,
+      selected,
+      order,
+      isLoading,
+      backendErrorTitle,
+      backendErrorMessage,
+      showBackendError,
+    } = this.state;
 
     const rowCount = policies.length;
     const numSelected = selected.length;
@@ -222,8 +255,13 @@ class PolicyList extends React.Component {
             Delete
           </Button>
         </AppPageActions>
-
-        <AppPageContent>
+        <AppPageContent
+          showBackendError={showBackendError}
+          backendErrorTitle={backendErrorTitle}
+          backendErrorMessage={backendErrorMessage}
+          onBackendErrorClose={this.handleErrorClose}
+          showLoadingSpinner={isLoading}
+        >
           <Table className={classes.table}>
             <TableHead>
               <TableRow>
@@ -252,48 +290,37 @@ class PolicyList extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.isLoading ? (
-                <TableRow>
-                  <TableCell colSpan="2">
-                    <CircularProgress />
-                  </TableCell>
-                </TableRow>
-              ) : (
-                map(policies, (policy) => {
-                  const isSelected = indexOf(selected, policy.name) !== -1;
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      aria-checked={isSelected}
-                      tabIndex={-1}
-                      key={policy.name}
-                      selected={isSelected}
-                    >
-                      <TableCell
-                        padding="none"
-                        className={classes.checkboxCell}
-                      >
-                        <Checkbox
-                          checked={isSelected}
-                          onClick={(event) => this.handleClick(event, policy)}
-                        />
-                      </TableCell>
+              {map(policies, (policy) => {
+                const isSelected = indexOf(selected, policy.name) !== -1;
+                return (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    tabIndex={-1}
+                    key={policy.name}
+                    selected={isSelected}
+                  >
+                    <TableCell padding="none" className={classes.checkboxCell}>
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={(event) => this.handleClick(event, policy)}
+                      />
+                    </TableCell>
 
-                      <TableCell>
-                        <span
-                          onClick={this.handleClickNavigate(
-                            `/policies/browser/${policy.name}`
-                          )}
-                          className={classes.link}
-                        >
-                          {policy.displayName || policy.name}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
+                    <TableCell>
+                      <span
+                        onClick={this.handleClickNavigate(
+                          `/policies/browser/${policy.name}`
+                        )}
+                        className={classes.link}
+                      >
+                        {policy.displayName || policy.name}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </AppPageContent>

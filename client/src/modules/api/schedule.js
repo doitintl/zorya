@@ -7,7 +7,8 @@ class ScheduleService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response.json();
@@ -21,7 +22,8 @@ class ScheduleService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response.json();
@@ -33,10 +35,10 @@ class ScheduleService {
       credentials: 'same-origin',
     });
 
-    // if (!response.ok) {
-    //   console.error(response);
-    //   throw Error(response.statusText);
-    // }
+    if (!response.ok) {
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
+    }
 
     return response;
   };
@@ -53,7 +55,8 @@ class ScheduleService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response;
@@ -67,7 +70,8 @@ class ScheduleService {
 
     if (!response.ok) {
       console.error(response);
-      throw Error(response.statusText);
+      const responseBody = await response.text();
+      throw Error(responseBody || response.statusText);
     }
 
     return response.json();
