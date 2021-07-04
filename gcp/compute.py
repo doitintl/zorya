@@ -29,7 +29,7 @@ class Compute(object):
         Returns:
 
         """
-        tag_filter = "labels." + tagkey + "=" + tagvalue
+        tag_filter = "labels." + tagkey + "=" + tagvalue + " NOT labels.goog-gke-node=*"
         logging.debug("Filter %s", filter)
         for zone in gcp.get_zones():
             try:
