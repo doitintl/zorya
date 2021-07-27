@@ -37,6 +37,9 @@ class Gke(object):
                             logging.info("extract number of nodes")
                             logging.info(cluster["location"])
                             logging.info(nodePool["instanceGroupUrls"])
+                            ndb_identifier=str(self.project + "_" + cluster["name"] + "_" + nodePool["name"])
+                            logging.info("ndb_identifier")
+                            logging.info(ndb_identifier)
                             # Sizing up
                             if int(to_status) == 1:
                                 logging.info(
@@ -50,7 +53,7 @@ class Gke(object):
                                 )
                                 # Query Datastore to get the number of nodes of the specific node pool
                                 res = GkeNodePoolModel.query(
-                                    GkeNodePoolModel.Name == nodePool["name"]
+                                    GkeNodePoolModel.Name == ndb_identifier
                                 ).get()
                                 logging.info(res)
                                 # If the node pool is not on Datastore, pass-by
@@ -73,7 +76,7 @@ class Gke(object):
                                 )
                                 # Valorizing variables to put on Datastore
                                 node_pool_model = GkeNodePoolModel()
-                                node_pool_model.Name = nodePool["name"]
+                                node_pool_model.Name = ndb_identifier
                                 no_of_nodes=0
                                 # Check one instance group at a time for a specific node pool, to count the total number of nodes
                                 for instanceGroup in nodePool["instanceGroupUrls"]:
@@ -106,7 +109,7 @@ class Gke(object):
                                 # Valorizing variables and putting them on Datastore
                                 node_pool_model.NumberOfNodes = no_of_nodes
                                 node_pool_model.key = ndb.Key(
-                                    "GkeNodePoolModel", nodePool["name"]
+                                    "GkeNodePoolModel", ndb_identifier
                                 )
                                 node_pool_model.put()
                                 # Sizing down node pool, in this case the number of nodes we pass is zero
