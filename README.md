@@ -73,6 +73,8 @@ For any project that Zorya is supposed to be managing resources for, Zorya's ser
 
 The name of the service account you will need to assign permissions to is as following:`<YOUR_PROJECT_ID>@appspot.gserviceaccount.com` and will have been automatically created by Google App Engine. *NOTE:* this is done under *IAM*, selecting the account, choosing *Permissions* and then adding the roles above to it; not under *Service Accounts*.
 
+If you would like to have a more least privileage permission please see the following [issue](https://github.com/doitintl/zorya/issues/96#issuecomment-723955407)
+
 ## Flow
 
 * Every hour on the hour a cron job calls `/tasks/schedule` which loop over all the policies
